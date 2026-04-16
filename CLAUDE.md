@@ -490,7 +490,7 @@ data: create seed dataset of 50 code snippets
 
 #### Week 1 (Apr 16–19): SM-2 + Project Setup
 
-- [ ] **Day 1 — Thu, Apr 16:** Initialize the monorepo. Create `apps/api/` with `pyproject.toml`, install FastAPI, pytest, numpy, pydantic, httpx, uvicorn. Create `apps/api/app/algorithms/` directory. Create `apps/api/tests/` directory. Initialize git repo, create GitHub repo, set up `main` and `dev` branches. Install agent skills: `npx skills add vercel-labs/agent-skills --skill frontend-design -a claude-code`. Create branch `sprint-1/feat-sm2-algorithm`. Commit: `chore: initialize project structure and install agent skills`
+- [x] **Day 1 — Thu, Apr 16:** Initialize the monorepo. Create `apps/api/` with `pyproject.toml`, install FastAPI, pytest, numpy, pydantic, httpx, uvicorn. Create `apps/api/app/algorithms/` directory. Create `apps/api/tests/` directory. Initialize git repo, create GitHub repo, set up `main` and `dev` branches. Install agent skills: `npx skills add vercel-labs/agent-skills --skill frontend-design -a claude-code`. Create branch `sprint-1/feat-sm2-algorithm`. Commit: `chore: initialize project structure and install agent skills`
 
 - [ ] **Day 2 — Fri, Apr 17:** Implement `sm2.py` — the `sm2_schedule()` function. Input: quality (0-5), repetitions, ease_factor, interval. Output: new_interval, new_repetitions, new_ease_factor. Follow the exact SM-2 formula from Wozniak 1990. Commit: `feat: implement SM-2 spaced repetition algorithm`
 
@@ -720,7 +720,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 ## Status
 
 **Current Phase:** Phase 1 — Algorithm Core
-**Current Day:** Day 1 (starts Thu, Apr 16, 2026)
-**Last Updated:** Wed, Apr 15, 2026
-**Total Progress:** 0/68 tasks completed
+**Current Day:** Day 2 (Fri, Apr 17, 2026)
+**Last Updated:** Thu, Apr 16, 2026
+**Total Progress:** 1/68 tasks completed
 **Next milestone:** Proposal Defense (~early May 2026)
