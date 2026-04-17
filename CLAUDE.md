@@ -492,9 +492,9 @@ data: create seed dataset of 50 code snippets
 
 - [x] **Day 1 — Thu, Apr 16:** Initialize the monorepo. Create `apps/api/` with `pyproject.toml`, install FastAPI, pytest, numpy, pydantic, httpx, uvicorn. Create `apps/api/app/algorithms/` directory. Create `apps/api/tests/` directory. Initialize git repo, create GitHub repo, set up `main` and `dev` branches. Install agent skills: `npx skills add vercel-labs/agent-skills --skill frontend-design -a claude-code`. Create branch `sprint-1/feat-sm2-algorithm`. Commit: `chore: initialize project structure and install agent skills`
 
-- [ ] **Day 2 — Fri, Apr 17:** Implement `sm2.py` — the `sm2_schedule()` function. Input: quality (0-5), repetitions, ease_factor, interval. Output: new_interval, new_repetitions, new_ease_factor. Follow the exact SM-2 formula from Wozniak 1990. Commit: `feat: implement SM-2 spaced repetition algorithm`
+- [x] **Day 2 — Fri, Apr 17:** Implement `sm2.py` — the `sm2_schedule()` function. Input: quality (0-5), repetitions, ease_factor, interval. Output: new_interval, new_repetitions, new_ease_factor. Follow the exact SM-2 formula from Wozniak 1990. Commit: `feat: implement SM-2 spaced repetition algorithm`
 
-- [ ] **Day 3 — Sat, Apr 18:** Write `test_sm2.py` — comprehensive tests: (1) First review rated Easy → interval becomes 1, (2) Second review → interval becomes 6, (3) Third review → interval = 6 × ease_factor, (4) Rating "Forgot" resets interval to 1, (5) Ease factor never below 1.3, (6) Simulate 30 days of reviews. Commit: `test: add SM-2 scheduling tests with convergence verification`
+- [x] **Day 3 — Sat, Apr 18:** Write `test_sm2.py` — comprehensive tests: (1) First review rated Easy → interval becomes 1, (2) Second review → interval becomes 6, (3) Third review → interval = 6 × ease_factor, (4) Rating "Forgot" resets interval to 1, (5) Ease factor never below 1.3, (6) Simulate 30 days of reviews. Commit: `test: add SM-2 scheduling tests with convergence verification`
 
 #### Week 2 (Apr 20–25): TF-IDF + Similarity + Seed Data
 
@@ -720,7 +720,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 ## Status
 
 **Current Phase:** Phase 1 — Algorithm Core
-**Current Day:** Day 2 (Fri, Apr 17, 2026)
-**Last Updated:** Thu, Apr 16, 2026
-**Total Progress:** 1/68 tasks completed
+**Current Day:** Day 4 (Mon, Apr 20, 2026)
+**Last Updated:** Sat, Apr 18, 2026
+**Total Progress:** 3/68 tasks completed
 **Next milestone:** Proposal Defense (~early May 2026)
