@@ -1,0 +1,402 @@
+[
+  {
+    "id": "snip-001",
+    "title": "useLocalStorage hook",
+    "code": "import { useState, useEffect } from 'react';\n\nfunction useLocalStorage<T>(key: string, initialValue: T) {\n  const [storedValue, setStoredValue] = useState<T>(() => {\n    try {\n      const item = window.localStorage.getItem(key);\n      return item ? JSON.parse(item) : initialValue;\n    } catch {\n      return initialValue;\n    }\n  });\n\n  const setValue = (value: T | ((val: T) => T)) => {\n    try {\n      const valueToStore = value instanceof Function ? value(storedValue) : value;\n      setStoredValue(valueToStore);\n      window.localStorage.setItem(key, JSON.stringify(valueToStore));\n    } catch (error) {\n      console.error(error);\n    }\n  };\n\n  return [storedValue, setValue] as const;\n}",
+    "description": "Generic React hook that syncs state to localStorage. Handles SSR-safe initialization and JSON serialization. Returns a tuple just like useState.",
+    "language": "typescript",
+    "tags": ["react", "hooks", "localStorage", "state"]
+  },
+  {
+    "id": "snip-002",
+    "title": "useDebounce hook",
+    "code": "import { useState, useEffect } from 'react';\n\nfunction useDebounce<T>(value: T, delay: number): T {\n  const [debouncedValue, setDebouncedValue] = useState<T>(value);\n\n  useEffect(() => {\n    const timer = setTimeout(() => {\n      setDebouncedValue(value);\n    }, delay);\n\n    return () => clearTimeout(timer);\n  }, [value, delay]);\n\n  return debouncedValue;\n}",
+    "description": "Delays updating a value until after a specified wait time. Useful for search inputs to avoid firing API calls on every keystroke.",
+    "language": "typescript",
+    "tags": ["react", "hooks", "debounce", "performance"]
+  },
+  {
+    "id": "snip-003",
+    "title": "useIntersectionObserver hook",
+    "code": "import { useEffect, useRef, useState } from 'react';\n\nfunction useIntersectionObserver(\n  options?: IntersectionObserverInit\n): [React.RefObject<HTMLDivElement>, boolean] {\n  const ref = useRef<HTMLDivElement>(null);\n  const [isIntersecting, setIsIntersecting] = useState(false);\n\n  useEffect(() => {\n    const observer = new IntersectionObserver(\n      ([entry]) => setIsIntersecting(entry.isIntersecting),\n      options\n    );\n    if (ref.current) observer.observe(ref.current);\n    return () => observer.disconnect();\n  }, [options]);\n\n  return [ref, isIntersecting];\n}",
+    "description": "Tracks whether a DOM element is visible in the viewport. Use for lazy loading images or triggering animations on scroll.",
+    "language": "typescript",
+    "tags": ["react", "hooks", "intersection-observer", "lazy-loading"]
+  },
+  {
+    "id": "snip-004",
+    "title": "TypeScript discriminated union",
+    "code": "type LoadingState = { status: 'loading' };\ntype SuccessState<T> = { status: 'success'; data: T };\ntype ErrorState = { status: 'error'; error: string };\n\ntype AsyncState<T> = LoadingState | SuccessState<T> | ErrorState;\n\n// Usage — TypeScript narrows the type in each branch\nfunction render<T>(state: AsyncState<T>) {\n  switch (state.status) {\n    case 'loading': return <Spinner />;\n    case 'success': return <Data value={state.data} />;\n    case 'error': return <Error msg={state.error} />;\n  }\n}",
+    "description": "Model async states (loading / success / error) as a discriminated union. TypeScript automatically narrows the type in each switch branch — no casting needed.",
+    "language": "typescript",
+    "tags": ["typescript", "discriminated-union", "type-safety", "async"]
+  },
+  {
+    "id": "snip-005",
+    "title": "TypeScript satisfies operator",
+    "code": "const palette = {\n  red: [255, 0, 0],\n  green: '#00ff00',\n  blue: [0, 0, 255],\n} satisfies Record<string, string | number[]>;\n\n// TypeScript keeps the specific types (not widened)\nconst redArray = palette.red;   // number[] — not string | number[]\nconst greenStr = palette.green; // string  — not string | number[]",
+    "description": "The satisfies operator validates that a value matches a type WITHOUT widening the inferred type. You get both type checking AND narrowed autocomplete.",
+    "language": "typescript",
+    "tags": ["typescript", "satisfies", "type-inference"]
+  },
+  {
+    "id": "snip-006",
+    "title": "TypeScript mapped type — make all fields optional deeply",
+    "code": "type DeepPartial<T> = T extends object\n  ? { [K in keyof T]?: DeepPartial<T[K]> }\n  : T;\n\n// Example\ntype Config = { db: { host: string; port: number }; debug: boolean };\ntype PartialConfig = DeepPartial<Config>;\n// { db?: { host?: string; port?: number }; debug?: boolean }",
+    "description": "Recursively makes every field in a nested type optional. Useful for update payloads or config merging where you only patch changed fields.",
+    "language": "typescript",
+    "tags": ["typescript", "mapped-types", "generics", "deep-partial"]
+  },
+  {
+    "id": "snip-007",
+    "title": "Next.js server action with Zod validation",
+    "code": "'use server';\nimport { z } from 'zod';\n\nconst schema = z.object({\n  title: z.string().min(1).max(100),\n  code: z.string().min(1),\n});\n\nexport async function saveSnippet(formData: FormData) {\n  const raw = Object.fromEntries(formData);\n  const parsed = schema.safeParse(raw);\n\n  if (!parsed.success) {\n    return { error: parsed.error.flatten().fieldErrors };\n  }\n\n  // Save to DB\n  const { title, code } = parsed.data;\n  await db.snippets.create({ data: { title, code } });\n  return { success: true };\n}",
+    "description": "Next.js 14+ server action that validates form data with Zod before saving. Returns field-level errors on failure instead of throwing.",
+    "language": "typescript",
+    "tags": ["nextjs", "server-actions", "zod", "validation"]
+  },
+  {
+    "id": "snip-008",
+    "title": "Next.js generateMetadata for dynamic routes",
+    "code": "import type { Metadata } from 'next';\n\ntype Props = { params: { id: string } };\n\nexport async function generateMetadata({ params }: Props): Promise<Metadata> {\n  const snippet = await fetchSnippet(params.id);\n  return {\n    title: snippet.title,\n    description: snippet.description,\n    openGraph: {\n      title: snippet.title,\n      images: ['/og-image.png'],\n    },\n  };\n}\n\nexport default async function SnippetPage({ params }: Props) {\n  const snippet = await fetchSnippet(params.id);\n  return <SnippetView data={snippet} />;\n}",
+    "description": "Dynamic metadata generation for Next.js App Router. generateMetadata runs on the server at request time and shares data fetching with the page component.",
+    "language": "typescript",
+    "tags": ["nextjs", "metadata", "seo", "app-router"]
+  },
+  {
+    "id": "snip-009",
+    "title": "Next.js route handler with streaming",
+    "code": "import { NextRequest } from 'next/server';\n\nexport async function GET(req: NextRequest) {\n  const stream = new ReadableStream({\n    async start(controller) {\n      const encoder = new TextEncoder();\n      const chunks = ['Hello', ' ', 'World'];\n      for (const chunk of chunks) {\n        controller.enqueue(encoder.encode(chunk));\n        await new Promise(r => setTimeout(r, 300));\n      }\n      controller.close();\n    },\n  });\n\n  return new Response(stream, {\n    headers: { 'Content-Type': 'text/plain; charset=utf-8' },\n  });\n}",
+    "description": "Next.js route handler that streams a response using the Web Streams API. Good for LLM output or large file downloads.",
+    "language": "typescript",
+    "tags": ["nextjs", "streaming", "route-handler", "web-streams"]
+  },
+  {
+    "id": "snip-010",
+    "title": "TanStack Query with optimistic update",
+    "code": "const mutation = useMutation({\n  mutationFn: (newTitle: string) =>\n    api.patch(`/snippets/${id}`, { title: newTitle }),\n\n  onMutate: async (newTitle) => {\n    await queryClient.cancelQueries({ queryKey: ['snippet', id] });\n    const previous = queryClient.getQueryData(['snippet', id]);\n    queryClient.setQueryData(['snippet', id], (old: Snippet) => ({\n      ...old,\n      title: newTitle,\n    }));\n    return { previous };\n  },\n\n  onError: (_err, _vars, context) => {\n    queryClient.setQueryData(['snippet', id], context?.previous);\n  },\n\n  onSettled: () => {\n    queryClient.invalidateQueries({ queryKey: ['snippet', id] });\n  },\n});",
+    "description": "TanStack Query v5 optimistic update pattern. Immediately updates the cache, rolls back on error, and refetches on settle to sync with server.",
+    "language": "typescript",
+    "tags": ["tanstack-query", "optimistic-update", "mutation", "cache"]
+  },
+  {
+    "id": "snip-011",
+    "title": "Tailwind CSS clsx + tailwind-merge utility",
+    "code": "import { clsx, type ClassValue } from 'clsx';\nimport { twMerge } from 'tailwind-merge';\n\nexport function cn(...inputs: ClassValue[]) {\n  return twMerge(clsx(inputs));\n}\n\n// Usage\n<button\n  className={cn(\n    'px-4 py-2 rounded font-medium',\n    isActive && 'bg-blue-600 text-white',\n    isDisabled && 'opacity-50 cursor-not-allowed',\n    className  // caller can override\n  )}\n/>",
+    "description": "The canonical cn() utility used in Shadcn/UI. clsx handles conditional classes, tailwind-merge resolves Tailwind conflicts (e.g., px-2 + px-4 = px-4).",
+    "language": "typescript",
+    "tags": ["tailwind", "clsx", "tailwind-merge", "utility"]
+  },
+  {
+    "id": "snip-012",
+    "title": "Tailwind CSS responsive grid with auto-fill",
+    "code": "<!-- Responsive card grid: 1 col → 2 col → 3 col -->\n<div class=\"grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4\">\n  <div class=\"card\">...</div>\n</div>\n\n<!-- Auto-fill: as many columns as fit at min 200px each -->\n<div class=\"grid gap-4\" style=\"grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))\">\n  <div class=\"card\">...</div>\n</div>",
+    "description": "Two grid patterns: breakpoint-based responsive columns with Tailwind classes, and CSS auto-fill for truly fluid grids where column count depends on available space.",
+    "language": "css",
+    "tags": ["tailwind", "css-grid", "responsive", "layout"]
+  },
+  {
+    "id": "snip-013",
+    "title": "Tailwind CSS dark mode with next-themes",
+    "code": "// tailwind.config.ts\nexport default {\n  darkMode: 'class',  // toggle via class on <html>\n  // ...\n};\n\n// layout.tsx\nimport { ThemeProvider } from 'next-themes';\n\nexport default function RootLayout({ children }) {\n  return (\n    <html suppressHydrationWarning>\n      <body>\n        <ThemeProvider attribute=\"class\" defaultTheme=\"system\" enableSystem>\n          {children}\n        </ThemeProvider>\n      </body>\n    </html>\n  );\n}",
+    "description": "Set up Tailwind dark mode with next-themes. suppressHydrationWarning prevents the React warning when the class is added before hydration.",
+    "language": "typescript",
+    "tags": ["tailwind", "dark-mode", "next-themes", "nextjs"]
+  },
+  {
+    "id": "snip-014",
+    "title": "Tailwind CSS animate-in with tailwindcss-animate",
+    "code": "<!-- Fade + slide in from bottom -->\n<div class=\"animate-in fade-in slide-in-from-bottom-4 duration-300\">\n  Content\n</div>\n\n<!-- Zoom in modal -->\n<div class=\"animate-in zoom-in-95 duration-200\">\n  Modal\n</div>\n\n<!-- Out animation on exit -->\n<div class=\"animate-out fade-out zoom-out-95 duration-150\">\n  Leaving\n</div>",
+    "description": "CSS animations using the tailwindcss-animate plugin (bundled with Shadcn). Compose direction, type, duration. Pair with Radix exit animations via data-[state=closed].",
+    "language": "css",
+    "tags": ["tailwind", "animation", "tailwindcss-animate", "shadcn"]
+  },
+  {
+    "id": "snip-015",
+    "title": "React Hook Form with Zod resolver",
+    "code": "import { useForm } from 'react-hook-form';\nimport { zodResolver } from '@hookform/resolvers/zod';\nimport { z } from 'zod';\n\nconst schema = z.object({\n  title: z.string().min(1, 'Title is required').max(100),\n  language: z.enum(['typescript', 'python', 'css']),\n});\n\ntype FormData = z.infer<typeof schema>;\n\nfunction SnippetForm() {\n  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({\n    resolver: zodResolver(schema),\n  });\n\n  const onSubmit = (data: FormData) => console.log(data);\n\n  return (\n    <form onSubmit={handleSubmit(onSubmit)}>\n      <input {...register('title')} />\n      {errors.title && <p>{errors.title.message}</p>}\n    </form>\n  );\n}",
+    "description": "React Hook Form integrated with Zod for schema-based validation. zodResolver infers types from the schema so FormData is always in sync with validation rules.",
+    "language": "typescript",
+    "tags": ["react-hook-form", "zod", "forms", "validation"]
+  },
+  {
+    "id": "snip-016",
+    "title": "CSS scroll snap carousel",
+    "code": "/* Container */\n.carousel {\n  display: flex;\n  overflow-x: auto;\n  scroll-snap-type: x mandatory;\n  scroll-behavior: smooth;\n  -webkit-overflow-scrolling: touch;\n  scrollbar-width: none; /* hide scrollbar Firefox */\n}\n.carousel::-webkit-scrollbar { display: none; }\n\n/* Items */\n.slide {\n  flex: 0 0 100%;  /* full-width slides */\n  scroll-snap-align: start;\n}",
+    "description": "Pure CSS touch-friendly carousel using scroll-snap. No JS required. Works on mobile with momentum scrolling. Hide the scrollbar for a cleaner look.",
+    "language": "css",
+    "tags": ["css", "scroll-snap", "carousel", "no-js"]
+  },
+  {
+    "id": "snip-017",
+    "title": "CSS container queries",
+    "code": "/* Define a containment context */\n.card-wrapper {\n  container-type: inline-size;\n  container-name: card;\n}\n\n/* Respond to the container width, not the viewport */\n@container card (min-width: 400px) {\n  .card {\n    display: grid;\n    grid-template-columns: 120px 1fr;\n  }\n}\n\n@container card (min-width: 600px) {\n  .card-title { font-size: 1.5rem; }\n}",
+    "description": "Container queries let components respond to their parent's size instead of the viewport. The card can be 3-column in a wide sidebar but 1-column in a narrow widget.",
+    "language": "css",
+    "tags": ["css", "container-queries", "responsive", "modern-css"]
+  },
+  {
+    "id": "snip-018",
+    "title": "CSS custom properties with JS interop",
+    "code": "/* Define in :root */\n:root {\n  --color-primary: 221 83% 53%;  /* hsl values without function */\n  --spacing-base: 1rem;\n}\n\n/* Use with opacity modifier */\n.button {\n  background: hsl(var(--color-primary));\n  color: hsl(var(--color-primary) / 0.1);\n}\n\n/* Override from JavaScript */\ndocument.documentElement.style.setProperty('--color-primary', '0 80% 50%');",
+    "description": "CSS custom properties (variables) defined as raw HSL values (no hsl() wrapper) so they can be used with opacity modifiers. JS can update them at runtime for theming.",
+    "language": "css",
+    "tags": ["css", "custom-properties", "theming", "hsl"]
+  },
+  {
+    "id": "snip-019",
+    "title": "Git — undo last commit, keep changes staged",
+    "code": "# Undo the last commit but keep all changes staged (soft reset)\ngit reset --soft HEAD~1\n\n# Undo last commit, unstage everything (keep files modified)\ngit reset HEAD~1\n\n# Undo last commit AND discard all changes (DESTRUCTIVE)\ngit reset --hard HEAD~1\n\n# Fix the last commit message without changing code\ngit commit --amend -m \"correct message\"",
+    "description": "Three flavors of undoing a commit. --soft keeps staged, --mixed unstages but keeps files, --hard wipes everything. Use --amend to fix a commit message.",
+    "language": "bash",
+    "tags": ["git", "reset", "undo", "amend"]
+  },
+  {
+    "id": "snip-020",
+    "title": "Git — interactive rebase to squash commits",
+    "code": "# Squash last 3 commits into one\ngit rebase -i HEAD~3\n\n# In the editor that opens:\n# pick abc1234 First commit\n# squash def5678 Second commit    ← change 'pick' to 'squash'\n# squash ghi9012 Third commit     ← change 'pick' to 'squash'\n\n# Save. Git opens another editor to write the combined commit message.\n\n# Push (force required because history changed)\ngit push --force-with-lease origin feature-branch",
+    "description": "Squash multiple commits into one clean commit before merging a PR. Use --force-with-lease instead of --force to avoid overwriting others' pushed work.",
+    "language": "bash",
+    "tags": ["git", "rebase", "squash", "history"]
+  },
+  {
+    "id": "snip-021",
+    "title": "Git — stash with a message and pop selectively",
+    "code": "# Stash with a descriptive message\ngit stash push -m \"WIP: half-done review page\"\n\n# List all stashes\ngit stash list\n# stash@{0}: On main: WIP: half-done review page\n# stash@{1}: On dev: experiment with grid layout\n\n# Apply a specific stash without removing it\ngit stash apply stash@{1}\n\n# Pop (apply and remove) the most recent stash\ngit stash pop",
+    "description": "Named stashes make it easy to track multiple work-in-progress states. Use stash list to inspect, apply to try without consuming, pop to finish.",
+    "language": "bash",
+    "tags": ["git", "stash", "workflow"]
+  },
+  {
+    "id": "snip-022",
+    "title": "Git — cherry-pick a commit to another branch",
+    "code": "# Copy a single commit from another branch\ngit checkout main\ngit cherry-pick abc1234\n\n# Cherry-pick a range (abc up to and including def)\ngit cherry-pick abc1234..def5678\n\n# Cherry-pick without committing (stage the changes only)\ngit cherry-pick --no-commit abc1234",
+    "description": "Copy specific commits from one branch to another without merging the whole branch. Useful for backporting a hotfix to an older release branch.",
+    "language": "bash",
+    "tags": ["git", "cherry-pick", "hotfix", "branches"]
+  },
+  {
+    "id": "snip-023",
+    "title": "Python — dataclass with post-init validation",
+    "code": "from dataclasses import dataclass, field\n\n@dataclass\nclass SM2Card:\n    repetitions: int = 0\n    ease_factor: float = 2.5\n    interval_days: int = 1\n\n    def __post_init__(self) -> None:\n        if self.ease_factor < 1.3:\n            raise ValueError(f'ease_factor must be >= 1.3, got {self.ease_factor}')\n        if self.repetitions < 0:\n            raise ValueError('repetitions cannot be negative')\n        if self.interval_days < 1:\n            raise ValueError('interval_days must be >= 1')",
+    "description": "Python dataclass with __post_init__ for field validation. Cleaner than a regular class but still enforces invariants. The dataclass decorator auto-generates __init__ and __repr__.",
+    "language": "python",
+    "tags": ["python", "dataclass", "validation", "sm2"]
+  },
+  {
+    "id": "snip-024",
+    "title": "Python — list comprehension vs generator for memory",
+    "code": "# List comprehension — builds entire list in memory\nsquares_list = [x**2 for x in range(1_000_000)]  # uses ~8 MB\n\n# Generator expression — lazy, one item at a time\nsquares_gen = (x**2 for x in range(1_000_000))   # uses ~200 bytes\n\n# Use generators when you only iterate once\ntotal = sum(x**2 for x in range(1_000_000))  # memory efficient\n\n# Use lists when you need random access or multiple passes\nscores = [compute(item) for item in dataset]\nprint(scores[0], max(scores))",
+    "description": "Generators are lazy iterators — they compute values on demand without storing them all at once. Prefer generators in pipelines or sum/any/all. Use lists when you need indexing.",
+    "language": "python",
+    "tags": ["python", "generators", "memory", "performance"]
+  },
+  {
+    "id": "snip-025",
+    "title": "Python — functools.lru_cache for memoization",
+    "code": "from functools import lru_cache\n\n@lru_cache(maxsize=128)\ndef fibonacci(n: int) -> int:\n    if n < 2:\n        return n\n    return fibonacci(n - 1) + fibonacci(n - 2)\n\n# Cache info\nprint(fibonacci.cache_info())\n# CacheInfo(hits=28, misses=11, maxsize=128, currsize=11)\n\n# Clear cache if inputs change\nfibonacci.cache_clear()",
+    "description": "lru_cache caches function results by arguments. Turns exponential fibonacci into linear. maxsize=None for unlimited cache. Only works with hashable arguments.",
+    "language": "python",
+    "tags": ["python", "memoization", "lru_cache", "functools"]
+  },
+  {
+    "id": "snip-026",
+    "title": "Python — context manager with contextlib",
+    "code": "from contextlib import contextmanager\n\n@contextmanager\ndef timer(label: str):\n    import time\n    start = time.perf_counter()\n    try:\n        yield\n    finally:\n        elapsed = time.perf_counter() - start\n        print(f'{label}: {elapsed:.4f}s')\n\n# Usage\nwith timer('TF-IDF vectorize'):\n    vectors = engine.vectorize(documents)",
+    "description": "Create a context manager from a generator function using contextlib. The code before yield runs on __enter__, after yield runs on __exit__ (even if an exception occurs).",
+    "language": "python",
+    "tags": ["python", "context-manager", "contextlib", "timing"]
+  },
+  {
+    "id": "snip-027",
+    "title": "FastAPI dependency injection",
+    "code": "from fastapi import Depends, FastAPI, HTTPException\nfrom functools import lru_cache\n\napp = FastAPI()\n\n@lru_cache\ndef get_settings():\n    from app.config import Settings\n    return Settings()\n\ndef get_current_user(token: str = Depends(oauth2_scheme)):\n    user = verify_token(token)\n    if not user:\n        raise HTTPException(status_code=401, detail='Invalid token')\n    return user\n\n@app.get('/me')\ndef read_me(user = Depends(get_current_user)):\n    return user",
+    "description": "FastAPI's Depends() system for dependency injection. Dependencies are called automatically, can be nested, and share instances within a request. lru_cache makes settings a singleton.",
+    "language": "python",
+    "tags": ["fastapi", "dependency-injection", "auth", "backend"]
+  },
+  {
+    "id": "snip-028",
+    "title": "FastAPI background tasks",
+    "code": "from fastapi import BackgroundTasks, FastAPI\n\napp = FastAPI()\n\ndef send_review_reminder(email: str, count: int):\n    # Runs after the response is sent\n    resend.send(to=email, subject=f'You have {count} snippets to review')\n\n@app.post('/review/complete')\nasync def complete_review(\n    user_id: str,\n    background_tasks: BackgroundTasks,\n):\n    due_count = await get_due_count(user_id)\n    background_tasks.add_task(send_review_reminder, user.email, due_count)\n    return {'message': 'review logged'}",
+    "description": "FastAPI BackgroundTasks runs a function after the response is already sent to the client. Good for non-blocking work like sending emails or logging analytics.",
+    "language": "python",
+    "tags": ["fastapi", "background-tasks", "email", "async"]
+  },
+  {
+    "id": "snip-029",
+    "title": "Pydantic v2 model with validators",
+    "code": "from pydantic import BaseModel, field_validator, model_validator\nfrom typing import Literal\n\nclass ReviewRequest(BaseModel):\n    snippet_id: str\n    rating: int\n    current_ease: float = 2.5\n    current_interval: int = 1\n    current_reps: int = 0\n\n    @field_validator('rating')\n    @classmethod\n    def rating_in_range(cls, v: int) -> int:\n        if not 0 <= v <= 5:\n            raise ValueError('rating must be between 0 and 5')\n        return v\n\n    @field_validator('current_ease')\n    @classmethod\n    def ease_minimum(cls, v: float) -> float:\n        return max(v, 1.3)",
+    "description": "Pydantic v2 model with field-level validators. @field_validator replaces the v1 @validator syntax. @classmethod is required in v2. Use @model_validator for cross-field validation.",
+    "language": "python",
+    "tags": ["pydantic", "validation", "fastapi", "python"]
+  },
+  {
+    "id": "snip-030",
+    "title": "Python — enumerate and zip patterns",
+    "code": "# enumerate: index + value without a counter variable\nfruits = ['apple', 'banana', 'cherry']\nfor i, fruit in enumerate(fruits, start=1):\n    print(f'{i}. {fruit}')\n\n# zip: iterate two lists in parallel\nnames = ['Alice', 'Bob']\nscores = [95, 87]\nfor name, score in zip(names, scores):\n    print(f'{name}: {score}')\n\n# zip with strict=True to catch length mismatch (Python 3.10+)\nfor a, b in zip(names, scores, strict=True):\n    print(a, b)",
+    "description": "enumerate() adds an index to any iterable without needing a counter. zip() pairs items from multiple iterables. strict=True raises ValueError if lengths differ.",
+    "language": "python",
+    "tags": ["python", "enumerate", "zip", "iteration"]
+  },
+  {
+    "id": "snip-031",
+    "title": "React — useMemo vs useCallback",
+    "code": "// useMemo: memoize a computed VALUE\nconst sortedSnippets = useMemo(\n  () => [...snippets].sort((a, b) => a.title.localeCompare(b.title)),\n  [snippets]  // recompute only when snippets changes\n);\n\n// useCallback: memoize a FUNCTION reference\nconst handleRating = useCallback(\n  (rating: number) => {\n    mutation.mutate({ snippetId: id, rating });\n  },\n  [id, mutation]  // new function only when id or mutation changes\n);\n\n// Pass handleRating to a memoized child\nconst Card = React.memo(({ onRate }) => ...);\n<Card onRate={handleRating} />;",
+    "description": "useMemo caches a computed value, useCallback caches a function reference. Both are only useful when the result is passed to a memo'd child or used as a dependency.",
+    "language": "typescript",
+    "tags": ["react", "useMemo", "useCallback", "performance"]
+  },
+  {
+    "id": "snip-032",
+    "title": "React — useReducer for complex state",
+    "code": "type State = { count: number; step: number };\ntype Action =\n  | { type: 'increment' }\n  | { type: 'decrement' }\n  | { type: 'set_step'; payload: number };\n\nfunction reducer(state: State, action: Action): State {\n  switch (action.type) {\n    case 'increment': return { ...state, count: state.count + state.step };\n    case 'decrement': return { ...state, count: state.count - state.step };\n    case 'set_step':  return { ...state, step: action.payload };\n    default: return state;\n  }\n}\n\nconst [state, dispatch] = useReducer(reducer, { count: 0, step: 1 });",
+    "description": "useReducer for state machines with multiple related values. Typed Action union prevents invalid dispatch calls. Prefer useReducer over multiple useState when states interact.",
+    "language": "typescript",
+    "tags": ["react", "useReducer", "state-machine", "typescript"]
+  },
+  {
+    "id": "snip-033",
+    "title": "React — createContext with a custom hook",
+    "code": "import { createContext, useContext, useState } from 'react';\n\ntype ThemeContextType = {\n  theme: 'light' | 'dark';\n  toggle: () => void;\n};\n\nconst ThemeContext = createContext<ThemeContextType | null>(null);\n\nexport function ThemeProvider({ children }: { children: React.ReactNode }) {\n  const [theme, setTheme] = useState<'light' | 'dark'>('light');\n  const toggle = () => setTheme(t => t === 'light' ? 'dark' : 'light');\n  return (\n    <ThemeContext.Provider value={{ theme, toggle }}>\n      {children}\n    </ThemeContext.Provider>\n  );\n}\n\nexport function useTheme() {\n  const ctx = useContext(ThemeContext);\n  if (!ctx) throw new Error('useTheme must be inside ThemeProvider');\n  return ctx;\n}",
+    "description": "Context + custom hook pattern. Initialize context as null and throw in the hook if used outside a provider — catches errors at runtime instead of silently returning undefined.",
+    "language": "typescript",
+    "tags": ["react", "context", "custom-hook", "theme"]
+  },
+  {
+    "id": "snip-034",
+    "title": "CSS — logical properties for RTL support",
+    "code": "/* Physical (breaks in RTL languages) */\n.card { margin-left: 1rem; padding-right: 1rem; border-left: 2px solid; }\n\n/* Logical (works in both LTR and RTL automatically) */\n.card {\n  margin-inline-start: 1rem;  /* left in LTR, right in RTL */\n  padding-inline-end: 1rem;   /* right in LTR, left in RTL */\n  border-inline-start: 2px solid;\n  /* block = top/bottom direction */\n  margin-block: 1rem;         /* top and bottom */\n  padding-block-start: 0.5rem; /* top in LTR and RTL */\n}",
+    "description": "CSS logical properties replace left/right/top/bottom with start/end/block/inline — relative to writing mode. Use them for automatic RTL and vertical writing support.",
+    "language": "css",
+    "tags": ["css", "logical-properties", "rtl", "i18n"]
+  },
+  {
+    "id": "snip-035",
+    "title": "CSS — :has() parent selector",
+    "code": "/* Style a form-group that contains an invalid input */\n.form-group:has(input:invalid) label {\n  color: red;\n}\n\n/* Card with an image gets extra top padding */\n.card:has(img) { padding-top: 0; }\n\n/* Nav with open dropdown gets overlay */\nnav:has(.dropdown[open])::after {\n  content: '';\n  position: fixed;\n  inset: 0;\n  background: rgba(0,0,0,0.4);\n}",
+    "description": "CSS :has() is a parent selector — style an element based on its children. Supported in all modern browsers. Replaces a lot of JavaScript-driven class toggling.",
+    "language": "css",
+    "tags": ["css", "has-selector", "modern-css", "parent-selector"]
+  },
+  {
+    "id": "snip-036",
+    "title": "CSS — clip-path for geometric shapes",
+    "code": "/* Triangle pointing up */\n.triangle { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }\n\n/* Hexagon */\n.hex { clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); }\n\n/* Diagonal cut bottom-right */\n.card { clip-path: polygon(0 0, 100% 0, 100% 85%, 85% 100%, 0 100%); }\n\n/* Circle (use border-radius instead, but this works too) */\n.avatar { clip-path: circle(50%); }",
+    "description": "clip-path crops an element to a polygon or shape. The polygon() function takes percentages relative to the element's bounding box. Use Clippy tool online to generate coordinates.",
+    "language": "css",
+    "tags": ["css", "clip-path", "shapes", "visual"]
+  },
+  {
+    "id": "snip-037",
+    "title": "TypeScript — template literal types",
+    "code": "type EventName = 'click' | 'focus' | 'blur';\ntype Handler = `on${Capitalize<EventName>}`;\n// 'onClick' | 'onFocus' | 'onBlur'\n\n// Build typed route paths\ntype ApiRoute = `/api/${string}`;\nconst route: ApiRoute = '/api/snippets';  // valid\n// const bad: ApiRoute = '/snippets';    // Error!\n\n// Combine with mapped types\ntype Getters<T> = {\n  [K in keyof T as `get${Capitalize<string & K>}`]: () => T[K];\n};",
+    "description": "Template literal types create string types by interpolation. Combine with Capitalize, Uppercase, and mapped types to generate handler names, route types, or accessor patterns.",
+    "language": "typescript",
+    "tags": ["typescript", "template-literal-types", "generics"]
+  },
+  {
+    "id": "snip-038",
+    "title": "TypeScript — infer keyword in conditional types",
+    "code": "// Extract the return type of any function\ntype ReturnType<T> = T extends (...args: any[]) => infer R ? R : never;\n\n// Extract the element type of an array\ntype ArrayElement<T> = T extends (infer E)[] ? E : never;\n// ArrayElement<string[]> = string\n\n// Unwrap a Promise\ntype Awaited<T> = T extends Promise<infer R> ? Awaited<R> : T;\n// Awaited<Promise<Promise<string>>> = string\n\n// Extract first parameter\ntype FirstParam<T extends (...args: any) => any> =\n  T extends (first: infer P, ...rest: any[]) => any ? P : never;",
+    "description": "The infer keyword captures a type from within a conditional type pattern. Used to build utility types like ReturnType, Parameters, and Awaited that ship in TypeScript's stdlib.",
+    "language": "typescript",
+    "tags": ["typescript", "infer", "conditional-types", "advanced"]
+  },
+  {
+    "id": "snip-039",
+    "title": "Next.js — parallel routes and intercepting routes",
+    "code": "// app/layout.tsx — render two slots in parallel\nexport default function Layout({ children, modal }) {\n  return (\n    <>\n      {children}\n      {modal}  {/* renders app/@modal/page.tsx in parallel */}\n    </>\n  );\n}\n\n// Folder: app/@modal/(.)snippets/[id]/page.tsx\n// The (.) intercepts navigation to /snippets/[id]\n// Shows it as a modal overlay instead of a full page\nexport default function ModalPage({ params }) {\n  return <Dialog><SnippetDetail id={params.id} /></Dialog>;\n}",
+    "description": "Parallel routes (@slot) render multiple pages in the same layout. Intercepting routes (.) show a route as an overlay (e.g., image gallery modal) without losing the current page.",
+    "language": "typescript",
+    "tags": ["nextjs", "parallel-routes", "intercepting-routes", "app-router"]
+  },
+  {
+    "id": "snip-040",
+    "title": "Next.js — revalidatePath and revalidateTag",
+    "code": "'use server';\nimport { revalidatePath, revalidateTag } from 'next/cache';\n\nexport async function updateSnippet(id: string, data: Partial<Snippet>) {\n  await db.snippets.update({ where: { id }, data });\n\n  // Purge the cache for a specific path\n  revalidatePath(`/snippets/${id}`);\n\n  // Purge all pages tagged with 'snippets'\n  revalidateTag('snippets');\n}\n\n// In a page/component, opt into tag-based caching:\nconst data = await fetch('/api/snippets', {\n  next: { tags: ['snippets'] },\n});",
+    "description": "revalidatePath purges the cache for a specific URL. revalidateTag purges all cached fetches with a given tag. Call them from server actions after mutations.",
+    "language": "typescript",
+    "tags": ["nextjs", "caching", "revalidate", "server-actions"]
+  },
+  {
+    "id": "snip-041",
+    "title": "Python — walrus operator for assignment in conditions",
+    "code": "import re\n\n# Without walrus (compute twice)\nif re.search(r'\\bdef\\b', code):\n    match = re.search(r'\\bdef\\b', code)\n    print(match.group())\n\n# With walrus operator (compute once)\nif match := re.search(r'\\bdef\\b', code):\n    print(match.group())\n\n# In a while loop — read until empty\nwhile chunk := file.read(8192):\n    process(chunk)\n\n# In list comprehension — filter and transform in one pass\nresults = [y for x in data if (y := transform(x)) is not None]",
+    "description": "The walrus operator (:=) assigns and evaluates in one expression. Avoids computing a value twice for both the condition check and the body. Python 3.8+.",
+    "language": "python",
+    "tags": ["python", "walrus-operator", "python38", "expressions"]
+  },
+  {
+    "id": "snip-042",
+    "title": "Python — sorted with key function and operator.attrgetter",
+    "code": "from operator import attrgetter, itemgetter\nfrom dataclasses import dataclass\n\n@dataclass\nclass Snippet:\n    title: str\n    ease_factor: float\n    next_review: str\n\nsnippets = [Snippet('B', 2.5, '2026-04-22'), Snippet('A', 1.8, '2026-04-20')]\n\n# Sort by attribute\nby_review = sorted(snippets, key=attrgetter('next_review'))\n\n# Sort by multiple attributes\nby_ease_title = sorted(snippets, key=attrgetter('ease_factor', 'title'))\n\n# Sort dict list by key\nrecords = [{'score': 0.8}, {'score': 0.9}]\nby_score = sorted(records, key=itemgetter('score'), reverse=True)",
+    "description": "Use operator.attrgetter for objects and itemgetter for dicts as sort keys. They're faster than lambdas and more readable. Pass multiple attributes for stable multi-key sort.",
+    "language": "python",
+    "tags": ["python", "sorting", "operator", "attrgetter"]
+  },
+  {
+    "id": "snip-043",
+    "title": "Python — collections.Counter for frequency analysis",
+    "code": "from collections import Counter\n\nwords = ['react', 'typescript', 'react', 'python', 'react', 'typescript']\ncounts = Counter(words)\nprint(counts)                # Counter({'react': 3, 'typescript': 2, 'python': 1})\nprint(counts.most_common(2)) # [('react', 3), ('typescript', 2)]\n\n# Combine counters\ntags_a = Counter(['react', 'hooks'])\ntags_b = Counter(['react', 'python'])\nprint(tags_a + tags_b)  # Counter({'react': 2, 'hooks': 1, 'python': 1})\n\n# Count characters in a string\nchar_freq = Counter('hello world')",
+    "description": "Counter is a dict subclass for counting hashable objects. most_common(n) returns the n most frequent items. Add/subtract counters directly. Useful for TF computation.",
+    "language": "python",
+    "tags": ["python", "collections", "counter", "frequency"]
+  },
+  {
+    "id": "snip-044",
+    "title": "Python — defaultdict to avoid KeyError",
+    "code": "from collections import defaultdict\n\n# Group snippets by language\nsnippets = [\n    {'title': 'useEffect', 'language': 'typescript'},\n    {'title': 'sm2()', 'language': 'python'},\n    {'title': 'useCallback', 'language': 'typescript'},\n]\n\nby_language = defaultdict(list)\nfor s in snippets:\n    by_language[s['language']].append(s['title'])\n\nprint(dict(by_language))\n# {'typescript': ['useEffect', 'useCallback'], 'python': ['sm2()']}\n\n# defaultdict(int) for counting\nword_count = defaultdict(int)\nfor word in 'the cat sat on the mat'.split():\n    word_count[word] += 1",
+    "description": "defaultdict provides a default value for missing keys instead of raising KeyError. Common factory functions: list (grouping), int (counting), set (deduplication).",
+    "language": "python",
+    "tags": ["python", "collections", "defaultdict", "grouping"]
+  },
+  {
+    "id": "snip-045",
+    "title": "TypeScript — Extract and Exclude utility types",
+    "code": "type Status = 'pending' | 'active' | 'cancelled' | 'done';\n\n// Extract: keep only members assignable to the second arg\ntype ActiveStatus = Extract<Status, 'active' | 'done'>;\n// 'active' | 'done'\n\n// Exclude: remove members assignable to the second arg\ntype OpenStatus = Exclude<Status, 'cancelled' | 'done'>;\n// 'pending' | 'active'\n\n// Practical: get all non-function keys of an object\ntype DataKeys<T> = {\n  [K in keyof T]: T[K] extends Function ? never : K;\n}[keyof T];\n// Returns only non-method property names",
+    "description": "Extract keeps union members that match, Exclude removes them. Combined with conditional types they let you filter object keys or union variants programmatically.",
+    "language": "typescript",
+    "tags": ["typescript", "extract", "exclude", "utility-types"]
+  },
+  {
+    "id": "snip-046",
+    "title": "CSS — aspect-ratio property",
+    "code": "/* 16:9 video thumbnail — no padding hack needed */\n.video-thumb {\n  aspect-ratio: 16 / 9;\n  width: 100%;\n  object-fit: cover;\n}\n\n/* Perfect square avatar */\n.avatar {\n  aspect-ratio: 1;\n  width: 3rem;\n  border-radius: 50%;\n}\n\n/* Golden ratio card */\n.card {\n  aspect-ratio: 1.618 / 1;\n  overflow: hidden;\n}",
+    "description": "aspect-ratio replaces the old padding-top percentage hack for maintaining proportions. The browser automatically sets the other dimension. Works on replaced and block elements.",
+    "language": "css",
+    "tags": ["css", "aspect-ratio", "modern-css", "layout"]
+  },
+  {
+    "id": "snip-047",
+    "title": "React — forwardRef with TypeScript",
+    "code": "import { forwardRef } from 'react';\n\ntype InputProps = React.InputHTMLAttributes<HTMLInputElement> & {\n  label: string;\n  error?: string;\n};\n\nconst Input = forwardRef<HTMLInputElement, InputProps>(\n  ({ label, error, className, ...props }, ref) => (\n    <div>\n      <label>{label}</label>\n      <input\n        ref={ref}\n        className={cn('border rounded px-3 py-2', error && 'border-red-500', className)}\n        {...props}\n      />\n      {error && <p className=\"text-red-500 text-sm\">{error}</p>}\n    </div>\n  )\n);\n\nInput.displayName = 'Input';",
+    "description": "forwardRef lets parent components attach a ref to an inner DOM element. Always set displayName so the component shows correctly in React DevTools.",
+    "language": "typescript",
+    "tags": ["react", "forwardRef", "typescript", "components"]
+  },
+  {
+    "id": "snip-048",
+    "title": "Git — bisect to find which commit introduced a bug",
+    "code": "# Start bisect\ngit bisect start\n\n# Tell Git: current state is broken\ngit bisect bad\n\n# Tell Git: this old commit was known good\ngit bisect good v1.0.0\n\n# Git checks out a middle commit — test it\n# If bug is present:\ngit bisect bad\n# If bug is absent:\ngit bisect good\n\n# Git narrows down until it prints:\n# abc1234 is the first bad commit\n\n# Always end bisect when done\ngit bisect reset",
+    "description": "git bisect does a binary search through commit history to find which commit introduced a bug. If you have 1000 commits, it takes only ~10 steps to find the culprit.",
+    "language": "bash",
+    "tags": ["git", "bisect", "debugging", "history"]
+  },
+  {
+    "id": "snip-049",
+    "title": "Python — type narrowing with TypeGuard",
+    "code": "from typing import TypeGuard\n\ndef is_string_list(val: list[object]) -> TypeGuard[list[str]]:\n    return all(isinstance(x, str) for x in val)\n\ndef process(items: list[object]) -> None:\n    if is_string_list(items):\n        # TypeScript-style narrowing: items is list[str] here\n        for item in items:\n            print(item.upper())  # no type error\n\n# Without TypeGuard, mypy would still type item as object\n# and complain about .upper()",
+    "description": "TypeGuard is a return type annotation that tells the type checker a function narrows the type of its argument. Lets you write custom isinstance-style checks with full type narrowing.",
+    "language": "python",
+    "tags": ["python", "type-hints", "typeguard", "narrowing"]
+  },
+  {
+    "id": "snip-050",
+    "title": "Supabase — real-time subscription with cleanup",
+    "code": "import { useEffect, useState } from 'react';\nimport { supabase } from '@/lib/supabase';\n\nfunction useLiveSnippets(userId: string) {\n  const [snippets, setSnippets] = useState<Snippet[]>([]);\n\n  useEffect(() => {\n    const channel = supabase\n      .channel('snippets-changes')\n      .on(\n        'postgres_changes',\n        { event: '*', schema: 'public', table: 'snippets', filter: `user_id=eq.${userId}` },\n        (payload) => {\n          if (payload.eventType === 'INSERT') setSnippets(prev => [...prev, payload.new as Snippet]);\n          if (payload.eventType === 'DELETE') setSnippets(prev => prev.filter(s => s.id !== payload.old.id));\n        }\n      )\n      .subscribe();\n\n    return () => { supabase.removeChannel(channel); };\n  }, [userId]);\n\n  return snippets;\n}",
+    "description": "Supabase real-time subscription with a cleanup function to unsubscribe when the component unmounts. Filters by user_id so clients only receive their own data.",
+    "language": "typescript",
+    "tags": ["supabase", "real-time", "react", "hooks"]
+  }
+]
