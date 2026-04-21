@@ -500,9 +500,9 @@ data: create seed dataset of 50 code snippets
 
 - [x] **Day 4 — Mon, Apr 20:** Create `apps/api/tests/fixtures/sample_snippets.json` — manually write 50 real code snippets from your learning history. Include: React hooks, TypeScript patterns, Tailwind tricks, Next.js solutions, CSS fixes, Git commands. Each: title, code, description, language, tags. Commit: `data: create seed dataset of 50 real code snippets`
 
-- [ ] **Day 5 — Tue, Apr 21:** Implement `tfidf.py` — `tokenize()`, `compute_tf()`, `compute_idf()`, `tfidf_vector()`. Build `TFIDFEngine` class that computes IDF table and vectorizes documents. Commit: `feat: implement TF-IDF vectorizer from scratch`
+- [x] **Day 5 — Tue, Apr 21:** Implement `tfidf.py` — `tokenize()`, `compute_tf()`, `compute_idf()`, `tfidf_vector()`. Build `TFIDFEngine` class that computes IDF table and vectorizes documents. Commit: `feat: implement TF-IDF vectorizer from scratch`
 
-- [ ] **Day 6 — Wed, Apr 22:** Implement `similarity.py` — `cosine_similarity(vec_a, vec_b)` for sparse dict vectors. Write `test_tfidf.py`: tokenizer works, rare terms weighted higher, identical texts → 1.0, unrelated → ~0.0, search finds relevant snippets. Commit: `feat: implement cosine similarity and TF-IDF search tests`
+- [x] **Day 6 — Wed, Apr 22:** Implement `similarity.py` — `cosine_similarity(vec_a, vec_b)` for sparse dict vectors. Write `test_tfidf.py`: tokenizer works, rare terms weighted higher, identical texts → 1.0, unrelated → ~0.0, search finds relevant snippets. Commit: `feat: implement cosine similarity and TF-IDF search tests`
 
 - [ ] **Day 7 — Thu, Apr 23:** Implement `duplicate.py` — `levenshtein_distance(str_a, str_b)` using DP matrix, `check_duplicate()` with 85% threshold. Write `test_duplicate.py`: identical → 1.0, different → low, renamed variables → caught, different code → not flagged. Commit: `feat: implement Levenshtein edit distance for duplicate detection`
 
@@ -720,7 +720,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 ## Status
 
 **Current Phase:** Phase 1 — Algorithm Core
-**Current Day:** Day 5 (Tue, Apr 21, 2026)
-**Last Updated:** Mon, Apr 20, 2026
-**Total Progress:** 4/68 tasks completed
+**Current Day:** Day 7 (Thu, Apr 23, 2026)
+**Last Updated:** Wed, Apr 22, 2026
+**Total Progress:** 6/68 tasks completed
 **Next milestone:** Proposal Defense (~early May 2026)
