@@ -508,7 +508,7 @@ data: create seed dataset of 50 code snippets
 
 - [x] **Day 8 — Fri, Apr 24:** Implement `clustering.py` — `KMeansClusterer` class: `fit(vectors, k)`, `predict(vector)`, `get_cluster_labels(top_n_terms)`. Cosine distance, random init, max 100 iterations, convergence tracking. Commit: `feat: implement K-means clustering from scratch`
 
-- [ ] **Day 9 — Sat, Apr 25:** Write `test_clustering.py`: 3 obvious groups cluster correctly, labels contain relevant terms, converges within 100 iterations, single snippet doesn't crash, test with full 50-snippet dataset. Commit: `test: add K-means clustering tests with seed dataset`
+- [x] **Day 9 — Sat, Apr 25:** Write `test_clustering.py`: 3 obvious groups cluster correctly, labels contain relevant terms, converges within 100 iterations, single snippet doesn't crash, test with full 50-snippet dataset. Commit: `test: add K-means clustering tests with seed dataset`
 
 #### Week 3 (Apr 27 – May 2): Summarizer + FastAPI + Proposal Defense
 
@@ -720,7 +720,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 ## Status
 
 **Current Phase:** Phase 1 — Algorithm Core
-**Current Day:** Day 9 (Sat, Apr 25, 2026)
-**Last Updated:** Fri, Apr 24, 2026
-**Total Progress:** 8/68 tasks completed
+**Current Day:** Day 10 (Mon, Apr 27, 2026)
+**Last Updated:** Sat, Apr 25, 2026
+**Total Progress:** 9/68 tasks completed
 **Next milestone:** Proposal Defense (~early May 2026)
