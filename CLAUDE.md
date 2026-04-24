@@ -512,7 +512,7 @@ data: create seed dataset of 50 code snippets
 
 #### Week 3 (Apr 27 – May 2): Summarizer + FastAPI + Proposal Defense
 
-- [ ] **Day 10 — Mon, Apr 27:** Implement `summarizer.py` — `extractive_summarize(snippets, max_points)` with TF-IDF scoring + MMR diversity selection. Write `test_summarizer.py`. Commit: `feat: implement extractive text summarization with MMR`
+- [x] **Day 10 — Mon, Apr 27:** Implement `summarizer.py` — `extractive_summarize(snippets, max_points)` with TF-IDF scoring + MMR diversity selection. Write `test_summarizer.py`. Commit: `feat: implement extractive text summarization with MMR`
 
 - [ ] **Day 11 — Tue, Apr 28:** Create Pydantic models in `models/schemas.py`. Create `routes/` for all 5 endpoints. Wire into `main.py` with CORS. Test with Swagger UI at /docs. Commit: `feat: create FastAPI routes and Pydantic schemas`
 
@@ -720,7 +720,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 ## Status
 
 **Current Phase:** Phase 1 — Algorithm Core
-**Current Day:** Day 10 (Mon, Apr 27, 2026)
-**Last Updated:** Sat, Apr 25, 2026
-**Total Progress:** 9/68 tasks completed
+**Current Day:** Day 11 (Tue, Apr 28, 2026)
+**Last Updated:** Mon, Apr 27, 2026
+**Total Progress:** 10/68 tasks completed
 **Next milestone:** Proposal Defense (~early May 2026)
