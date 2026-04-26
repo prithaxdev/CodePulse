@@ -2,11 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
+from app.routes import review, search, clusters, duplicate, summarize
 
 app = FastAPI(
     title="CodePulse API",
     description="Spaced repetition and NLP algorithm engine for CodePulse",
-    version="0.1.0",
+    version="1.0.0",
 )
 
 app.add_middleware(
@@ -16,6 +17,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(review.router)
+app.include_router(search.router)
+app.include_router(clusters.router)
+app.include_router(duplicate.router)
+app.include_router(summarize.router)
 
 
 @app.get("/api/health")
