@@ -1,4 +1,5 @@
 export type Database = {
+  PostgrestVersion: "12"
   public: {
     Tables: {
       users: {
