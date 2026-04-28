@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation"
-import { auth } from "@clerk/nextjs/server"
 
-export default async function RootPage() {
-  const { userId } = await auth()
-  if (userId) redirect("/dashboard")
+// proxy.ts (middleware) handles redirecting authenticated users to /dashboard.
+// Unauthenticated users land here → send to sign-in.
+export default function RootPage() {
   redirect("/sign-in")
 }
