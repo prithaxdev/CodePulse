@@ -1,0 +1,10 @@
+{
+  "name": "codepulse",
+  "private": true,
+  "scripts": {
+    "dev:web": "pnpm --filter web dev",
+    "dev:api": "cd apps/api && uvicorn app.main:app --reload --port 8000",
+    "build": "pnpm --filter web build",
+    "typecheck": "pnpm --filter web typecheck"
+  }
+}
