@@ -1,5 +1,8 @@
 "use client"
 
+// Force dynamic rendering — all app pages need auth at request time
+export const dynamic = "force-dynamic"
+
 import { useState } from "react"
 import { SidebarNav } from "@/components/sidebar-nav"
 import { cn } from "@/lib/utils"
