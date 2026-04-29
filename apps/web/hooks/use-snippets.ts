@@ -33,22 +33,17 @@ export function useSnippets() {
 
 export function useDueSnippets() {
   const { data: userId } = useSupabaseUserId()
-  const supabase = createClient()
-  const today = new Date().toISOString().split("T")[0]
 
   return useQuery({
     queryKey: snippetKeys.due(userId ?? ""),
     enabled: !!userId,
     queryFn: async (): Promise<Snippet[]> => {
-      const { data, error } = await supabase
-        .from("snippets")
-        .select("*")
-        .eq("user_id", userId!)
-        .lte("next_review", today)
-        .order("next_review", { ascending: true })
-
-      if (error) throw error
-      return data
+      const res = await fetch("/api/snippets/due")
+      if (!res.ok) {
+        const { error } = await res.json()
+        throw new Error(error ?? "Failed to fetch due snippets")
+      }
+      return res.json()
     },
   })
 }

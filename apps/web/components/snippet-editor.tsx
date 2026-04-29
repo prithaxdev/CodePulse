@@ -85,9 +85,7 @@ export function SnippetEditor() {
   })
 
   async function saveSnippet(value: FormValues) {
-    const tomorrow = new Date()
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    const nextReview = tomorrow.toISOString().split("T")[0]
+    const nextReview = new Date().toISOString().split("T")[0]
 
     await createSnippet.mutateAsync({
       title: value.title,
@@ -133,33 +131,41 @@ export function SnippetEditor() {
       <form.Field
         name="title"
         validators={{
-          onBlur: ({ value }) => {
+          onChange: ({ value }) => {
+            const r = titleSchema.safeParse(value.trim())
+            return r.success ? undefined : r.error.issues[0].message
+          },
+          onSubmit: ({ value }) => {
             const r = titleSchema.safeParse(value.trim())
             return r.success ? undefined : r.error.issues[0].message
           },
         }}
       >
         {(field) => (
-          <div className="px-6 pt-6 pb-5">
-            <input
-              id="title"
-              type="text"
-              value={field.state.value}
-              onChange={(e) => field.handleChange(e.target.value)}
-              onBlur={field.handleBlur}
-              placeholder="Snippet title…"
-              autoFocus
-              className={cn(
-                "w-full bg-transparent font-heading text-xl font-semibold tracking-tight text-foreground outline-none placeholder:text-muted-foreground/35",
-                "text-wrap-balance",
-              )}
-            />
-            {field.state.meta.errors.length > 0 && (
-              <p className="mt-1.5 text-xs text-destructive">
-                {String(field.state.meta.errors[0])}
-              </p>
+          <form.Subscribe selector={(s) => s.submissionAttempts}>
+            {(attempts) => (
+              <div className="px-6 pt-6 pb-5">
+                <input
+                  id="title"
+                  type="text"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  placeholder="Snippet title…"
+                  autoFocus
+                  className={cn(
+                    "w-full bg-transparent font-heading text-xl font-semibold tracking-tight text-foreground outline-none placeholder:text-muted-foreground/35",
+                    "text-wrap-balance",
+                  )}
+                />
+                {attempts > 0 && field.state.meta.errors.length > 0 && (
+                  <p className="mt-1.5 text-xs text-destructive">
+                    {String(field.state.meta.errors[0])}
+                  </p>
+                )}
+              </div>
             )}
-          </div>
+          </form.Subscribe>
         )}
       </form.Field>
 
