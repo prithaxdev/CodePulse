@@ -214,43 +214,51 @@ export function SnippetEditor() {
       <form.Field
         name="code"
         validators={{
-          onBlur: ({ value }) => {
+          onChange: ({ value }) => {
+            const r = codeSchema.safeParse(value.trim())
+            return r.success ? undefined : r.error.issues[0].message
+          },
+          onSubmit: ({ value }) => {
             const r = codeSchema.safeParse(value.trim())
             return r.success ? undefined : r.error.issues[0].message
           },
         }}
       >
         {(field) => (
-          <div className={cn(field.state.meta.errors.length > 0 && "ring-1 ring-inset ring-destructive/40")}>
-            <form.Subscribe selector={(s) => s.values.language}>
-              {(language) => (
-                <CodeMirror
-                  value={field.state.value}
-                  onChange={(val) => field.handleChange(val)}
-                  theme={vscodeDark}
-                  extensions={[
-                    ...(getLanguageExtension(language as Language)
-                      ? [getLanguageExtension(language as Language)!]
-                      : []),
-                  ]}
-                  minHeight="240px"
-                  basicSetup={{
-                    lineNumbers: true,
-                    foldGutter: false,
-                    highlightActiveLine: true,
-                    autocompletion: true,
-                  }}
-                  className="text-sm"
-                  style={{ fontFamily: "var(--font-mono, ui-monospace, monospace)" }}
-                />
-              )}
-            </form.Subscribe>
-            {field.state.meta.errors.length > 0 && (
-              <p className="px-4 py-2 text-xs text-destructive bg-destructive/5">
-                {String(field.state.meta.errors[0])}
-              </p>
+          <form.Subscribe selector={(s) => s.submissionAttempts}>
+            {(attempts) => (
+              <div className={cn(attempts > 0 && field.state.meta.errors.length > 0 && "ring-1 ring-inset ring-destructive/40")}>
+                <form.Subscribe selector={(s) => s.values.language}>
+                  {(language) => (
+                    <CodeMirror
+                      value={field.state.value}
+                      onChange={(val) => field.handleChange(val)}
+                      theme={vscodeDark}
+                      extensions={[
+                        ...(getLanguageExtension(language as Language)
+                          ? [getLanguageExtension(language as Language)!]
+                          : []),
+                      ]}
+                      minHeight="240px"
+                      basicSetup={{
+                        lineNumbers: true,
+                        foldGutter: false,
+                        highlightActiveLine: true,
+                        autocompletion: true,
+                      }}
+                      className="text-sm"
+                      style={{ fontFamily: "var(--font-mono, ui-monospace, monospace)" }}
+                    />
+                  )}
+                </form.Subscribe>
+                {attempts > 0 && field.state.meta.errors.length > 0 && (
+                  <p className="px-4 py-2 text-xs text-destructive bg-destructive/5">
+                    {String(field.state.meta.errors[0])}
+                  </p>
+                )}
+              </div>
             )}
-          </div>
+          </form.Subscribe>
         )}
       </form.Field>
 
