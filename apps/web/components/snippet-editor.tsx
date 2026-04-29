@@ -22,6 +22,10 @@ import {
 import { useCreateSnippet, useSnippets } from "@/hooks/use-snippets"
 import { api } from "@/lib/api"
 import type { DuplicateMatch } from "@/types/api"
+import { z } from "zod"
+
+const titleSchema = z.string().min(1, "Title is required").max(120, "Keep it under 120 characters")
+const codeSchema = z.string().min(1, "Paste your code to save it")
 
 type FormValues = {
   title: string
@@ -128,7 +132,12 @@ export function SnippetEditor() {
       {/* ── Title ───────────────────────────────────────── */}
       <form.Field
         name="title"
-        validators={{ onBlur: ({ value }) => (!value.trim() ? "Title is required" : undefined) }}
+        validators={{
+          onBlur: ({ value }) => {
+            const r = titleSchema.safeParse(value.trim())
+            return r.success ? undefined : r.error.issues[0].message
+          },
+        }}
       >
         {(field) => (
           <div className="px-6 pt-6 pb-5">
@@ -198,7 +207,12 @@ export function SnippetEditor() {
       {/* ── Code editor ─────────────────────────────────── */}
       <form.Field
         name="code"
-        validators={{ onBlur: ({ value }) => (!value.trim() ? "Paste your code to save it" : undefined) }}
+        validators={{
+          onBlur: ({ value }) => {
+            const r = codeSchema.safeParse(value.trim())
+            return r.success ? undefined : r.error.issues[0].message
+          },
+        }}
       >
         {(field) => (
           <div className={cn(field.state.meta.errors.length > 0 && "ring-1 ring-inset ring-destructive/40")}>
@@ -238,13 +252,15 @@ export function SnippetEditor() {
       <form.Field name="description">
         {(field) => (
           <div className="px-6 py-4">
+            <p className="mb-2 text-[11px] font-medium uppercase tracking-widest text-muted-foreground/60">
+              Notes
+            </p>
             <Textarea
               value={field.state.value}
               onChange={(e) => field.handleChange(e.target.value)}
               onBlur={field.handleBlur}
-              placeholder="Add a note — what does this solve? (optional)"
-              rows={2}
-              className="resize-none border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0 placeholder:text-muted-foreground/35 field-sizing-content min-h-0"
+              placeholder="What does this solve? When would you use it? Any gotchas? (optional)"
+              className="min-h-28 resize-y border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0 placeholder:text-muted-foreground/35"
             />
           </div>
         )}

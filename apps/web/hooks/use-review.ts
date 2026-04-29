@@ -2,10 +2,9 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/lib/supabase/client"
-import { api } from "@/lib/api"
 import { snippetKeys } from "@/hooks/use-snippets"
 import { useSupabaseUserId } from "@/hooks/use-user"
-import type { ReviewLog, ReviewLogInsert } from "@/types/snippet"
+import type { ReviewLog } from "@/types/snippet"
 
 export const reviewKeys = {
   logs: (userId: string) => ["review-logs", userId] as const,
@@ -35,7 +34,6 @@ export function useReviewLogs() {
 export function useSubmitReview() {
   const { data: userId } = useSupabaseUserId()
   const queryClient = useQueryClient()
-  const supabase = createClient()
 
   return useMutation({
     mutationFn: async ({
@@ -51,39 +49,15 @@ export function useSubmitReview() {
       currentInterval: number
       currentReps: number
     }): Promise<void> => {
-      if (!userId) throw new Error("User not ready")
-
-      const schedule = await api.review.schedule({
-        snippet_id: snippetId,
-        rating,
-        current_ease: currentEase,
-        current_interval: currentInterval,
-        current_reps: currentReps,
+      const res = await fetch("/api/review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ snippetId, rating, currentEase, currentInterval, currentReps }),
       })
-
-      const { error: snippetError } = await supabase
-        .from("snippets")
-        .update({
-          ease_factor: schedule.ease_factor,
-          interval_days: schedule.interval_days,
-          repetitions: schedule.repetitions,
-          next_review: schedule.next_review,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", snippetId)
-
-      if (snippetError) throw snippetError
-
-      const log: ReviewLogInsert = {
-        snippet_id: snippetId,
-        user_id: userId,
-        rating,
-        ease_factor_after: schedule.ease_factor,
-        interval_after: schedule.interval_days,
+      if (!res.ok) {
+        const { error } = await res.json()
+        throw new Error(error ?? "Failed to submit review")
       }
-
-      const { error: logError } = await supabase.from("review_logs").insert(log)
-      if (logError) throw logError
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: snippetKeys.due(userId ?? "") })
