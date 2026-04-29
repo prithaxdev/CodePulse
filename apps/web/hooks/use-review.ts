@@ -1,10 +1,10 @@
 "use client"
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { useAuth } from "@clerk/nextjs"
 import { createClient } from "@/lib/supabase/client"
 import { api } from "@/lib/api"
 import { snippetKeys } from "@/hooks/use-snippets"
+import { useSupabaseUserId } from "@/hooks/use-user"
 import type { ReviewLog, ReviewLogInsert } from "@/types/snippet"
 
 export const reviewKeys = {
@@ -12,7 +12,7 @@ export const reviewKeys = {
 }
 
 export function useReviewLogs() {
-  const { userId } = useAuth()
+  const { data: userId } = useSupabaseUserId()
   const supabase = createClient()
 
   return useQuery({
@@ -33,7 +33,7 @@ export function useReviewLogs() {
 }
 
 export function useSubmitReview() {
-  const { userId } = useAuth()
+  const { data: userId } = useSupabaseUserId()
   const queryClient = useQueryClient()
   const supabase = createClient()
 
@@ -51,7 +51,8 @@ export function useSubmitReview() {
       currentInterval: number
       currentReps: number
     }): Promise<void> => {
-      // Call SM-2 algorithm via FastAPI
+      if (!userId) throw new Error("User not ready")
+
       const schedule = await api.review.schedule({
         snippet_id: snippetId,
         rating,
@@ -60,7 +61,6 @@ export function useSubmitReview() {
         current_reps: currentReps,
       })
 
-      // Update snippet SM-2 state in Supabase
       const { error: snippetError } = await supabase
         .from("snippets")
         .update({
@@ -74,10 +74,9 @@ export function useSubmitReview() {
 
       if (snippetError) throw snippetError
 
-      // Log the review event
       const log: ReviewLogInsert = {
         snippet_id: snippetId,
-        user_id: userId!,
+        user_id: userId,
         rating,
         ease_factor_after: schedule.ease_factor,
         interval_after: schedule.interval_days,

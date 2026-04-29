@@ -1,8 +1,8 @@
 "use client"
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { useAuth } from "@clerk/nextjs"
 import { createClient } from "@/lib/supabase/client"
+import { useSupabaseUserId } from "@/hooks/use-user"
 import type { Snippet, SnippetInsert, SnippetUpdate } from "@/types/snippet"
 
 export const snippetKeys = {
@@ -12,7 +12,7 @@ export const snippetKeys = {
 }
 
 export function useSnippets() {
-  const { userId } = useAuth()
+  const { data: userId } = useSupabaseUserId()
   const supabase = createClient()
 
   return useQuery({
@@ -32,7 +32,7 @@ export function useSnippets() {
 }
 
 export function useDueSnippets() {
-  const { userId } = useAuth()
+  const { data: userId } = useSupabaseUserId()
   const supabase = createClient()
   const today = new Date().toISOString().split("T")[0]
 
@@ -73,15 +73,17 @@ export function useSnippet(id: string) {
 }
 
 export function useCreateSnippet() {
-  const { userId } = useAuth()
+  const { data: userId } = useSupabaseUserId()
   const queryClient = useQueryClient()
   const supabase = createClient()
 
   return useMutation({
     mutationFn: async (input: Omit<SnippetInsert, "user_id">): Promise<Snippet> => {
+      if (!userId) throw new Error("User not ready")
+
       const { data, error } = await supabase
         .from("snippets")
-        .insert({ ...input, user_id: userId! })
+        .insert({ ...input, user_id: userId })
         .select()
         .single()
 
@@ -96,7 +98,7 @@ export function useCreateSnippet() {
 }
 
 export function useUpdateSnippet() {
-  const { userId } = useAuth()
+  const { data: userId } = useSupabaseUserId()
   const queryClient = useQueryClient()
   const supabase = createClient()
 
@@ -121,7 +123,7 @@ export function useUpdateSnippet() {
 }
 
 export function useDeleteSnippet() {
-  const { userId } = useAuth()
+  const { data: userId } = useSupabaseUserId()
   const queryClient = useQueryClient()
   const supabase = createClient()
 
