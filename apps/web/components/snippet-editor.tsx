@@ -49,10 +49,8 @@ export function SnippetEditor() {
       tags: [] as string[],
     },
     onSubmit: async ({ value }) => {
-      // Guard: require title and code
       if (!value.title.trim() || !value.code.trim()) return
 
-      // Step 1: check for duplicates unless user already dismissed
       if (!ignoreDuplicate && value.code) {
         const candidates = existingSnippets
           .filter((s) => s.code)
@@ -72,26 +70,29 @@ export function SnippetEditor() {
         }
       }
 
-      // Step 2: save to Supabase with SM-2 defaults
-      const tomorrow = new Date()
-      tomorrow.setDate(tomorrow.getDate() + 1)
-      const nextReview = tomorrow.toISOString().split("T")[0]
-
-      await createSnippet.mutateAsync({
-        title: value.title,
-        language: value.language,
-        code: value.code,
-        description: value.description || null,
-        tags: value.tags,
-        ease_factor: 2.5,
-        interval_days: 1,
-        repetitions: 0,
-        next_review: nextReview,
-      })
-
-      router.push("/dashboard")
+      await saveSnippet(value)
     },
   })
+
+  async function saveSnippet(value: FormValues) {
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const nextReview = tomorrow.toISOString().split("T")[0]
+
+    await createSnippet.mutateAsync({
+      title: value.title,
+      language: value.language,
+      code: value.code,
+      description: value.description || null,
+      tags: value.tags,
+      ease_factor: 2.5,
+      interval_days: 1,
+      repetitions: 0,
+      next_review: nextReview,
+    })
+
+    router.push("/dashboard")
+  }
 
   const handleDismissDuplicate = () => {
     setDuplicates([])
@@ -102,24 +103,7 @@ export function SnippetEditor() {
     if (!pendingValues) return
     setIgnoreDuplicate(true)
     setDuplicates([])
-
-    const tomorrow = new Date()
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    const nextReview = tomorrow.toISOString().split("T")[0]
-
-    await createSnippet.mutateAsync({
-      title: pendingValues.title,
-      language: pendingValues.language,
-      code: pendingValues.code,
-      description: pendingValues.description || null,
-      tags: pendingValues.tags,
-      ease_factor: 2.5,
-      interval_days: 1,
-      repetitions: 0,
-      next_review: nextReview,
-    })
-
-    router.push("/dashboard")
+    await saveSnippet(pendingValues)
   }
 
   return (
@@ -128,15 +112,15 @@ export function SnippetEditor() {
         e.preventDefault()
         form.handleSubmit()
       }}
-      className="flex flex-col gap-0"
+      className="flex flex-col divide-y divide-border rounded-2xl border border-border bg-card overflow-hidden"
     >
-      {/* Title */}
+      {/* ── Title ───────────────────────────────────────── */}
       <form.Field
         name="title"
         validators={{ onBlur: ({ value }) => (!value.trim() ? "Title is required" : undefined) }}
       >
         {(field) => (
-          <div className="px-6 pt-8 lg:px-10">
+          <div className="px-6 pt-6 pb-5">
             <input
               id="title"
               type="text"
@@ -146,12 +130,12 @@ export function SnippetEditor() {
               placeholder="Snippet title…"
               autoFocus
               className={cn(
-                "w-full bg-transparent font-heading text-2xl font-semibold tracking-tight text-foreground outline-none placeholder:text-muted-foreground/40",
-                field.state.meta.errors.length > 0 && "placeholder:text-destructive/50"
+                "w-full bg-transparent font-heading text-xl font-semibold tracking-tight text-foreground outline-none placeholder:text-muted-foreground/35",
+                "text-wrap-balance",
               )}
             />
             {field.state.meta.errors.length > 0 && (
-              <p className="mt-1 text-xs text-destructive">
+              <p className="mt-1.5 text-xs text-destructive">
                 {String(field.state.meta.errors[0])}
               </p>
             )}
@@ -159,15 +143,18 @@ export function SnippetEditor() {
         )}
       </form.Field>
 
-      {/* Meta row: Language + Tags */}
-      <div className="flex flex-wrap items-start gap-3 px-6 py-4 lg:px-10">
+      {/* ── Language + Tags ─────────────────────────────── */}
+      <div className="flex flex-wrap items-center gap-2 px-6 py-3">
         <form.Field name="language">
           {(field) => (
             <Select
               value={field.state.value}
               onValueChange={(val) => field.handleChange(val as Language)}
             >
-              <SelectTrigger size="sm" className="rounded-lg border-border bg-input/50 font-mono text-xs">
+              <SelectTrigger
+                size="sm"
+                className="h-7 shrink-0 rounded-md border-border bg-muted/60 px-2.5 font-mono text-xs text-muted-foreground"
+              >
                 <SelectValue placeholder="Language" />
               </SelectTrigger>
               <SelectContent>
@@ -183,59 +170,52 @@ export function SnippetEditor() {
           )}
         </form.Field>
 
+        <div className="h-4 w-px bg-border" />
+
         <form.Field name="tags">
           {(field) => (
-            <div className="flex-1 min-w-48">
-              <TagInput
-                value={field.state.value}
-                onChange={(tags) => field.handleChange(tags)}
-              />
-            </div>
+            <TagInput
+              value={field.state.value}
+              onChange={(tags) => field.handleChange(tags)}
+              className="flex-1 min-w-36 min-h-0 border-0 bg-transparent px-0 py-0 rounded-none focus-within:ring-0"
+              placeholder="Add tags…"
+            />
           )}
         </form.Field>
       </div>
 
-      {/* Divider */}
-      <div className="mx-6 h-px bg-border lg:mx-10" />
-
-      {/* Code editor */}
+      {/* ── Code editor ─────────────────────────────────── */}
       <form.Field
         name="code"
         validators={{ onBlur: ({ value }) => (!value.trim() ? "Paste your code to save it" : undefined) }}
       >
         {(field) => (
-          <div className="flex flex-col">
-            <div
-              className={cn(
-                "min-h-64 overflow-hidden rounded-none",
-                field.state.meta.errors.length > 0 && "ring-1 ring-destructive/50"
+          <div className={cn(field.state.meta.errors.length > 0 && "ring-1 ring-inset ring-destructive/40")}>
+            <form.Subscribe selector={(s) => s.values.language}>
+              {(language) => (
+                <CodeMirror
+                  value={field.state.value}
+                  onChange={(val) => field.handleChange(val)}
+                  theme={vscodeDark}
+                  extensions={[
+                    ...(getLanguageExtension(language as Language)
+                      ? [getLanguageExtension(language as Language)!]
+                      : []),
+                  ]}
+                  minHeight="240px"
+                  basicSetup={{
+                    lineNumbers: true,
+                    foldGutter: false,
+                    highlightActiveLine: true,
+                    autocompletion: true,
+                  }}
+                  className="text-sm"
+                  style={{ fontFamily: "var(--font-mono, ui-monospace, monospace)" }}
+                />
               )}
-            >
-              <form.Subscribe selector={(s) => s.values.language}>
-                {(language) => (
-                  <CodeMirror
-                    value={field.state.value}
-                    onChange={(val) => field.handleChange(val)}
-                    theme={vscodeDark}
-                    extensions={[
-                      ...(getLanguageExtension(language as Language)
-                        ? [getLanguageExtension(language as Language)!]
-                        : []),
-                    ]}
-                    basicSetup={{
-                      lineNumbers: true,
-                      foldGutter: false,
-                      highlightActiveLine: true,
-                      autocompletion: true,
-                    }}
-                    className="text-sm"
-                    style={{ fontFamily: "var(--font-mono, monospace)" }}
-                  />
-                )}
-              </form.Subscribe>
-            </div>
+            </form.Subscribe>
             {field.state.meta.errors.length > 0 && (
-              <p className="px-6 pt-2 text-xs text-destructive lg:px-10">
+              <p className="px-4 py-2 text-xs text-destructive bg-destructive/5">
                 {String(field.state.meta.errors[0])}
               </p>
             )}
@@ -243,40 +223,37 @@ export function SnippetEditor() {
         )}
       </form.Field>
 
-      {/* Divider */}
-      <div className="mx-6 h-px bg-border lg:mx-10" />
-
-      {/* Description */}
+      {/* ── Notes / Description ─────────────────────────── */}
       <form.Field name="description">
         {(field) => (
-          <div className="px-6 py-4 lg:px-10">
+          <div className="px-6 py-4">
             <Textarea
               value={field.state.value}
               onChange={(e) => field.handleChange(e.target.value)}
               onBlur={field.handleBlur}
-              placeholder="Add a note — what problem does this solve? (optional)"
-              rows={3}
-              className="resize-none border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0 placeholder:text-muted-foreground/40"
+              placeholder="Add a note — what does this solve? (optional)"
+              rows={2}
+              className="resize-none border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0 placeholder:text-muted-foreground/35 field-sizing-content min-h-0"
             />
           </div>
         )}
       </form.Field>
 
-      {/* Duplicate warning */}
+      {/* ── Duplicate warning ───────────────────────────── */}
       {duplicates.length > 0 && (
-        <div className="px-6 pb-4 lg:px-10">
+        <div className="px-6 py-4">
           <DuplicateWarning matches={duplicates} onDismiss={handleDismissDuplicate} />
         </div>
       )}
 
-      {/* Footer actions */}
-      <div className="flex items-center justify-between gap-3 border-t border-border px-6 py-4 lg:px-10">
+      {/* ── Footer ──────────────────────────────────────── */}
+      <div className="flex items-center justify-between gap-3 px-6 py-3.5 bg-muted/30">
         <Button
           type="button"
           variant="ghost"
           size="sm"
           onClick={() => router.back()}
-          className="text-muted-foreground"
+          className="text-muted-foreground hover:text-foreground active:scale-[0.96] transition-[transform,opacity] duration-100"
         >
           Cancel
         </Button>
@@ -289,6 +266,7 @@ export function SnippetEditor() {
               size="sm"
               onClick={handleSaveAnyway}
               disabled={createSnippet.isPending}
+              className="active:scale-[0.96] transition-[transform,opacity] duration-100"
             >
               Save anyway
             </Button>
@@ -300,7 +278,7 @@ export function SnippetEditor() {
                 type="submit"
                 size="sm"
                 disabled={isSubmitting || createSnippet.isPending}
-                className="active:scale-[0.96] transition-[scale,opacity] duration-100"
+                className="active:scale-[0.96] transition-[transform,opacity] duration-100"
               >
                 {isSubmitting || createSnippet.isPending ? (
                   <span className="flex items-center gap-1.5">
