@@ -39,6 +39,7 @@ export function SnippetEditor() {
   const [duplicates, setDuplicates] = useState<DuplicateMatch[]>([])
   const [ignoreDuplicate, setIgnoreDuplicate] = useState(false)
   const [pendingValues, setPendingValues] = useState<FormValues | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   const form = useForm({
     defaultValues: {
@@ -49,6 +50,7 @@ export function SnippetEditor() {
       tags: [] as string[],
     },
     onSubmit: async ({ value }) => {
+      setSaveError(null)
       if (!value.title.trim() || !value.code.trim()) return
 
       if (!ignoreDuplicate && value.code) {
@@ -70,7 +72,11 @@ export function SnippetEditor() {
         }
       }
 
-      await saveSnippet(value)
+      try {
+        await saveSnippet(value)
+      } catch (err) {
+        setSaveError(err instanceof Error ? err.message : "Something went wrong")
+      }
     },
   })
 
@@ -101,9 +107,14 @@ export function SnippetEditor() {
 
   const handleSaveAnyway = async () => {
     if (!pendingValues) return
+    setSaveError(null)
     setIgnoreDuplicate(true)
     setDuplicates([])
-    await saveSnippet(pendingValues)
+    try {
+      await saveSnippet(pendingValues)
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "Something went wrong")
+    }
   }
 
   return (
@@ -238,6 +249,16 @@ export function SnippetEditor() {
           </div>
         )}
       </form.Field>
+
+      {/* ── Save error ──────────────────────────────────── */}
+      {saveError && (
+        <div className="px-6 py-3 text-sm text-destructive bg-destructive/8 border-destructive/20 flex items-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className="shrink-0">
+            <path d="M7 1.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11ZM7 4.5v3M7 9h.01" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          </svg>
+          {saveError}
+        </div>
+      )}
 
       {/* ── Duplicate warning ───────────────────────────── */}
       {duplicates.length > 0 && (

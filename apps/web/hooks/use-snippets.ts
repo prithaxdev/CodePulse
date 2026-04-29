@@ -75,20 +75,19 @@ export function useSnippet(id: string) {
 export function useCreateSnippet() {
   const { data: userId } = useSupabaseUserId()
   const queryClient = useQueryClient()
-  const supabase = createClient()
 
   return useMutation({
     mutationFn: async (input: Omit<SnippetInsert, "user_id">): Promise<Snippet> => {
-      if (!userId) throw new Error("User not ready")
-
-      const { data, error } = await supabase
-        .from("snippets")
-        .insert({ ...input, user_id: userId })
-        .select()
-        .single()
-
-      if (error) throw error
-      return data
+      const res = await fetch("/api/snippets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      })
+      if (!res.ok) {
+        const { error } = await res.json()
+        throw new Error(error ?? "Failed to save snippet")
+      }
+      return res.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: snippetKeys.all(userId ?? "") })
