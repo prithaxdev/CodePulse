@@ -1,5 +1,6 @@
 "use client"
 
+import { useAuth } from "@clerk/nextjs"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/lib/supabase/client"
 import { useSupabaseUserId } from "@/hooks/use-user"
@@ -32,11 +33,13 @@ export function useSnippets() {
 }
 
 export function useDueSnippets() {
-  const { data: userId } = useSupabaseUserId()
+  // Gate on Clerk ID — available instantly from the client-side JWT.
+  // The server route handles its own auth; we don't need the Supabase UUID here.
+  const { userId: clerkId } = useAuth()
 
   return useQuery({
-    queryKey: snippetKeys.due(userId ?? ""),
-    enabled: !!userId,
+    queryKey: snippetKeys.due(clerkId ?? ""),
+    enabled: !!clerkId,
     queryFn: async (): Promise<Snippet[]> => {
       const res = await fetch("/api/snippets/due")
       if (!res.ok) {
