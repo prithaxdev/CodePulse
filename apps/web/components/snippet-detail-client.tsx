@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@clerk/nextjs"
 import { useQueryClient } from "@tanstack/react-query"
 import CodeMirror from "@uiw/react-codemirror"
-import { getThemeExtension, getFontCss, cleanGutter } from "@/lib/editor-prefs"
+import { getThemeExtension, getFontExtension, cleanGutter } from "@/lib/editor-prefs"
 import { useEditorPrefs } from "@/hooks/use-editor-prefs"
 import { EditorToolbar } from "@/components/editor-toolbar"
 import { HugeiconsIcon } from "@hugeicons/react"
@@ -253,6 +253,7 @@ function EditDialog({
                 extensions={[
                   ...(getLanguageExtension(language) ? [getLanguageExtension(language)!] : []),
                   cleanGutter,
+                  getFontExtension(prefs.font),
                 ]}
                 basicSetup={{
                   lineNumbers: true,
@@ -261,11 +262,7 @@ function EditDialog({
                   autocompletion: false,
                 }}
                 className="text-sm"
-                style={{
-                  fontFamily: getFontCss(prefs.font),
-                  maxHeight: "280px",
-                  overflowY: "auto",
-                }}
+                style={{ maxHeight: "280px", overflowY: "auto" }}
               />
             </div>
           </div>

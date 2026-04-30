@@ -47,6 +47,18 @@ export function getFontCss(font: EditorFont): string {
   return EDITOR_FONTS.find((f) => f.value === font)?.css ?? EDITOR_FONTS[0].css
 }
 
+// CodeMirror sets font-family on .cm-scroller internally, so a wrapper style prop
+// has no effect. This extension targets the internal elements directly.
+export function getFontExtension(font: EditorFont): Extension {
+  const family = getFontCss(font)
+  return EditorView.theme({
+    "&":             { fontFamily: family },
+    ".cm-scroller":  { fontFamily: family },
+    ".cm-content":   { fontFamily: family },
+    ".cm-tooltip":   { fontFamily: family },
+  })
+}
+
 // Cleans up the line-number gutter across all themes:
 // transparent background, subtle separator, tabular-nums, muted color.
 export const cleanGutter = EditorView.theme({
