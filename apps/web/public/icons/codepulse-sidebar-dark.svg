@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" role="img" aria-hidden="true">
-  <g transform="scale(0.4)">
-    <path d="M 68,25 A 32,32 0 1,0 68,75"
-      fill="none" stroke="#374151" stroke-width="22" stroke-linecap="round"
-      transform="translate(5, 5)" />
-    <path d="M 68,25 A 32,32 0 1,0 68,75"
-      fill="none" stroke="#4ADE80" stroke-width="22" stroke-linecap="round" />
-  </g>
-</svg>
