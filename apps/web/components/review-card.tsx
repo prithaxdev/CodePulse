@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import CodeMirror from "@uiw/react-codemirror"
-import { getThemeExtension, getFontCss, cleanGutter } from "@/lib/editor-prefs"
+import { getThemeExtension, getFontExtension, cleanGutter } from "@/lib/editor-prefs"
 import { useEditorPrefs } from "@/hooks/use-editor-prefs"
 import { cn } from "@/lib/utils"
 import { getLanguageExtension, type Language } from "@/lib/languages"
@@ -96,6 +96,7 @@ export function ReviewCard({ snippet, index, total, onRate, submittingRating }: 
                     ? [getLanguageExtension(snippet.language as Language)!]
                     : []),
                   cleanGutter,
+                  getFontExtension(prefs.font),
                 ]}
                 editable={false}
                 basicSetup={{
@@ -105,7 +106,6 @@ export function ReviewCard({ snippet, index, total, onRate, submittingRating }: 
                   autocompletion: false,
                 }}
                 className="text-sm"
-                style={{ fontFamily: getFontCss(prefs.font) }}
               />
             </div>
           </div>
