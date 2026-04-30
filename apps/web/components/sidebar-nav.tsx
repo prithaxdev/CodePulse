@@ -88,24 +88,36 @@ export function SidebarNav() {
         href="/dashboard"
         className="mb-6 flex items-center gap-2.5 px-2 py-1"
       >
-        {/* Light mode icon */}
-        <img
-          src="/icons/codepulse-sidebar.svg"
+        {/*
+         * Inline SVG so Tailwind dark: can swap the back-shadow stroke.
+         * Light mode: #111827 (near-black — crisp on light bg)
+         * Dark mode:  #166534 (emerald-900 — dark green pops on the deep
+         *             indigo-black sidebar without fighting the bright front C)
+         * viewBox crops to content bounds so the C fills the 28px box evenly.
+         */}
+        <svg
+          viewBox="3 11 83 83"
           width={28}
           height={28}
-          alt=""
           aria-hidden
-          className="block dark:hidden shrink-0"
-        />
-        {/* Dark mode icon */}
-        <img
-          src="/icons/codepulse-sidebar-dark.svg"
-          width={28}
-          height={28}
-          alt=""
-          aria-hidden
-          className="hidden dark:block shrink-0"
-        />
+          className="shrink-0"
+        >
+          <path
+            d="M 68,25 A 32,32 0 1,0 68,75"
+            fill="none"
+            strokeWidth="22"
+            strokeLinecap="round"
+            transform="translate(5, 5)"
+            className="stroke-[#111827] dark:stroke-[#166534]"
+          />
+          <path
+            d="M 68,25 A 32,32 0 1,0 68,75"
+            fill="none"
+            stroke="#4ADE80"
+            strokeWidth="22"
+            strokeLinecap="round"
+          />
+        </svg>
         <span className="font-heading text-sm font-semibold tracking-tight text-foreground">
           CodePulse
         </span>
