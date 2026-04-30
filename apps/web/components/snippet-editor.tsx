@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "@tanstack/react-form"
 import CodeMirror from "@uiw/react-codemirror"
-import { vscodeDark } from "@uiw/codemirror-theme-vscode"
+import { githubDark } from "@uiw/codemirror-theme-github"
 import { cn } from "@/lib/utils"
 import { LANGUAGES, getLanguageExtension, type Language } from "@/lib/languages"
 import { TagInput } from "@/components/tag-input"
@@ -233,7 +233,7 @@ export function SnippetEditor() {
                     <CodeMirror
                       value={field.state.value}
                       onChange={(val) => field.handleChange(val)}
-                      theme={vscodeDark}
+                      theme={githubDark}
                       extensions={[
                         ...(getLanguageExtension(language as Language)
                           ? [getLanguageExtension(language as Language)!]

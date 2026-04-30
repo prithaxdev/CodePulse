@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@clerk/nextjs"
 import { useQueryClient } from "@tanstack/react-query"
 import CodeMirror from "@uiw/react-codemirror"
-import { vscodeDark } from "@uiw/codemirror-theme-vscode"
+import { githubDark } from "@uiw/codemirror-theme-github"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Edit01Icon, Delete01Icon } from "@hugeicons/core-free-icons"
 import { Button } from "@/components/ui/button"
@@ -240,7 +240,7 @@ function EditDialog({
               <CodeMirror
                 value={code}
                 onChange={setCode}
-                theme={vscodeDark}
+                theme={githubDark}
                 extensions={[
                   ...(getLanguageExtension(language) ? [getLanguageExtension(language)!] : []),
                 ]}
