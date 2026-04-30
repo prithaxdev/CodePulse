@@ -571,7 +571,7 @@ data: create seed dataset of 50 code snippets
 
 #### Week 6 (May 17–22): Search + Dashboard
 
-- [ ] **Day 26 — Mon, May 17:** Build Search page (`/search`). Debounced input (300ms). Call `/api/search`. Display ranked results: title, code preview, tags, similarity score, date. Click → `/snippets/[id]`. Commit: `feat: build semantic search page with TF-IDF ranking`
+- [x] **Day 26 — Mon, May 17:** Build Search page (`/search`). Debounced input (300ms). Call `/api/search`. Display ranked results: title, code preview, tags, similarity score, date. Click → `/snippets/[id]`. Commit: `feat: build semantic search page with TF-IDF ranking`
 
 - [ ] **Day 27 — Tue, May 18:** Build Snippet Detail page (`/snippets/[id]`). Full view with syntax highlighting. SM-2 state display. Edit and delete functionality. Commit: `feat: build snippet detail page with edit and delete`
 
@@ -720,7 +720,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 ## Status
 
 **Current Phase:** Phase 2 — Frontend
-**Current Day:** Day 26 (Mon, May 17, 2026) — Sprint 3 begins
-**Last Updated:** Sat, May 15, 2026
-**Total Progress:** 25/68 tasks completed (Sprint 1 complete ✓ tagged v0.1.0 | Sprint 2 complete ✓ tagged v0.2.0)
+**Current Day:** Day 27 (Tue, May 18, 2026)
+**Last Updated:** Mon, May 17, 2026
+**Total Progress:** 26/68 tasks completed (Sprint 1 complete ✓ tagged v0.1.0 | Sprint 2 complete ✓ tagged v0.2.0 | Sprint 3 in progress)
 **Next milestone:** Midterm Defense (~mid-June 2026)
