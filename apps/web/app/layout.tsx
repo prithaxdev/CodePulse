@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Geist_Mono, Inter } from "next/font/google"
+import { Geist_Mono, Inter, JetBrains_Mono, Fira_Code, IBM_Plex_Mono } from "next/font/google"
 import { ClerkProvider } from "@clerk/nextjs"
 
 import "./globals.css"
@@ -15,6 +15,9 @@ export const metadata: Metadata = {
 const geistMonoHeading = Geist_Mono({ subsets: ["latin"], variable: "--font-heading" })
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 const fontMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" })
+const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", weight: ["400", "500"] })
+const firaCode = Fira_Code({ subsets: ["latin"], variable: "--font-fira", weight: ["400", "500"] })
+const ibmPlexMono = IBM_Plex_Mono({ subsets: ["latin"], variable: "--font-ibm-plex", weight: ["400", "500"] })
 
 export default function RootLayout({
   children,
@@ -26,7 +29,15 @@ export default function RootLayout({
       <html
         lang="en"
         suppressHydrationWarning
-        className={cn("antialiased", fontMono.variable, "font-sans", inter.variable, geistMonoHeading.variable)}
+        className={cn(
+          "antialiased font-sans",
+          fontMono.variable,
+          inter.variable,
+          geistMonoHeading.variable,
+          jetbrainsMono.variable,
+          firaCode.variable,
+          ibmPlexMono.variable,
+        )}
       >
         <body>
           <Providers>
