@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "@tanstack/react-form"
 import CodeMirror from "@uiw/react-codemirror"
-import { getThemeExtension, getFontCss, cleanGutter } from "@/lib/editor-prefs"
+import { getThemeExtension, getFontExtension, cleanGutter } from "@/lib/editor-prefs"
 import { useEditorPrefs } from "@/hooks/use-editor-prefs"
 import { EditorToolbar } from "@/components/editor-toolbar"
 import { cn } from "@/lib/utils"
@@ -248,6 +248,7 @@ export function SnippetEditor() {
                           ? [getLanguageExtension(language as Language)!]
                           : []),
                         cleanGutter,
+                        getFontExtension(prefs.font),
                       ]}
                       minHeight="240px"
                       basicSetup={{
@@ -257,7 +258,6 @@ export function SnippetEditor() {
                         autocompletion: true,
                       }}
                       className="text-sm"
-                      style={{ fontFamily: getFontCss(prefs.font) }}
                     />
                   )}
                 </form.Subscribe>
