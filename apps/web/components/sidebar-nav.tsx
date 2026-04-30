@@ -88,22 +88,24 @@ export function SidebarNav() {
         href="/dashboard"
         className="mb-6 flex items-center gap-2.5 px-2 py-1"
       >
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15 ring-1 ring-primary/30">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-            <path
-              d="M2 4l5-2.5L12 4v3c0 2.5-2 4.5-5 5.5C4 11.5 2 9.5 2 7V4Z"
-              fill="currentColor"
-              className="text-primary"
-            />
-            <path
-              d="M5 7l1.5 1.5L9 5.5"
-              stroke="white"
-              strokeWidth="1.25"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </span>
+        {/* Light mode icon */}
+        <img
+          src="/icons/codepulse-sidebar.svg"
+          width={28}
+          height={28}
+          alt=""
+          aria-hidden
+          className="block dark:hidden shrink-0"
+        />
+        {/* Dark mode icon */}
+        <img
+          src="/icons/codepulse-sidebar-dark.svg"
+          width={28}
+          height={28}
+          alt=""
+          aria-hidden
+          className="hidden dark:block shrink-0"
+        />
         <span className="font-heading text-sm font-semibold tracking-tight text-foreground">
           CodePulse
         </span>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-labelledby="cp-i">
+  <title id="cp-i">CodePulse</title>
+
+  <!-- Back C — dark, offset down-right by 5px -->
+  <path d="M 68,25 A 32,32 0 1,0 68,75"
+    fill="none" stroke="#111827" stroke-width="22" stroke-linecap="round"
+    transform="translate(5, 5)" />
+
+  <!-- Front C — emerald green, centered -->
+  <path d="M 68,25 A 32,32 0 1,0 68,75"
+    fill="none" stroke="#4ADE80" stroke-width="22" stroke-linecap="round" />
+</svg>

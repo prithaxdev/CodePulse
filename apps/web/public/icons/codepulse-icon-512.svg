@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img">
+  <title>CodePulse Icon 512</title>
+
+  <!-- Optional: white background for social preview -->
+  <!-- <rect width="512" height="512" fill="#ffffff" rx="96" /> -->
+
+  <g transform="translate(92, 92) scale(3.28)">
+    <!-- Back C — dark shadow layer -->
+    <path d="M 68,25 A 32,32 0 1,0 68,75"
+      fill="none" stroke="#111827" stroke-width="22" stroke-linecap="round"
+      transform="translate(5, 5)" />
+    <!-- Front C — emerald -->
+    <path d="M 68,25 A 32,32 0 1,0 68,75"
+      fill="none" stroke="#4ADE80" stroke-width="22" stroke-linecap="round" />
+  </g>
+</svg>

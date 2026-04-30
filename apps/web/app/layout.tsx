@@ -10,6 +10,10 @@ import { cn } from "@/lib/utils"
 export const metadata: Metadata = {
   title: "CodePulse",
   description: "Developer learning retention with spaced repetition",
+  icons: {
+    icon: "/icons/codepulse-icon.svg",
+    apple: "/icons/codepulse-icon-512.svg",
+  },
 }
 
 const geistMonoHeading = Geist_Mono({ subsets: ["latin"], variable: "--font-heading" })
