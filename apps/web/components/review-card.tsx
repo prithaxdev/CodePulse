@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import CodeMirror from "@uiw/react-codemirror"
-import { vscodeDark } from "@uiw/codemirror-theme-vscode"
+import { githubDark } from "@uiw/codemirror-theme-github"
 import { cn } from "@/lib/utils"
 import { getLanguageExtension, type Language } from "@/lib/languages"
 import { Button } from "@/components/ui/button"
@@ -88,7 +88,7 @@ export function ReviewCard({ snippet, index, total, onRate, submittingRating }: 
             <div className={cn("min-h-48 transition-[filter] duration-300", !revealed && "blur-sm select-none pointer-events-none")}>
               <CodeMirror
                 value={snippet.code}
-                theme={vscodeDark}
+                theme={githubDark}
                 extensions={[
                   ...(getLanguageExtension(snippet.language as Language)
                     ? [getLanguageExtension(snippet.language as Language)!]
