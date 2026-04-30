@@ -44,7 +44,10 @@ def sm2_schedule(
         new_repetitions = repetitions + 1
 
         if repetitions == 0:
-            new_interval = 1
+            # Quality-adjusted first interval: Easy gets 4 days, Hard gets 2 days.
+            # Standard SM-2 fixes this at 1, but that makes every first review
+            # feel identical regardless of confidence — poor UX.
+            new_interval = 4 if quality >= 4 else 2
         elif repetitions == 1:
             new_interval = 6
         else:

@@ -8,10 +8,17 @@ from app.algorithms.sm2 import sm2_schedule
 # Basic scheduling progression
 # ---------------------------------------------------------------------------
 
-def test_first_review_easy_interval_is_one():
-    """First review (repetitions=0) always produces interval=1 regardless of quality."""
+def test_first_review_easy_gives_four_day_interval():
+    """First review (repetitions=0) with quality>=4 (Easy) gives interval=4."""
     interval, reps, ef = sm2_schedule(quality=5, repetitions=0, ease_factor=2.5, interval=1)
-    assert interval == 1
+    assert interval == 4
+    assert reps == 1
+
+
+def test_first_review_hard_gives_two_day_interval():
+    """First review (repetitions=0) with quality==3 (Hard) gives interval=2."""
+    interval, reps, ef = sm2_schedule(quality=3, repetitions=0, ease_factor=2.5, interval=1)
+    assert interval == 2
     assert reps == 1
 
 
@@ -111,7 +118,7 @@ def test_simulate_30_days_of_reviews():
         assert ease_factor >= 1.3, f"EF below minimum at step {step}"
         assert repetitions == step + 1, f"Unexpected reps at step {step}"
 
-        # After the fixed steps (1 and 6), each interval must grow
+        # After the quality-adjusted first step (4) and the fixed second step (6), intervals grow
         if step >= 2:
             assert interval >= prev_interval, (
                 f"Interval did not grow at step {step}: {interval} < {prev_interval}"

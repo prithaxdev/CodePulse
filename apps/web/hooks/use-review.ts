@@ -1,6 +1,7 @@
 "use client"
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useAuth } from "@clerk/nextjs"
 import { createClient } from "@/lib/supabase/client"
 import { snippetKeys } from "@/hooks/use-snippets"
 import { useSupabaseUserId } from "@/hooks/use-user"
@@ -32,7 +33,9 @@ export function useReviewLogs() {
 }
 
 export function useSubmitReview() {
-  const { data: userId } = useSupabaseUserId()
+  // clerkId must match the key used by useDueSnippets — they both use snippetKeys.due(clerkId)
+  const { userId: clerkId } = useAuth()
+  const { data: supabaseUserId } = useSupabaseUserId()
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -60,8 +63,10 @@ export function useSubmitReview() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: snippetKeys.due(userId ?? "") })
-      queryClient.invalidateQueries({ queryKey: reviewKeys.logs(userId ?? "") })
+      queryClient.invalidateQueries({ queryKey: snippetKeys.due(clerkId ?? "") })
+      if (supabaseUserId) {
+        queryClient.invalidateQueries({ queryKey: reviewKeys.logs(supabaseUserId) })
+      }
     },
   })
 }
