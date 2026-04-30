@@ -4,7 +4,9 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "@tanstack/react-form"
 import CodeMirror from "@uiw/react-codemirror"
-import { githubDark } from "@uiw/codemirror-theme-github"
+import { getThemeExtension, getFontCss, cleanGutter } from "@/lib/editor-prefs"
+import { useEditorPrefs } from "@/hooks/use-editor-prefs"
+import { EditorToolbar } from "@/components/editor-toolbar"
 import { cn } from "@/lib/utils"
 import { LANGUAGES, getLanguageExtension, type Language } from "@/lib/languages"
 import { TagInput } from "@/components/tag-input"
@@ -39,6 +41,7 @@ export function SnippetEditor() {
   const router = useRouter()
   const createSnippet = useCreateSnippet()
   const { data: existingSnippets = [] } = useSnippets()
+  const { prefs, updatePrefs } = useEditorPrefs()
 
   const [duplicates, setDuplicates] = useState<DuplicateMatch[]>([])
   const [ignoreDuplicate, setIgnoreDuplicate] = useState(false)
@@ -227,17 +230,24 @@ export function SnippetEditor() {
         {(field) => (
           <form.Subscribe selector={(s) => s.submissionAttempts}>
             {(attempts) => (
-              <div className={cn(attempts > 0 && field.state.meta.errors.length > 0 && "ring-1 ring-inset ring-destructive/40")}>
+              <div className={cn("overflow-hidden", attempts > 0 && field.state.meta.errors.length > 0 && "ring-1 ring-inset ring-destructive/40")}>
+                <EditorToolbar
+                  theme={prefs.theme}
+                  font={prefs.font}
+                  onThemeChange={(theme) => updatePrefs({ theme })}
+                  onFontChange={(font) => updatePrefs({ font })}
+                />
                 <form.Subscribe selector={(s) => s.values.language}>
                   {(language) => (
                     <CodeMirror
                       value={field.state.value}
                       onChange={(val) => field.handleChange(val)}
-                      theme={githubDark}
+                      theme={getThemeExtension(prefs.theme)}
                       extensions={[
                         ...(getLanguageExtension(language as Language)
                           ? [getLanguageExtension(language as Language)!]
                           : []),
+                        cleanGutter,
                       ]}
                       minHeight="240px"
                       basicSetup={{
@@ -247,7 +257,7 @@ export function SnippetEditor() {
                         autocompletion: true,
                       }}
                       className="text-sm"
-                      style={{ fontFamily: "var(--font-mono, ui-monospace, monospace)" }}
+                      style={{ fontFamily: getFontCss(prefs.font) }}
                     />
                   )}
                 </form.Subscribe>

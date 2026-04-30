@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import CodeMirror from "@uiw/react-codemirror"
-import { githubDark } from "@uiw/codemirror-theme-github"
+import { getThemeExtension, getFontCss, cleanGutter } from "@/lib/editor-prefs"
+import { useEditorPrefs } from "@/hooks/use-editor-prefs"
 import { cn } from "@/lib/utils"
 import { getLanguageExtension, type Language } from "@/lib/languages"
 import { Button } from "@/components/ui/button"
@@ -19,6 +20,7 @@ interface ReviewCardProps {
 export function ReviewCard({ snippet, index, total, onRate, submittingRating }: ReviewCardProps) {
   const isSubmitting = submittingRating !== null
   const [revealed, setReveal] = useState(false)
+  const { prefs } = useEditorPrefs()
 
   return (
     <div className="flex flex-col gap-4">
@@ -88,11 +90,12 @@ export function ReviewCard({ snippet, index, total, onRate, submittingRating }: 
             <div className={cn("min-h-48 transition-[filter] duration-300", !revealed && "blur-sm select-none pointer-events-none")}>
               <CodeMirror
                 value={snippet.code}
-                theme={githubDark}
+                theme={getThemeExtension(prefs.theme)}
                 extensions={[
                   ...(getLanguageExtension(snippet.language as Language)
                     ? [getLanguageExtension(snippet.language as Language)!]
                     : []),
+                  cleanGutter,
                 ]}
                 editable={false}
                 basicSetup={{
@@ -102,7 +105,7 @@ export function ReviewCard({ snippet, index, total, onRate, submittingRating }: 
                   autocompletion: false,
                 }}
                 className="text-sm"
-                style={{ fontFamily: "var(--font-mono, ui-monospace, monospace)" }}
+                style={{ fontFamily: getFontCss(prefs.font) }}
               />
             </div>
           </div>

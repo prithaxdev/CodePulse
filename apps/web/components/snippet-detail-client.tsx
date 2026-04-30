@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@clerk/nextjs"
 import { useQueryClient } from "@tanstack/react-query"
 import CodeMirror from "@uiw/react-codemirror"
-import { githubDark } from "@uiw/codemirror-theme-github"
+import { getThemeExtension, getFontCss, cleanGutter } from "@/lib/editor-prefs"
+import { useEditorPrefs } from "@/hooks/use-editor-prefs"
+import { EditorToolbar } from "@/components/editor-toolbar"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Edit01Icon, Delete01Icon } from "@hugeicons/core-free-icons"
 import { Button } from "@/components/ui/button"
@@ -128,6 +130,7 @@ function EditDialog({
   onOpenChange: (open: boolean) => void
   onSaved: () => void
 }) {
+  const { prefs, updatePrefs } = useEditorPrefs()
   const [title, setTitle] = useState(snippet.title)
   const [description, setDescription] = useState(snippet.description ?? "")
   const [language, setLanguage] = useState<Language>(snippet.language as Language)
@@ -237,12 +240,19 @@ function EditDialog({
           <div className="flex flex-col gap-1.5">
             <Label className="text-xs text-muted-foreground">Code</Label>
             <div className="overflow-hidden rounded-2xl border border-border">
+              <EditorToolbar
+                theme={prefs.theme}
+                font={prefs.font}
+                onThemeChange={(theme) => updatePrefs({ theme })}
+                onFontChange={(font) => updatePrefs({ font })}
+              />
               <CodeMirror
                 value={code}
                 onChange={setCode}
-                theme={githubDark}
+                theme={getThemeExtension(prefs.theme)}
                 extensions={[
                   ...(getLanguageExtension(language) ? [getLanguageExtension(language)!] : []),
+                  cleanGutter,
                 ]}
                 basicSetup={{
                   lineNumbers: true,
@@ -252,7 +262,7 @@ function EditDialog({
                 }}
                 className="text-sm"
                 style={{
-                  fontFamily: "var(--font-mono, ui-monospace, monospace)",
+                  fontFamily: getFontCss(prefs.font),
                   maxHeight: "280px",
                   overflowY: "auto",
                 }}
