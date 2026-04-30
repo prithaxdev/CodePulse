@@ -13,10 +13,11 @@ interface ReviewCardProps {
   index: number
   total: number
   onRate: (rating: 1 | 3 | 5) => void
-  isSubmitting: boolean
+  submittingRating: 1 | 3 | 5 | null
 }
 
-export function ReviewCard({ snippet, index, total, onRate, isSubmitting }: ReviewCardProps) {
+export function ReviewCard({ snippet, index, total, onRate, submittingRating }: ReviewCardProps) {
+  const isSubmitting = submittingRating !== null
   const [revealed, setReveal] = useState(false)
 
   return (
@@ -120,6 +121,7 @@ export function ReviewCard({ snippet, index, total, onRate, isSubmitting }: Revi
               sublabel="Start over"
               onClick={() => onRate(1)}
               disabled={isSubmitting}
+              isActive={submittingRating === 1}
               variant="forgot"
             />
             <RatingButton
@@ -127,6 +129,7 @@ export function ReviewCard({ snippet, index, total, onRate, isSubmitting }: Revi
               sublabel="Got it, barely"
               onClick={() => onRate(3)}
               disabled={isSubmitting}
+              isActive={submittingRating === 3}
               variant="hard"
             />
             <RatingButton
@@ -134,6 +137,7 @@ export function ReviewCard({ snippet, index, total, onRate, isSubmitting }: Revi
               sublabel="Got it!"
               onClick={() => onRate(5)}
               disabled={isSubmitting}
+              isActive={submittingRating === 5}
               variant="easy"
             />
           </div>
@@ -148,12 +152,14 @@ function RatingButton({
   sublabel,
   onClick,
   disabled,
+  isActive,
   variant,
 }: {
   label: string
   sublabel: string
   onClick: () => void
   disabled: boolean
+  isActive: boolean
   variant: "forgot" | "hard" | "easy"
 }) {
   const styles = {
@@ -170,12 +176,29 @@ function RatingButton({
       className={cn(
         "flex flex-col items-center gap-0.5 rounded-xl border px-3 py-3.5",
         "active:scale-[0.96] transition-[transform,background-color,opacity] duration-100",
-        "disabled:pointer-events-none disabled:opacity-50",
+        "disabled:pointer-events-none",
+        isActive ? "opacity-100" : "disabled:opacity-40",
         styles[variant],
       )}
     >
-      <span className="text-sm font-semibold">{label}</span>
-      <span className="text-[11px] opacity-70">{sublabel}</span>
+      {isActive ? (
+        <svg
+          className="size-4 animate-spin"
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-label="Processing"
+        >
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          />
+        </svg>
+      ) : (
+        <span className="text-sm font-semibold">{label}</span>
+      )}
+      <span className="text-[11px] opacity-70">{isActive ? "Saving…" : sublabel}</span>
     </button>
   )
 }

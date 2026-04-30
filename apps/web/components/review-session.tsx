@@ -13,20 +13,29 @@ export function ReviewSession() {
 
   const [index, setIndex] = useState(0)
   const [done, setDone] = useState(false)
+  const [submittingRating, setSubmittingRating] = useState<1 | 3 | 5 | null>(null)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const handleRate = async (snippet: Snippet, rating: 1 | 3 | 5) => {
-    await submitReview.mutateAsync({
-      snippetId: snippet.id,
-      rating,
-      currentEase: snippet.ease_factor,
-      currentInterval: snippet.interval_days,
-      currentReps: snippet.repetitions,
-    })
-
-    if (index + 1 >= due.length) {
-      setDone(true)
-    } else {
-      setIndex((i) => i + 1)
+    setSubmittingRating(rating)
+    setSubmitError(null)
+    try {
+      await submitReview.mutateAsync({
+        snippetId: snippet.id,
+        rating,
+        currentEase: snippet.ease_factor,
+        currentInterval: snippet.interval_days,
+        currentReps: snippet.repetitions,
+      })
+      if (index + 1 >= due.length) {
+        setDone(true)
+      } else {
+        setIndex((i) => i + 1)
+      }
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Something went wrong. Try again.")
+    } finally {
+      setSubmittingRating(null)
     }
   }
 
@@ -98,13 +107,19 @@ export function ReviewSession() {
         </p>
       </div>
 
+      {submitError && (
+        <div className="rounded-xl border border-destructive/30 bg-destructive/8 px-4 py-3 text-sm text-destructive">
+          {submitError}
+        </div>
+      )}
+
       <ReviewCard
         key={current.id}
         snippet={current}
         index={index}
         total={due.length}
         onRate={(rating) => handleRate(current, rating)}
-        isSubmitting={submitReview.isPending}
+        submittingRating={submittingRating}
       />
     </div>
   )
