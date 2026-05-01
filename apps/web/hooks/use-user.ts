@@ -15,13 +15,16 @@ export function useSupabaseUserId() {
     enabled: !!clerkId,
     staleTime: Infinity,
     queryFn: async (): Promise<string> => {
+      // .maybeSingle() returns null (not a 406) when 0 rows match.
+      // .single() throws PGRST116 / HTTP 406 for 0 rows — noisy and misleading.
       const { data, error } = await supabase
         .from("users")
         .select("id")
         .eq("clerk_id", clerkId!)
-        .single()
+        .maybeSingle()
 
       if (error) throw error
+      if (!data) throw new Error("User record not found — Clerk webhook may not have fired yet")
       return data.id
     },
   })

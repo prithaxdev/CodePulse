@@ -121,9 +121,10 @@ export function ReviewHeatmap() {
 
   return (
     <div className="overflow-x-auto">
-      <div className="min-w-max space-y-1.5">
-        {/* Month labels */}
-        <div className="flex gap-1 pl-8">
+      <div className="min-w-max">
+        {/* Month labels — h-4 gives the absolute-positioned text real space so it
+            doesn't bleed into the cells below. pl-8 matches w-7 day-label column + gap-1. */}
+        <div className="flex h-4 items-start gap-1 pl-8">
           {weeks.map((_, w) => {
             const mark = monthMarks.find((m) => m.col === w)
             return (
@@ -138,8 +139,8 @@ export function ReviewHeatmap() {
           })}
         </div>
 
-        {/* Grid */}
-        <div className="flex items-start gap-1">
+        {/* Grid — mt-1.5 separates it from the month labels */}
+        <div className="mt-1.5 flex items-start gap-1">
           {/* Day-of-week labels */}
           <div className="flex w-7 shrink-0 flex-col gap-1">
             {ROW_LABELS.map((label, i) => (
@@ -162,7 +163,7 @@ export function ReviewHeatmap() {
         </div>
 
         {/* Legend */}
-        <div className="flex items-center justify-end gap-1.5 pt-0.5">
+        <div className="mt-2 flex items-center justify-end gap-1.5">
           <span className="font-mono text-[9px] text-muted-foreground">Less</span>
           {[0, 2, 4, 7, 10].map((n) => (
             <div key={n} className={cn("h-2.5 w-2.5 rounded-[3px]", intensity(n, false))} />
