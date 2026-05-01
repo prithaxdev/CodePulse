@@ -31,15 +31,13 @@ interface StatCardProps {
   sublabel: string
   iconPath: string
   accent: Accent
-  index: number
 }
 
-function StatCard({ label, value, sublabel, iconPath, accent, index }: StatCardProps) {
+function StatCard({ label, value, sublabel, iconPath, accent }: StatCardProps) {
   const s = ACCENT[accent]
   return (
     <div
-      className="flex flex-col justify-between gap-4 rounded-2xl border border-border bg-card p-5 opacity-0 animate-[fadeSlideUp_0.4s_ease-out_forwards]"
-      style={{ animationDelay: `${index * 65}ms` }}
+      className="flex flex-col justify-between gap-4 rounded-2xl border border-border bg-card p-5"
     >
       <div className="flex items-center justify-between">
         <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
@@ -104,7 +102,6 @@ export function StatsCards() {
       sublabel: "in your library",
       iconPath: PATHS.snippets,
       accent: "neutral",
-      index: 0,
     },
     {
       label: "Due today",
@@ -112,7 +109,6 @@ export function StatsCards() {
       sublabel: s.dueToday === 1 ? "snippet needs review" : "snippets need review",
       iconPath: PATHS.clock,
       accent: s.dueToday > 0 ? "pulse" : "neutral",
-      index: 1,
     },
     {
       label: "Review streak",
@@ -120,7 +116,6 @@ export function StatsCards() {
       sublabel: s.reviewStreak === 1 ? "day in a row" : "days in a row",
       iconPath: PATHS.flame,
       accent: s.reviewStreak > 0 ? "primary" : "neutral",
-      index: 2,
     },
     {
       label: "Retention rate",
@@ -128,7 +123,6 @@ export function StatsCards() {
       sublabel: "rated ≥3 · last 30 days",
       iconPath: PATHS.bars,
       accent: s.retentionRate >= 70 ? "primary" : s.retentionRate >= 40 ? "pulse" : "neutral",
-      index: 3,
     },
   ]
 
