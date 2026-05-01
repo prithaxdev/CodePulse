@@ -1,5 +1,6 @@
 "use client"
 
+import { useAuth } from "@clerk/nextjs"
 import { cn } from "@/lib/utils"
 import { useReviewLogs } from "@/hooks/use-review"
 import { useSupabaseUserId } from "@/hooks/use-user"
@@ -109,12 +110,13 @@ function HeatmapSkeleton() {
 
 // ── Public component ─────────────────────────────────────────────────
 export function ReviewHeatmap() {
-  // Mirror the same stuck-state guard as use-stats: if userId lookup errors,
-  // useReviewLogs stays disabled and isPending stays true forever. isError breaks that.
+  // Same isLoaded + isLoading pattern as use-stats — prevents skeleton flash on
+  // every navigation caused by Clerk's brief isLoaded:false on mount.
+  const { isLoaded: clerkLoaded } = useAuth()
   const { isLoading: userIdLoading, isError: userIdError } = useSupabaseUserId()
-  const { data: logs, isPending: logsPending } = useReviewLogs()
+  const { data: logs, isLoading: logsLoading } = useReviewLogs()
 
-  const isLoading = userIdLoading || (logsPending && !userIdError)
+  const isLoading = !clerkLoaded || userIdLoading || (logsLoading && !userIdError)
   if (isLoading) return <HeatmapSkeleton />
 
   const { weeks, monthMarks } = buildGrid(logs ?? [])

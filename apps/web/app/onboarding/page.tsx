@@ -40,7 +40,7 @@ function CheckDot() {
 // ── Page ─────────────────────────────────────────────────────────────
 export default function OnboardingPage() {
   const router = useRouter()
-  const { user } = useUser()
+  const { user, isLoaded } = useUser()
   const { data: supabaseUserId } = useSupabaseUserId()
 
   const [selected, setSelected] = useState<Set<LanguageId>>(
@@ -48,6 +48,12 @@ export default function OnboardingPage() {
   )
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Already onboarded users who land here get bounced to dashboard
+  if (isLoaded && user?.unsafeMetadata?.onboarded) {
+    router.replace("/dashboard")
+    return null
+  }
 
   function toggle(id: LanguageId) {
     setSelected((prev) => {
@@ -62,16 +68,23 @@ export default function OnboardingPage() {
   }
 
   async function handleStart() {
-    if (!supabaseUserId || saving) return
+    if (!user || !supabaseUserId || saving) return
     setSaving(true)
     setError(null)
     try {
       const supabase = createClient()
+
+      // Persist language preferences to Supabase
       const { error: dbError } = await supabase
         .from("users")
         .update({ preferred_languages: Array.from(selected) })
         .eq("id", supabaseUserId)
       if (dbError) throw dbError
+
+      // Mark onboarding complete on the Clerk user — this is the source of truth
+      // the app layout checks to gate access to authenticated routes.
+      await user.update({ unsafeMetadata: { onboarded: true } })
+
       router.push("/dashboard")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong")

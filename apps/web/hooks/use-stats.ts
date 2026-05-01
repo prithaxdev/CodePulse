@@ -1,5 +1,6 @@
 "use client"
 
+import { useAuth } from "@clerk/nextjs"
 import { useSnippets } from "@/hooks/use-snippets"
 import { useReviewLogs } from "@/hooks/use-review"
 import { useSupabaseUserId } from "@/hooks/use-user"
@@ -12,15 +13,17 @@ export type DashboardStats = {
 }
 
 export function useStats(): { data: DashboardStats | undefined; isLoading: boolean } {
-  // useSupabaseUserId drives useReviewLogs (enabled: !!userId).
-  // If userId lookup errors (user not yet in Supabase), logs stay disabled —
-  // isPending is permanently true for disabled queries in TanStack v5.
-  // Tracking isError lets us break out of that stuck state.
+  // isLoaded gates the entire chain — Clerk briefly returns isLoaded:false on
+  // every mount, which disables queries (enabled:!!clerkId = false). Disabled
+  // queries have isPending:true but isLoading:false, so using isPending caused
+  // a skeleton flash on every navigation. Using isLoading (=isPending&&isFetching)
+  // skips the flash, and !isLoaded catches the true initialisation window.
+  const { isLoaded: clerkLoaded } = useAuth()
   const { isLoading: userIdLoading, isError: userIdError } = useSupabaseUserId()
-  const { data: snippets, isPending: snippetsPending } = useSnippets()
-  const { data: logs, isPending: logsPending } = useReviewLogs()
+  const { data: snippets, isLoading: snippetsLoading } = useSnippets()
+  const { data: logs, isLoading: logsLoading } = useReviewLogs()
 
-  const isLoading = snippetsPending || userIdLoading || (logsPending && !userIdError)
+  const isLoading = !clerkLoaded || snippetsLoading || userIdLoading || (logsLoading && !userIdError)
 
   if (!snippets) return { data: undefined, isLoading }
 
