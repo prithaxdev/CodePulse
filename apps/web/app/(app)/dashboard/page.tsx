@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useUser } from "@clerk/nextjs"
 import { StatsCards } from "@/components/stats-cards"
 import { ClusterView } from "@/components/cluster-view"
-import { ReviewHeatmap } from "@/components/review-heatmap"
+import { ReviewActivity } from "@/components/review-activity"
 import { useSnippets } from "@/hooks/use-snippets"
 import { useClusters } from "@/hooks/use-clusters"
 
@@ -56,14 +56,13 @@ export default function DashboardPage() {
         />
       </section>
 
-      {/* ── Review activity heatmap ──────────────────────────── */}
+      {/* ── Review activity ──────────────────────────────────── */}
       <section>
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4">
           <h2 className="font-heading text-base font-semibold tracking-tight">Review Activity</h2>
-          <span className="font-mono text-[10px] text-muted-foreground">last {15} weeks</span>
         </div>
         <div className="rounded-2xl border border-border bg-card p-5">
-          <ReviewHeatmap />
+          <ReviewActivity />
         </div>
       </section>
 
