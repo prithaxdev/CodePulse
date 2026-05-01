@@ -1,9 +1,7 @@
 "use client"
 
-import { useAuth } from "@clerk/nextjs"
 import { useSnippets } from "@/hooks/use-snippets"
 import { useReviewLogs } from "@/hooks/use-review"
-import { useSupabaseUserId } from "@/hooks/use-user"
 
 export type DashboardStats = {
   totalSnippets: number
@@ -12,22 +10,16 @@ export type DashboardStats = {
   retentionRate: number
 }
 
-export function useStats(): { data: DashboardStats | undefined; isLoading: boolean } {
-  // isLoaded gates the entire chain — Clerk briefly returns isLoaded:false on
-  // every mount, which disables queries (enabled:!!clerkId = false). Disabled
-  // queries have isPending:true but isLoading:false, so using isPending caused
-  // a skeleton flash on every navigation. Using isLoading (=isPending&&isFetching)
-  // skips the flash, and !isLoaded catches the true initialisation window.
-  const { isLoaded: clerkLoaded } = useAuth()
-  const { isLoading: userIdLoading, isError: userIdError } = useSupabaseUserId()
-  const { data: snippets, isLoading: snippetsLoading } = useSnippets()
-  const { data: logs, isLoading: logsLoading } = useReviewLogs()
+export function useStats(): { data: DashboardStats | undefined } {
+  const { data: snippets } = useSnippets()
+  const { data: logs } = useReviewLogs()
 
-  const isLoading = !clerkLoaded || snippetsLoading || userIdLoading || (logsLoading && !userIdError)
+  // data===undefined means snippets haven't hit the cache yet.
+  // StatsCards checks data===undefined to decide whether to skeleton —
+  // so any other loading state is irrelevant here.
+  if (!snippets) return { data: undefined }
 
-  if (!snippets) return { data: undefined, isLoading }
-
-  // If userId lookup failed, logs will never arrive — treat as empty
+  // logs may be undefined if userId lookup is still resolving — treat as empty.
   const effectiveLogs = logs ?? []
 
   const today = new Date().toISOString().split("T")[0]
@@ -53,7 +45,6 @@ export function useStats(): { data: DashboardStats | undefined; isLoading: boole
       reviewStreak,
       retentionRate,
     },
-    isLoading,
   }
 }
 

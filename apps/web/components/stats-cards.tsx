@@ -83,9 +83,12 @@ function StatSkeleton() {
 
 // ── Public component ─────────────────────────────────────────────────
 export function StatsCards() {
-  const { data, isLoading } = useStats()
+  const { data } = useStats()
 
-  if (isLoading) {
+  // Show skeleton only while stats have never been computed (snippets not yet in cache).
+  // Checking data===undefined (not isLoading) means any navigation back that hits the
+  // cache skips the skeleton entirely — even if loading flags briefly flicker true.
+  if (data === undefined) {
     return (
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => <StatSkeleton key={i} />)}

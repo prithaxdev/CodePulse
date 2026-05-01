@@ -1,9 +1,8 @@
 "use client"
 
-import { useAuth } from "@clerk/nextjs"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@clerk/nextjs"
 import { useReviewLogs } from "@/hooks/use-review"
-import { useSupabaseUserId } from "@/hooks/use-user"
 import type { ReviewLog } from "@/types/snippet"
 
 const WEEKS = 15 // ~3.5 months of history
@@ -12,11 +11,18 @@ const ROW_LABELS = [null, "Mon", null, "Wed", null, "Fri", null] // Sun=0 … Sa
 type Cell = { date: string; count: number; isFuture: boolean }
 type MonthMark = { col: number; label: string }
 
+// ── Local date string (YYYY-MM-DD) without UTC conversion ───────────
+function toLocalDateStr(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+}
+
 // ── Build the grid data ──────────────────────────────────────────────
 function buildGrid(logs: ReviewLog[]): { weeks: Cell[][]; monthMarks: MonthMark[] } {
   const counts: Record<string, number> = {}
   for (const log of logs) {
-    const d = log.reviewed_at.split("T")[0]
+    // Parse the timestamp in local time so Nepal (UTC+5:45) reviews
+    // land on the correct local calendar day, not the UTC day before.
+    const d = toLocalDateStr(new Date(log.reviewed_at))
     counts[d] = (counts[d] ?? 0) + 1
   }
 
@@ -38,7 +44,8 @@ function buildGrid(logs: ReviewLog[]): { weeks: Cell[][]; monthMarks: MonthMark[
   for (let i = 0; i < WEEKS * 7; i++) {
     const date = new Date(startDate)
     date.setDate(startDate.getDate() + i)
-    const dateStr = date.toISOString().split("T")[0]
+    // Use local date string so grid cells match local calendar days
+    const dateStr = toLocalDateStr(date)
     const isFuture = date > today
 
     flat.push({ date: dateStr, count: isFuture ? 0 : (counts[dateStr] ?? 0), isFuture })
@@ -110,14 +117,14 @@ function HeatmapSkeleton() {
 
 // ── Public component ─────────────────────────────────────────────────
 export function ReviewHeatmap() {
-  // Same isLoaded + isLoading pattern as use-stats — prevents skeleton flash on
-  // every navigation caused by Clerk's brief isLoaded:false on mount.
   const { isLoaded: clerkLoaded } = useAuth()
-  const { isLoading: userIdLoading, isError: userIdError } = useSupabaseUserId()
-  const { data: logs, isLoading: logsLoading } = useReviewLogs()
+  const { data: logs } = useReviewLogs()
 
-  const isLoading = !clerkLoaded || userIdLoading || (logsLoading && !userIdError)
-  if (isLoading) return <HeatmapSkeleton />
+  // Show skeleton only when Clerk is ready but we genuinely have no cached data.
+  // While Clerk is hydrating (isLoaded=false), render empty grid instead of skeleton —
+  // Clerk loads fast, so the empty state is imperceptible. Once Clerk resolves, the
+  // logs query key (keyed on clerkId) gets an immediate cache hit.
+  if (clerkLoaded && logs === undefined) return <HeatmapSkeleton />
 
   const { weeks, monthMarks } = buildGrid(logs ?? [])
 
