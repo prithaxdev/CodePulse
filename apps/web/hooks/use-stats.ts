@@ -2,6 +2,7 @@
 
 import { useSnippets } from "@/hooks/use-snippets"
 import { useReviewLogs } from "@/hooks/use-review"
+import { useSupabaseUserId } from "@/hooks/use-user"
 
 export type DashboardStats = {
   totalSnippets: number
@@ -11,15 +12,20 @@ export type DashboardStats = {
 }
 
 export function useStats(): { data: DashboardStats | undefined; isLoading: boolean } {
-  // isPending is true while the query has no data yet — including when it is
-  // disabled (e.g. Clerk/Supabase IDs not ready). isLoading is false for
-  // disabled queries, so it would cause the skeleton to be skipped and zeros shown.
+  // useSupabaseUserId drives useReviewLogs (enabled: !!userId).
+  // If userId lookup errors (user not yet in Supabase), logs stay disabled —
+  // isPending is permanently true for disabled queries in TanStack v5.
+  // Tracking isError lets us break out of that stuck state.
+  const { isLoading: userIdLoading, isError: userIdError } = useSupabaseUserId()
   const { data: snippets, isPending: snippetsPending } = useSnippets()
   const { data: logs, isPending: logsPending } = useReviewLogs()
 
-  const isLoading = snippetsPending || logsPending
+  const isLoading = snippetsPending || userIdLoading || (logsPending && !userIdError)
 
-  if (!snippets || !logs) return { data: undefined, isLoading }
+  if (!snippets) return { data: undefined, isLoading }
+
+  // If userId lookup failed, logs will never arrive — treat as empty
+  const effectiveLogs = logs ?? []
 
   const today = new Date().toISOString().split("T")[0]
 
@@ -28,14 +34,14 @@ export function useStats(): { data: DashboardStats | undefined; isLoading: boole
   // Retention rate: reviews rated >= 3 out of all reviews (last 30 days)
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-  const recentLogs = logs.filter((l) => new Date(l.reviewed_at) >= thirtyDaysAgo)
+  const recentLogs = effectiveLogs.filter((l) => new Date(l.reviewed_at) >= thirtyDaysAgo)
   const retentionRate =
     recentLogs.length === 0
       ? 0
       : Math.round((recentLogs.filter((l) => l.rating >= 3).length / recentLogs.length) * 100)
 
   // Review streak: consecutive days with at least one review
-  const reviewStreak = computeStreak(logs.map((l) => l.reviewed_at))
+  const reviewStreak = computeStreak(effectiveLogs.map((l) => l.reviewed_at))
 
   return {
     data: {

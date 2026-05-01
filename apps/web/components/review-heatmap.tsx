@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { useReviewLogs } from "@/hooks/use-review"
+import { useSupabaseUserId } from "@/hooks/use-user"
 import type { ReviewLog } from "@/types/snippet"
 
 const WEEKS = 15 // ~3.5 months of history
@@ -108,11 +109,13 @@ function HeatmapSkeleton() {
 
 // ── Public component ─────────────────────────────────────────────────
 export function ReviewHeatmap() {
-  // isPending covers both "fetching" and "disabled" (userId not yet ready) states.
-  // isLoading would be false while the query is disabled, rendering an empty grid.
-  const { data: logs, isPending } = useReviewLogs()
+  // Mirror the same stuck-state guard as use-stats: if userId lookup errors,
+  // useReviewLogs stays disabled and isPending stays true forever. isError breaks that.
+  const { isLoading: userIdLoading, isError: userIdError } = useSupabaseUserId()
+  const { data: logs, isPending: logsPending } = useReviewLogs()
 
-  if (isPending) return <HeatmapSkeleton />
+  const isLoading = userIdLoading || (logsPending && !userIdError)
+  if (isLoading) return <HeatmapSkeleton />
 
   const { weeks, monthMarks } = buildGrid(logs ?? [])
 
