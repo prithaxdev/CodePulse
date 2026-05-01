@@ -11,10 +11,13 @@ export type DashboardStats = {
 }
 
 export function useStats(): { data: DashboardStats | undefined; isLoading: boolean } {
-  const { data: snippets, isLoading: snippetsLoading } = useSnippets()
-  const { data: logs, isLoading: logsLoading } = useReviewLogs()
+  // isPending is true while the query has no data yet — including when it is
+  // disabled (e.g. Clerk/Supabase IDs not ready). isLoading is false for
+  // disabled queries, so it would cause the skeleton to be skipped and zeros shown.
+  const { data: snippets, isPending: snippetsPending } = useSnippets()
+  const { data: logs, isPending: logsPending } = useReviewLogs()
 
-  const isLoading = snippetsLoading || logsLoading
+  const isLoading = snippetsPending || logsPending
 
   if (!snippets || !logs) return { data: undefined, isLoading }
 

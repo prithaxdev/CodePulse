@@ -108,9 +108,11 @@ function HeatmapSkeleton() {
 
 // ── Public component ─────────────────────────────────────────────────
 export function ReviewHeatmap() {
-  const { data: logs, isLoading } = useReviewLogs()
+  // isPending covers both "fetching" and "disabled" (userId not yet ready) states.
+  // isLoading would be false while the query is disabled, rendering an empty grid.
+  const { data: logs, isPending } = useReviewLogs()
 
-  if (isLoading) return <HeatmapSkeleton />
+  if (isPending) return <HeatmapSkeleton />
 
   const { weeks, monthMarks } = buildGrid(logs ?? [])
 

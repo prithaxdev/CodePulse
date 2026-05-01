@@ -8,8 +8,15 @@ import { ReviewCard } from "@/components/review-card"
 import type { Snippet } from "@/types/snippet"
 
 export function ReviewSession() {
-  const { data: due = [], isLoading } = useDueSnippets()
+  const { data: liveData = [], isLoading } = useDueSnippets()
   const submitReview = useSubmitReview()
+
+  // Snapshot the queue the moment data first loads. Without this, invalidateQueries
+  // after each rating triggers a refetch that shrinks the array, making due[index]
+  // undefined before setIndex/setDone can fire — crashing the component.
+  const [queue, setQueue] = useState<Snippet[] | null>(null)
+  if (!isLoading && queue === null) setQueue(liveData)
+  const due = queue ?? []
 
   const [index, setIndex] = useState(0)
   const [done, setDone] = useState(false)
