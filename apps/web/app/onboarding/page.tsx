@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useUser } from "@clerk/nextjs"
@@ -46,11 +46,11 @@ export default function OnboardingPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Already onboarded users who land here get bounced to dashboard
-  if (isLoaded && user?.unsafeMetadata?.onboarded) {
-    router.replace("/dashboard")
-    return null
-  }
+  useEffect(() => {
+    if (isLoaded && user?.unsafeMetadata?.onboarded) {
+      router.replace("/dashboard")
+    }
+  }, [isLoaded, user, router])
 
   function toggle(id: LanguageId) {
     setSelected((prev) => {
