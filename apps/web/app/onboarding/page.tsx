@@ -4,8 +4,6 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useUser } from "@clerk/nextjs"
-import { createClient } from "@/lib/supabase/client"
-import { useSupabaseUserId } from "@/hooks/use-user"
 import { cn } from "@/lib/utils"
 
 // ── Language options ─────────────────────────────────────────────────
@@ -41,7 +39,6 @@ function CheckDot() {
 export default function OnboardingPage() {
   const router = useRouter()
   const { user, isLoaded } = useUser()
-  const { data: supabaseUserId } = useSupabaseUserId()
 
   const [selected, setSelected] = useState<Set<LanguageId>>(
     new Set<LanguageId>(["typescript", "javascript"]),
@@ -68,23 +65,21 @@ export default function OnboardingPage() {
   }
 
   async function handleStart() {
-    if (!user || !supabaseUserId || saving) return
+    if (!user || saving) return
     setSaving(true)
     setError(null)
     try {
-      const supabase = createClient()
+      const res = await fetch("/api/onboarding", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ preferred_languages: Array.from(selected) }),
+      })
+      if (!res.ok) {
+        const { error } = await res.json()
+        throw new Error(error ?? "Failed to save preferences")
+      }
 
-      // Persist language preferences to Supabase
-      const { error: dbError } = await supabase
-        .from("users")
-        .update({ preferred_languages: Array.from(selected) })
-        .eq("id", supabaseUserId)
-      if (dbError) throw dbError
-
-      // Mark onboarding complete on the Clerk user — this is the source of truth
-      // the app layout checks to gate access to authenticated routes.
       await user.update({ unsafeMetadata: { onboarded: true } })
-
       router.push("/dashboard")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong")
@@ -175,7 +170,7 @@ export default function OnboardingPage() {
           <button
             type="button"
             onClick={handleStart}
-            disabled={saving || !supabaseUserId}
+            disabled={saving || !isLoaded}
             className={cn(
               "flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3",
               "font-medium text-primary-foreground text-sm",
