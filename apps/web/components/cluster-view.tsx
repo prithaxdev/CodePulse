@@ -3,6 +3,8 @@
 import { useState } from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { ThreadDraft } from "@/components/thread-draft"
+import { useThreadDraft } from "@/hooks/use-thread-draft"
 import type { ClusterWithSnippets } from "@/hooks/use-clusters"
 
 // ── Accent palette — cycles per cluster index ────────────────────────
@@ -13,8 +15,25 @@ const ACCENTS = [
   { dot: "bg-violet-400",    pill: "bg-violet-500/10 text-violet-400",    border: "hover:border-violet-400/25" },
 ] as const
 
+// ── Sparkle / thread icon ─────────────────────────────────────────────
+function ThreadIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2 4h12M2 8h8M2 12h5" />
+    </svg>
+  )
+}
+
 // ── Individual cluster card ──────────────────────────────────────────
-function ClusterCard({ cluster, colorIndex }: { cluster: ClusterWithSnippets; colorIndex: number }) {
+function ClusterCard({
+  cluster,
+  colorIndex,
+  onGenerateThread,
+}: {
+  cluster: ClusterWithSnippets
+  colorIndex: number
+  onGenerateThread: (cluster: ClusterWithSnippets) => void
+}) {
   const [expanded, setExpanded] = useState(false)
   const accent = ACCENTS[colorIndex % ACCENTS.length]
 
@@ -100,6 +119,26 @@ function ClusterCard({ cluster, colorIndex }: { cluster: ClusterWithSnippets; co
                 +{cluster.snippets.length - 8} more
               </p>
             )}
+
+            {/* ── Generate thread button ── */}
+            <div className="px-5 py-3">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onGenerateThread(cluster)
+                }}
+                className={cn(
+                  "flex w-full items-center justify-center gap-2 rounded-lg py-2 text-xs font-medium",
+                  "border border-dashed border-border text-muted-foreground",
+                  "hover:border-primary/40 hover:bg-primary/5 hover:text-primary",
+                  "active:scale-[0.98] transition-all duration-150",
+                )}
+              >
+                <ThreadIcon className="size-3.5" />
+                Generate thread
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -137,6 +176,19 @@ export interface ClusterViewProps {
 }
 
 export function ClusterView({ clusters, isLoading, hasEnoughSnippets }: ClusterViewProps) {
+  const [activeCluster, setActiveCluster] = useState<ClusterWithSnippets | null>(null)
+  const { data: threadPoints, isPending, isError, mutate, reset } = useThreadDraft()
+
+  function openThread(cluster: ClusterWithSnippets) {
+    setActiveCluster(cluster)
+    mutate(cluster)
+  }
+
+  function closeThread() {
+    setActiveCluster(null)
+    reset()
+  }
+
   if (!hasEnoughSnippets) {
     return (
       <div className="rounded-2xl border border-dashed border-border/60 bg-card/40 px-6 py-10 text-center">
@@ -172,14 +224,26 @@ export function ClusterView({ clusters, isLoading, hasEnoughSnippets }: ClusterV
   }
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {clusters.map((cluster, i) => (
-        <ClusterCard
-          key={`${cluster.label}-${i}`}
-          cluster={cluster}
-          colorIndex={i}
-        />
-      ))}
-    </div>
+    <>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {clusters.map((cluster, i) => (
+          <ClusterCard
+            key={`${cluster.label}-${i}`}
+            cluster={cluster}
+            colorIndex={i}
+            onGenerateThread={openThread}
+          />
+        ))}
+      </div>
+
+      <ThreadDraft
+        cluster={activeCluster}
+        points={threadPoints}
+        isLoading={isPending}
+        isError={isError}
+        onRetry={() => activeCluster && mutate(activeCluster)}
+        onClose={closeThread}
+      />
+    </>
   )
 }
