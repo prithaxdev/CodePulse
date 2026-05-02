@@ -3,7 +3,7 @@
 // Force dynamic rendering — all app pages need auth at request time
 export const dynamic = "force-dynamic"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useUser } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { SidebarNav } from "@/components/sidebar-nav"
@@ -14,22 +14,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { isLoaded, user } = useUser()
   const router = useRouter()
 
-  // Client-side onboarding guard — catches new users who navigate directly to
-  // an app URL after sign-up instead of going through the sign-up redirect.
-  // We scope it to accounts < 30 minutes old so existing users who predate
-  // the unsafeMetadata.onboarded flag are never incorrectly redirected.
-  if (isLoaded && user && !user.unsafeMetadata?.onboarded) {
-    const accountAgeMs = user.createdAt ? Date.now() - user.createdAt.getTime() : Infinity
-    if (accountAgeMs < 30 * 60 * 1000) {
-      router.replace("/onboarding")
-      return null
+  useEffect(() => {
+    if (!isLoaded || !user) return
+    if (!user.unsafeMetadata?.onboarded) {
+      const accountAgeMs = user.createdAt ? Date.now() - user.createdAt.getTime() : Infinity
+      if (accountAgeMs < 30 * 60 * 1000) {
+        router.replace("/onboarding")
+      }
     }
-  }
+  }, [isLoaded, user, router])
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex h-dvh overflow-hidden bg-background">
       {/* ── Desktop sidebar ─────────────────────────────────── */}
-      <aside className="relative hidden w-56 shrink-0 border-r border-border bg-sidebar lg:flex lg:flex-col">
+      <aside className="relative hidden w-56 shrink-0 overflow-y-auto border-r border-border bg-sidebar lg:flex lg:flex-col">
         <SidebarNav />
       </aside>
 
