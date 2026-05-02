@@ -35,7 +35,7 @@ export async function GET(req: Request) {
   const byUser = new Map<string, UserInfo>()
 
   for (const row of dueRows) {
-    const u = row.users as { email: string; display_name: string | null }
+    const u = row.users as unknown as { email: string; display_name: string | null }
     const existing = byUser.get(row.user_id)
     if (existing) {
       existing.count++
