@@ -13,7 +13,8 @@ export async function GET(req: Request) {
   }
 
   const supabase = createAdminClient()
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://web-two-beta-49.vercel.app"
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL ?? "https://web-two-beta-49.vercel.app"
   const today = new Date().toISOString().split("T")[0]
 
   // Fetch all snippets due today or earlier, joined with their owner's profile.
@@ -35,12 +36,19 @@ export async function GET(req: Request) {
   const byUser = new Map<string, UserInfo>()
 
   for (const row of dueRows) {
-    const u = row.users as unknown as { email: string; display_name: string | null }
+    const u = row.users as unknown as {
+      email: string
+      display_name: string | null
+    }
     const existing = byUser.get(row.user_id)
     if (existing) {
       existing.count++
     } else {
-      byUser.set(row.user_id, { email: u.email, display_name: u.display_name, count: 1 })
+      byUser.set(row.user_id, {
+        email: u.email,
+        display_name: u.display_name,
+        count: 1,
+      })
     }
   }
 
