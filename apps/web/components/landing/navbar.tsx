@@ -1,239 +1,346 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
+import { motion } from "framer-motion"
+import { Menu, X } from "lucide-react"
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet"
+import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/components/ui/navigation-menu"
+import { cn } from "@/lib/utils"
+import { useScrollNavigation } from "@/hooks/useScrollNavigation"
+import { useActiveSection } from "@/hooks/useActiveSection"
+
+const NAV_LINKS = [
+  { label: "How it works", href: "#how-it-works", id: "how-it-works" },
+  { label: "Features", href: "#features", id: "features" },
+  { label: "Algorithm", href: "#algorithm", id: "algorithm" },
+]
+
+const NavBadge = ({ children }: { children: React.ReactNode }) => (
+  <span
+    style={{
+      display: "inline-flex",
+      alignItems: "center",
+      fontFamily: "var(--font-mono)",
+      fontSize: "0.7rem",
+      letterSpacing: "0.02em",
+    }}
+  >
+    {children}
+  </span>
+)
 
 export function Navbar() {
-  const [scrolled, setScrolled] = useState(false)
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const [sticky, setSticky] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+  const { scrollTo } = useScrollNavigation()
+  const sectionIds = NAV_LINKS.map((l) => l.id)
+  const activeSection = useActiveSection(sectionIds)
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
-    window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
+  const handleScroll = useCallback(() => setSticky(window.scrollY >= 50), [])
+  const handleResize = useCallback(() => {
+    if (window.innerWidth >= 1024) setIsOpen(false)
   }, [])
 
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    window.addEventListener("resize", handleResize)
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      window.removeEventListener("resize", handleResize)
+    }
+  }, [handleScroll, handleResize])
+
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith("#")) {
+      e.preventDefault()
+      scrollTo(href, () => setIsOpen(false))
+    }
+  }
+
   return (
-    <>
-      <nav
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 50,
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          background: "oklch(0.1 0.012 255 / 0.85)",
-          borderBottom: "1px solid var(--border)",
-          boxShadow: scrolled ? "0 1px 0 var(--border)" : "none",
-          transition: "box-shadow 0.2s",
-        }}
+    <motion.header
+      initial={{ opacity: 0, y: -24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      style={{
+        position: "fixed",
+        top: 0,
+        zIndex: 50,
+        display: "flex",
+        height: "72px",
+        width: "100%",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "0 1rem",
+      }}
+    >
+      <div
+        className={cn(
+          "flex w-full max-w-5xl items-center justify-between gap-4 transition-all duration-500",
+          sticky
+            ? "rounded-full border border-white/10 bg-[oklch(0.1_0.012_255/0.8)] px-4 py-2.5 shadow-2xl shadow-black/30 backdrop-blur-xl"
+            : "bg-transparent",
+        )}
       >
-        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem" }}>
-          <div style={{ display: "flex", alignItems: "center", height: "60px", gap: "2rem" }}>
-            {/* Logo */}
-            <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.5rem", textDecoration: "none", flexShrink: 0 }}>
-              <span
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "1.1rem",
-                  color: "var(--primary)",
-                  fontWeight: 600,
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                {"</>"}
-              </span>
-              <span
-                style={{
-                  fontFamily: "var(--font-heading)",
-                  fontSize: "1.1rem",
-                  fontWeight: 600,
-                  color: "var(--foreground)",
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                CodePulse
-              </span>
-            </Link>
-
-            {/* Center nav links — desktop only */}
-            <div className="nav-links-desktop" style={{ display: "flex", alignItems: "center", gap: "0.25rem", flex: 1 }}>
-              {[
-                { label: "How it works", href: "#how-it-works" },
-                { label: "Features", href: "#features" },
-                { label: "Algorithm", href: "#algorithm" },
-                { label: "GitHub", href: "https://github.com" },
-              ].map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.8rem",
-                    color: "var(--muted-foreground)",
-                    textDecoration: "none",
-                    padding: "0.4rem 0.75rem",
-                    borderRadius: "var(--radius)",
-                    transition: "color 0.15s, background 0.15s",
-                    letterSpacing: "0.01em",
-                  }}
-                  onMouseEnter={(e) => {
-                    ;(e.target as HTMLElement).style.color = "var(--foreground)"
-                    ;(e.target as HTMLElement).style.background = "var(--muted)"
-                  }}
-                  onMouseLeave={(e) => {
-                    ;(e.target as HTMLElement).style.color = "var(--muted-foreground)"
-                    ;(e.target as HTMLElement).style.background = "transparent"
-                  }}
-                >
-                  {link.label}
-                </a>
-              ))}
-            </div>
-
-            {/* Right — CTA buttons */}
-            <div className="nav-cta-desktop" style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0 }}>
-              <Link
-                href="/sign-in"
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "0.8rem",
-                  color: "var(--muted-foreground)",
-                  textDecoration: "none",
-                  padding: "0.4rem 0.875rem",
-                  borderRadius: "var(--radius)",
-                  border: "1px solid var(--border)",
-                  transition: "color 0.15s, border-color 0.15s",
-                }}
-                onMouseEnter={(e) => {
-                  ;(e.currentTarget as HTMLElement).style.color = "var(--foreground)"
-                  ;(e.currentTarget as HTMLElement).style.borderColor = "oklch(1 0 0 / 0.18)"
-                }}
-                onMouseLeave={(e) => {
-                  ;(e.currentTarget as HTMLElement).style.color = "var(--muted-foreground)"
-                  ;(e.currentTarget as HTMLElement).style.borderColor = "var(--border)"
-                }}
-              >
-                Sign in
-              </Link>
-              <Link
-                href="/sign-up"
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "0.8rem",
-                  fontWeight: 500,
-                  color: "var(--primary-foreground)",
-                  textDecoration: "none",
-                  padding: "0.4rem 0.875rem",
-                  borderRadius: "var(--radius)",
-                  background: "var(--primary)",
-                  transition: "opacity 0.15s, transform 0.15s",
-                }}
-                onMouseEnter={(e) => {
-                  ;(e.currentTarget as HTMLElement).style.opacity = "0.9"
-                }}
-                onMouseLeave={(e) => {
-                  ;(e.currentTarget as HTMLElement).style.opacity = "1"
-                }}
-                onMouseDown={(e) => {
-                  ;(e.currentTarget as HTMLElement).style.transform = "scale(0.96)"
-                }}
-                onMouseUp={(e) => {
-                  ;(e.currentTarget as HTMLElement).style.transform = "scale(1)"
-                }}
-              >
-                Start free
-              </Link>
-
-              {/* Mobile hamburger */}
-              <button
-                className="nav-hamburger"
-                onClick={() => setMobileOpen(!mobileOpen)}
-                aria-label="Toggle menu"
-                style={{
-                  display: "none",
-                  background: "none",
-                  border: "1px solid var(--border)",
-                  borderRadius: "var(--radius)",
-                  padding: "0.4rem 0.5rem",
-                  color: "var(--muted-foreground)",
-                  cursor: "pointer",
-                  flexDirection: "column",
-                  gap: "4px",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: "40px",
-                  height: "40px",
-                }}
-              >
-                <span style={{ display: "block", width: "16px", height: "1.5px", background: "currentColor", transition: "transform 0.2s, opacity 0.2s", transform: mobileOpen ? "rotate(45deg) translate(4px, 4px)" : "none" }} />
-                <span style={{ display: "block", width: "16px", height: "1.5px", background: "currentColor", opacity: mobileOpen ? 0 : 1, transition: "opacity 0.2s" }} />
-                <span style={{ display: "block", width: "16px", height: "1.5px", background: "currentColor", transition: "transform 0.2s, opacity 0.2s", transform: mobileOpen ? "rotate(-45deg) translate(4px, -4px)" : "none" }} />
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Mobile drawer */}
-      {mobileOpen && (
-        <div
+        {/* Logo — text only in heading font */}
+        <Link
+          href="/"
           style={{
-            position: "fixed",
-            top: "60px",
-            right: 0,
-            bottom: 0,
-            width: "280px",
-            background: "oklch(0.12 0.013 255)",
-            borderLeft: "1px solid var(--border)",
-            zIndex: 49,
-            padding: "1.5rem",
-            display: "flex",
-            flexDirection: "column",
-            gap: "0.5rem",
+            fontFamily: "var(--font-heading)",
+            fontSize: "1.15rem",
+            fontWeight: 700,
+            color: "var(--foreground)",
+            textDecoration: "none",
+            letterSpacing: "-0.02em",
+            flexShrink: 0,
           }}
         >
-          {[
-            { label: "How it works", href: "#how-it-works" },
-            { label: "Features", href: "#features" },
-            { label: "Algorithm", href: "#algorithm" },
-            { label: "GitHub", href: "https://github.com" },
-          ].map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={() => setMobileOpen(false)}
+          CodePulse
+        </Link>
+
+        {/* Desktop nav pills */}
+        <NavigationMenu className="hidden lg:flex rounded-full border border-white/10 bg-white/5 p-1">
+          <NavigationMenuList className="flex gap-0">
+            {NAV_LINKS.map((item) => {
+              const isActive = activeSection === item.id
+              return (
+                <NavigationMenuItem key={item.href}>
+                  <NavigationMenuLink
+                    href={item.href}
+                    onClick={(e) => handleLinkClick(e as React.MouseEvent<HTMLAnchorElement>, item.href)}
+                    className={cn(
+                      "cursor-pointer rounded-full px-3 py-1.5 transition-all duration-200",
+                      isActive
+                        ? "bg-white/10 text-white"
+                        : "text-white/50 hover:bg-white/8 hover:text-white/80",
+                    )}
+                  >
+                    <NavBadge>{item.label}</NavBadge>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              )
+            })}
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                href="https://github.com/prithaxdev/CodePulse"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cursor-pointer rounded-full px-3 py-1.5 transition-all duration-200 text-white/50 hover:bg-white/8 hover:text-white/80"
+              >
+                <NavBadge>GitHub</NavBadge>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+
+        {/* Desktop CTAs */}
+        <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
+          <Link
+            href="/sign-in"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.78rem",
+              color: "oklch(0.56 0.014 255)",
+              textDecoration: "none",
+              padding: "0.4rem 0.875rem",
+              borderRadius: "999px",
+              border: "1px solid var(--border)",
+              transition: "color 0.15s, border-color 0.15s",
+            }}
+            className="hover:!text-white hover:!border-white/20"
+          >
+            Sign in
+          </Link>
+          <Link
+            href="/sign-up"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.78rem",
+              fontWeight: 500,
+              color: "var(--primary-foreground)",
+              textDecoration: "none",
+              padding: "0.4rem 0.875rem",
+              borderRadius: "999px",
+              background: "var(--primary)",
+              transition: "opacity 0.15s, transform 0.15s",
+              display: "inline-block",
+            }}
+            className="active:scale-[0.96]"
+          >
+            Start free
+          </Link>
+        </div>
+
+        {/* Mobile menu trigger */}
+        <div className="flex items-center gap-2 lg:hidden">
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger
+              render={
+                <button
+                  aria-label="Open menu"
+                  style={{
+                    borderRadius: "50%",
+                    border: "1px solid var(--border)",
+                    padding: "0.45rem",
+                    background: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    color: "var(--muted-foreground)",
+                    width: "40px",
+                    height: "40px",
+                  }}
+                />
+              }
+            >
+              <Menu size={18} />
+            </SheetTrigger>
+
+            <SheetContent
+              side="right"
               style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "0.9rem",
-                color: "var(--muted-foreground)",
-                textDecoration: "none",
-                padding: "0.75rem 1rem",
-                borderRadius: "var(--radius)",
-                display: "block",
+                background: "oklch(0.1 0.012 255 / 0.95)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                borderLeft: "1px solid var(--border)",
+                padding: 0,
+                width: "min(320px, 100vw)",
               }}
             >
-              {link.label}
-            </a>
-          ))}
-          <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <Link href="/sign-in" onClick={() => setMobileOpen(false)} style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--muted-foreground)", textDecoration: "none", padding: "0.75rem 1rem", border: "1px solid var(--border)", borderRadius: "var(--radius)", textAlign: "center" }}>
-              Sign in
-            </Link>
-            <Link href="/sign-up" onClick={() => setMobileOpen(false)} style={{ fontFamily: "var(--font-mono)", fontSize: "0.875rem", color: "var(--primary-foreground)", textDecoration: "none", padding: "0.75rem 1rem", background: "var(--primary)", borderRadius: "var(--radius)", textAlign: "center", display: "block" }}>
-              Start free
-            </Link>
-          </div>
-        </div>
-      )}
+              <SheetTitle className="sr-only">Navigation menu</SheetTitle>
 
-      <style>{`
-        @media (max-width: 768px) {
-          .nav-links-desktop { display: none !important; }
-          .nav-cta-desktop > a { display: none !important; }
-          .nav-hamburger { display: flex !important; }
-        }
-      `}</style>
-    </>
+              {/* Sheet header */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "1.25rem 1.5rem",
+                  borderBottom: "1px solid var(--border)",
+                }}
+              >
+                <Link
+                  href="/"
+                  onClick={() => setIsOpen(false)}
+                  style={{
+                    fontFamily: "var(--font-heading)",
+                    fontSize: "1.1rem",
+                    fontWeight: 700,
+                    color: "var(--foreground)",
+                    textDecoration: "none",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  CodePulse
+                </Link>
+                <SheetClose
+                  render={
+                    <button
+                      aria-label="Close menu"
+                      style={{
+                        borderRadius: "50%",
+                        border: "1px solid var(--border)",
+                        padding: "0.45rem",
+                        background: "none",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        color: "var(--muted-foreground)",
+                        width: "36px",
+                        height: "36px",
+                      }}
+                    />
+                  }
+                >
+                  <X size={16} />
+                </SheetClose>
+              </div>
+
+              {/* Sheet body */}
+              <div style={{ display: "flex", flexDirection: "column", padding: "1.5rem", gap: "0.5rem", height: "calc(100% - 73px)" }}>
+                <NavigationMenu orientation="vertical" className="w-full items-start flex-none">
+                  <NavigationMenuList className="flex flex-col w-full items-start gap-1">
+                    {NAV_LINKS.map((item) => {
+                      const isActive = activeSection === item.id
+                      return (
+                        <NavigationMenuItem key={item.href} className="w-full">
+                          <NavigationMenuLink
+                            href={item.href}
+                            onClick={(e) => handleLinkClick(e as React.MouseEvent<HTMLAnchorElement>, item.href)}
+                            className={cn(
+                              "group/nav flex cursor-pointer items-center py-2.5 text-lg font-medium tracking-tight transition-all duration-200 w-full",
+                              isActive
+                                ? "text-white"
+                                : "text-white/40 hover:text-white/80 hover:translate-x-1",
+                            )}
+                            style={{ fontFamily: "var(--font-heading)" }}
+                          >
+                            <div className={cn("bg-primary h-0.5 transition-all duration-300",
+                              isActive ? "mr-3 w-4 opacity-100" : "w-0 opacity-0 group-hover/nav:mr-3 group-hover/nav:w-4 group-hover/nav:opacity-100"
+                            )} />
+                            {item.label}
+                          </NavigationMenuLink>
+                        </NavigationMenuItem>
+                      )
+                    })}
+                    <NavigationMenuItem className="w-full">
+                      <NavigationMenuLink
+                        href="https://github.com/prithaxdev/CodePulse"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex cursor-pointer items-center py-2.5 text-lg font-medium tracking-tight text-white/40 hover:text-white/80 transition-all duration-200 hover:translate-x-1"
+                        style={{ fontFamily: "var(--font-heading)" }}
+                      >
+                        GitHub
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
+                  </NavigationMenuList>
+                </NavigationMenu>
+
+                <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "0.625rem" }}>
+                  <Link
+                    href="/sign-in"
+                    onClick={() => setIsOpen(false)}
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.875rem",
+                      color: "var(--muted-foreground)",
+                      textDecoration: "none",
+                      padding: "0.75rem 1rem",
+                      border: "1px solid var(--border)",
+                      borderRadius: "var(--radius-lg)",
+                      textAlign: "center",
+                      display: "block",
+                    }}
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    href="/sign-up"
+                    onClick={() => setIsOpen(false)}
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.875rem",
+                      color: "var(--primary-foreground)",
+                      textDecoration: "none",
+                      padding: "0.75rem 1rem",
+                      background: "var(--primary)",
+                      borderRadius: "var(--radius-lg)",
+                      textAlign: "center",
+                      display: "block",
+                    }}
+                  >
+                    Start free
+                  </Link>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </div>
+    </motion.header>
   )
 }

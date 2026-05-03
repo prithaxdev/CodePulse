@@ -33,7 +33,7 @@ export function HeroSection() {
           zIndex: 1,
           maxWidth: "1200px",
           margin: "0 auto",
-          padding: "6rem 1.5rem 4rem",
+          padding: "8rem 1.5rem 4rem",
           width: "100%",
         }}
       >
