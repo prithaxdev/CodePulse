@@ -1,4 +1,4 @@
-import { TestimonialsMarquee } from "@/components/ui/testimonials-marquee"
+import { Marquee } from "@/components/animations/marquee"
 
 const items = [
   "★ SM-2 Algorithm",
@@ -49,11 +49,11 @@ export function SocialProofBar() {
         overflow: "hidden",
       }}
     >
-      <TestimonialsMarquee speed={35} pauseOnHover={false}>
+      <Marquee pauseOnHover={false} repeat={4} className="p-0 [--duration:20s] [--gap:0px]">
         {items.map((item) => (
           <Item key={item} label={item} />
         ))}
-      </TestimonialsMarquee>
+      </Marquee>
     </div>
   )
 }

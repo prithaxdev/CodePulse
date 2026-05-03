@@ -1,16 +1,19 @@
-import { TestimonialsMarquee } from "@/components/ui/testimonials-marquee"
+import { Marquee } from "@/components/animations/marquee"
+import { Card, CardContent } from "@/components/ui/card"
 
 const testimonials = [
   {
     initials: "PS",
     name: "Pritha S.",
+    username: "@pritha_dev",
     role: "BCA Student, Kathmandu",
     quote:
-      "I used to re-Google the same Tailwind flex trick every week. After 3 weeks of CodePulse reviews, it's just... in my head.",
+      "I used to re-Google the same Tailwind flex trick every week. After 3 weeks of CodePulse reviews, it's just in my head.",
   },
   {
     initials: "RK",
     name: "Rahul K.",
+    username: "@rahulk_js",
     role: "Junior Developer, Delhi",
     quote:
       "The SM-2 algorithm is shockingly good. I reviewed a tricky useEffect cleanup once, and I still remember it 6 weeks later without touching it.",
@@ -18,6 +21,7 @@ const testimonials = [
   {
     initials: "AM",
     name: "Aisha M.",
+    username: "@aisha_codes",
     role: "CS Final Year, Pune",
     quote:
       "The cluster view is my favorite part. I didn't realize how many React performance patterns I'd saved until they appeared as a group.",
@@ -25,6 +29,7 @@ const testimonials = [
   {
     initials: "DT",
     name: "Dev T.",
+    username: "@devtiwari",
     role: "Full-Stack Dev, Bangalore",
     quote:
       "I've tried Anki for code before. CodePulse is the first tool that makes the review loop feel natural instead of tedious.",
@@ -32,6 +37,7 @@ const testimonials = [
   {
     initials: "NK",
     name: "Nina K.",
+    username: "@nina_frontend",
     role: "Frontend Engineer, Pokhara",
     quote:
       "The duplicate detection saved me from saving the same useRef pattern three times. Small feature, huge quality-of-life improvement.",
@@ -39,81 +45,71 @@ const testimonials = [
   {
     initials: "SB",
     name: "Sujal B.",
+    username: "@sujal_b",
     role: "CS Student, TU",
     quote:
       "My retention rate went from 40% to 78% in six weeks of daily reviews. The data in the dashboard is weirdly motivating.",
   },
 ]
 
-function TestimonialCard({ initials, name, role, quote }: (typeof testimonials)[0]) {
+const firstRow = testimonials.slice(0, Math.ceil(testimonials.length / 2))
+const secondRow = testimonials.slice(Math.ceil(testimonials.length / 2))
+
+function TestimonialCard({
+  initials,
+  name,
+  username,
+  role,
+  quote,
+}: (typeof testimonials)[0]) {
   return (
-    <div
-      style={{
-        width: "320px",
-        flexShrink: 0,
-        background: "var(--card)",
-        border: "1px solid var(--border)",
-        borderRadius: "var(--radius-2xl)",
-        padding: "1.5rem",
-        display: "flex",
-        flexDirection: "column",
-        gap: "1rem",
-      }}
-    >
-      <p
-        style={{
-          fontSize: "0.9rem",
-          color: "var(--foreground)",
-          lineHeight: 1.65,
-          opacity: 0.85,
-          flex: 1,
-        }}
-      >
-        &ldquo;{quote}&rdquo;
-      </p>
-      <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
-        <div
-          style={{
-            width: "34px",
-            height: "34px",
-            borderRadius: "50%",
-            background: "var(--card)",
-            border: "1.5px solid var(--primary)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-          }}
-        >
-          <span
+    <Card className="relative h-full w-72 cursor-pointer rounded-2xl border-border bg-card p-4 shadow-none ring-0">
+      <CardContent className="flex flex-col gap-3 p-0">
+        <div className="flex flex-row items-center gap-2.5">
+          <div
             style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: "0.6rem",
-              color: "var(--primary)",
-              fontWeight: 600,
-              letterSpacing: "0.04em",
+              width: "34px",
+              height: "34px",
+              borderRadius: "50%",
+              background: "var(--card)",
+              border: "1.5px solid var(--primary)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
             }}
           >
-            {initials}
-          </span>
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.6rem",
+                color: "var(--primary)",
+                fontWeight: 600,
+                letterSpacing: "0.04em",
+              }}
+            >
+              {initials}
+            </span>
+          </div>
+          <div className="flex flex-col">
+            <p className="text-sm font-medium text-foreground">{name}</p>
+            <p
+              className="text-xs text-muted-foreground"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
+              {username} · {role}
+            </p>
+          </div>
         </div>
-        <div>
-          <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--foreground)", fontWeight: 500, marginBottom: "0.1rem" }}>
-            {name}
-          </p>
-          <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.67rem", color: "var(--muted-foreground)" }}>
-            {role}
-          </p>
-        </div>
-      </div>
-    </div>
+        <p className="line-clamp-3 text-sm leading-relaxed text-foreground/80">
+          &ldquo;{quote}&rdquo;
+        </p>
+      </CardContent>
+    </Card>
   )
 }
 
 export function TestimonialsSection() {
-  const row1 = testimonials.slice(0, 3)
-  const row2 = testimonials.slice(3)
-
   return (
     <section
       style={{
@@ -121,7 +117,14 @@ export function TestimonialsSection() {
         overflow: "hidden",
       }}
     >
-      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem", marginBottom: "3rem" }}>
+      <div
+        style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: "0 1.5rem",
+          marginBottom: "3rem",
+        }}
+      >
         <p
           style={{
             fontFamily: "var(--font-mono)",
@@ -146,24 +149,25 @@ export function TestimonialsSection() {
         >
           What developers say
           <br />
-          <span style={{ color: "var(--primary)" }}>after using it for a week.</span>
+          <span style={{ color: "var(--primary)" }}>
+            after using it for a week.
+          </span>
         </h2>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-        {/* Row 1 — left to right */}
-        <TestimonialsMarquee speed={45} pauseOnHover>
-          {row1.map((t) => (
+      <div className="relative flex w-full flex-col items-center justify-center gap-4 overflow-hidden">
+        <Marquee pauseOnHover className="[--duration:25s]">
+          {firstRow.map((t) => (
             <TestimonialCard key={t.initials} {...t} />
           ))}
-        </TestimonialsMarquee>
-
-        {/* Row 2 — right to left */}
-        <TestimonialsMarquee speed={38} reverse pauseOnHover>
-          {row2.map((t) => (
+        </Marquee>
+        <Marquee reverse pauseOnHover className="[--duration:22s]">
+          {secondRow.map((t) => (
             <TestimonialCard key={t.initials} {...t} />
           ))}
-        </TestimonialsMarquee>
+        </Marquee>
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-linear-to-r from-background" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-linear-to-l from-background" />
       </div>
     </section>
   )
