@@ -29,7 +29,6 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-10 p-6 lg:p-8">
-
       {/* ── Header ───────────────────────────────────────────── */}
       <div>
         <h1 className="font-heading text-2xl font-semibold tracking-tight">
@@ -44,7 +43,9 @@ export default function DashboardPage() {
       {/* ── Topic clusters ───────────────────────────────────── */}
       <section>
         <div className="mb-4 flex items-center gap-2">
-          <h2 className="font-heading text-base font-semibold tracking-tight">Topic Clusters</h2>
+          <h2 className="font-heading text-base font-semibold tracking-tight">
+            Topic Clusters
+          </h2>
           <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
             k-means
           </span>
@@ -59,7 +60,9 @@ export default function DashboardPage() {
       {/* ── Review activity ──────────────────────────────────── */}
       <section>
         <div className="mb-4">
-          <h2 className="font-heading text-base font-semibold tracking-tight">Review Activity</h2>
+          <h2 className="font-heading text-base font-semibold tracking-tight">
+            Review Activity
+          </h2>
         </div>
         <div className="rounded-2xl border border-border bg-card p-5">
           <ReviewActivity />
@@ -70,19 +73,33 @@ export default function DashboardPage() {
       {snippets.length === 0 && (
         <div className="rounded-2xl border border-dashed border-border/60 bg-card/40 px-8 py-12 text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden className="size-6 text-primary">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.5}
+              aria-hidden
+              className="size-6 text-primary"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 4.5v15m7.5-7.5h-15"
+              />
             </svg>
           </div>
-          <p className="font-heading text-sm font-semibold text-foreground">Your library is empty</p>
+          <p className="font-heading text-sm font-semibold text-foreground">
+            Your library is empty
+          </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Save your first code snippet and start building your spaced-repetition library.
+            Save your first code snippet and start building your
+            spaced-repetition library.
           </p>
           <Link
             href="/new"
-            className="mt-4 inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground active:scale-[0.96] transition-[transform,opacity] duration-100"
+            className="mt-4 inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-[transform,opacity] duration-100 active:scale-[0.96]"
           >
-            Save first snippet →
+            Save first snippet
           </Link>
         </div>
       )}

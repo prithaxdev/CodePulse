@@ -2,10 +2,22 @@
 
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { Menu, X } from "lucide-react"
-import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet"
-import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/components/ui/navigation-menu"
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+  SheetClose,
+} from "@/components/ui/sheet"
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+} from "@/components/ui/navigation-menu"
 import { cn } from "@/lib/utils"
 import { useScrollNavigation } from "@/hooks/useScrollNavigation"
 import { useActiveSection } from "@/hooks/useActiveSection"
@@ -51,7 +63,10 @@ export function Navbar() {
     }
   }, [handleScroll, handleResize])
 
-  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  const handleLinkClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string
+  ) => {
     if (href.startsWith("#")) {
       e.preventDefault()
       scrollTo(href, () => setIsOpen(false))
@@ -79,28 +94,18 @@ export function Navbar() {
         className={cn(
           "flex w-full max-w-5xl items-center justify-between gap-4 transition-all duration-500",
           sticky
-            ? "rounded-full border border-white/10 bg-[oklch(0.1_0.012_255/0.8)] px-4 py-2.5 shadow-2xl shadow-black/30 backdrop-blur-xl"
-            : "bg-transparent",
+            ? "rounded-full border border-border bg-background/80 px-4 py-2.5 shadow-2xl shadow-black/10 backdrop-blur-xl dark:shadow-black/30"
+            : "bg-transparent"
         )}
       >
-        {/* Logo — text only in heading font */}
-        <Link
-          href="/"
-          style={{
-            fontFamily: "var(--font-heading)",
-            fontSize: "1.15rem",
-            fontWeight: 700,
-            color: "var(--foreground)",
-            textDecoration: "none",
-            letterSpacing: "-0.02em",
-            flexShrink: 0,
-          }}
-        >
-          CodePulse
+        {/* Logo */}
+        <Link href="/" className="shrink-0">
+          <Image src="/codepulse-dark.svg" alt="CodePulse" width={110} height={35} className="hidden dark:block" priority />
+          <Image src="/codepulse-light.svg" alt="CodePulse" width={110} height={35} className="block dark:hidden" priority />
         </Link>
 
         {/* Desktop nav pills */}
-        <NavigationMenu className="hidden lg:flex rounded-full border border-white/10 bg-white/5 p-1">
+        <NavigationMenu className="hidden rounded-full border border-border bg-muted/40 p-1 lg:flex">
           <NavigationMenuList className="flex gap-0">
             {NAV_LINKS.map((item) => {
               const isActive = activeSection === item.id
@@ -108,12 +113,17 @@ export function Navbar() {
                 <NavigationMenuItem key={item.href}>
                   <NavigationMenuLink
                     href={item.href}
-                    onClick={(e) => handleLinkClick(e as React.MouseEvent<HTMLAnchorElement>, item.href)}
+                    onClick={(e) =>
+                      handleLinkClick(
+                        e as React.MouseEvent<HTMLAnchorElement>,
+                        item.href
+                      )
+                    }
                     className={cn(
                       "cursor-pointer rounded-full px-3 py-1.5 transition-all duration-200",
                       isActive
-                        ? "bg-white/10 text-white"
-                        : "text-white/50 hover:bg-white/8 hover:text-white/80",
+                        ? "bg-muted text-foreground"
+                        : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                     )}
                   >
                     <NavBadge>{item.label}</NavBadge>
@@ -121,34 +131,24 @@ export function Navbar() {
                 </NavigationMenuItem>
               )
             })}
-            <NavigationMenuItem>
-              <NavigationMenuLink
-                href="https://github.com/prithaxdev/CodePulse"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="cursor-pointer rounded-full px-3 py-1.5 transition-all duration-200 text-white/50 hover:bg-white/8 hover:text-white/80"
-              >
-                <NavBadge>GitHub</NavBadge>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
 
         {/* Desktop CTAs */}
-        <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
+        <div className="hidden shrink-0 items-center gap-2 lg:flex">
           <Link
             href="/sign-in"
             style={{
               fontFamily: "var(--font-mono)",
               fontSize: "0.78rem",
-              color: "oklch(0.56 0.014 255)",
+              color: "var(--muted-foreground)",
               textDecoration: "none",
               padding: "0.4rem 0.875rem",
               borderRadius: "999px",
               border: "1px solid var(--border)",
               transition: "color 0.15s, border-color 0.15s",
             }}
-            className="hover:!text-white hover:!border-white/20"
+            className="hover:!border-foreground/20 hover:!text-foreground"
           >
             Sign in
           </Link>
@@ -202,7 +202,7 @@ export function Navbar() {
               side="right"
               showCloseButton={false}
               style={{
-                background: "oklch(0.1 0.012 255 / 0.95)",
+                background: "var(--background)",
                 backdropFilter: "blur(16px)",
                 WebkitBackdropFilter: "blur(16px)",
                 borderLeft: "1px solid var(--border)",
@@ -222,19 +222,9 @@ export function Navbar() {
                   borderBottom: "1px solid var(--border)",
                 }}
               >
-                <Link
-                  href="/"
-                  onClick={() => setIsOpen(false)}
-                  style={{
-                    fontFamily: "var(--font-heading)",
-                    fontSize: "1.1rem",
-                    fontWeight: 700,
-                    color: "var(--foreground)",
-                    textDecoration: "none",
-                    letterSpacing: "-0.02em",
-                  }}
-                >
-                  CodePulse
+                <Link href="/" onClick={() => setIsOpen(false)}>
+                  <Image src="/codepulse-dark.svg" alt="CodePulse" width={100} height={32} className="hidden dark:block" />
+                  <Image src="/codepulse-light.svg" alt="CodePulse" width={100} height={32} className="block dark:hidden" />
                 </Link>
                 <SheetClose
                   render={
@@ -261,27 +251,48 @@ export function Navbar() {
               </div>
 
               {/* Sheet body */}
-              <div style={{ display: "flex", flexDirection: "column", padding: "1.5rem", gap: "0.5rem", height: "calc(100% - 73px)" }}>
-                <NavigationMenu orientation="vertical" className="w-full items-start flex-none">
-                  <NavigationMenuList className="flex flex-col w-full items-start gap-1">
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  padding: "1.5rem",
+                  gap: "0.5rem",
+                  height: "calc(100% - 73px)",
+                }}
+              >
+                <NavigationMenu
+                  orientation="vertical"
+                  className="w-full flex-none items-start"
+                >
+                  <NavigationMenuList className="flex w-full flex-col items-start gap-1">
                     {NAV_LINKS.map((item) => {
                       const isActive = activeSection === item.id
                       return (
                         <NavigationMenuItem key={item.href} className="w-full">
                           <NavigationMenuLink
                             href={item.href}
-                            onClick={(e) => handleLinkClick(e as React.MouseEvent<HTMLAnchorElement>, item.href)}
+                            onClick={(e) =>
+                              handleLinkClick(
+                                e as React.MouseEvent<HTMLAnchorElement>,
+                                item.href
+                              )
+                            }
                             className={cn(
-                              "group/nav flex cursor-pointer items-center py-2.5 text-lg font-medium tracking-tight transition-all duration-200 w-full",
+                              "group/nav flex w-full cursor-pointer items-center py-2.5 text-lg font-medium tracking-tight transition-all duration-200",
                               isActive
-                                ? "text-white"
-                                : "text-white/40 hover:text-white/80 hover:translate-x-1",
+                                ? "text-foreground"
+                                : "text-muted-foreground hover:translate-x-1 hover:text-foreground/80"
                             )}
                             style={{ fontFamily: "var(--font-heading)" }}
                           >
-                            <div className={cn("bg-primary h-0.5 transition-all duration-300",
-                              isActive ? "mr-3 w-4 opacity-100" : "w-0 opacity-0 group-hover/nav:mr-3 group-hover/nav:w-4 group-hover/nav:opacity-100"
-                            )} />
+                            <div
+                              className={cn(
+                                "h-0.5 bg-primary transition-all duration-300",
+                                isActive
+                                  ? "mr-3 w-4 opacity-100"
+                                  : "w-0 opacity-0 group-hover/nav:mr-3 group-hover/nav:w-4 group-hover/nav:opacity-100"
+                              )}
+                            />
                             {item.label}
                           </NavigationMenuLink>
                         </NavigationMenuItem>
@@ -292,7 +303,7 @@ export function Navbar() {
                         href="https://github.com/prithaxdev/CodePulse"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex cursor-pointer items-center py-2.5 text-lg font-medium tracking-tight text-white/40 hover:text-white/80 transition-all duration-200 hover:translate-x-1"
+                        className="flex cursor-pointer items-center py-2.5 text-lg font-medium tracking-tight text-muted-foreground transition-all duration-200 hover:translate-x-1 hover:text-foreground/80"
                         style={{ fontFamily: "var(--font-heading)" }}
                       >
                         GitHub
@@ -301,7 +312,14 @@ export function Navbar() {
                   </NavigationMenuList>
                 </NavigationMenu>
 
-                <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "0.625rem" }}>
+                <div
+                  style={{
+                    marginTop: "auto",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.625rem",
+                  }}
+                >
                   <Link
                     href="/sign-in"
                     onClick={() => setIsOpen(false)}

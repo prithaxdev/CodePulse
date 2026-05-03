@@ -1,5 +1,12 @@
+"use client"
+
 import Link from "next/link"
+import dynamic from "next/dynamic"
 import { KnowledgeStack } from "./illustrations/knowledge-stack"
+
+const ColorBends = dynamic(() => import("@/components/ColorBends"), {
+  ssr: false,
+})
 
 export function HeroSection() {
   return (
@@ -12,20 +19,43 @@ export function HeroSection() {
         overflow: "hidden",
       }}
     >
-      {/* Graph paper grid background */}
+      {/* ColorBends animated background */}
       <div
         aria-hidden="true"
+        className="opacity-[0.09] dark:opacity-100"
         style={{
           position: "absolute",
           inset: 0,
-          backgroundImage:
-            "linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)",
-          backgroundSize: "40px 40px",
-          maskImage: "linear-gradient(to bottom, black 50%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(to bottom, black 50%, transparent 100%)",
           zIndex: 0,
+          maskImage: "linear-gradient(to bottom, black 55%, transparent 100%)",
+          WebkitMaskImage:
+            "linear-gradient(to bottom, black 55%, transparent 100%)",
         }}
-      />
+      >
+        <ColorBends
+          className="h-full! w-full!"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+          }}
+          colors={["#10B981"]}
+          rotation={90}
+          speed={0.2}
+          scale={1}
+          frequency={1}
+          warpStrength={1}
+          mouseInfluence={1}
+          noise={0.15}
+          parallax={0.5}
+          iterations={1}
+          intensity={1.5}
+          bandWidth={6}
+          transparent
+          autoRotate={0}
+        />
+      </div>
 
       <div
         style={{
@@ -47,7 +77,10 @@ export function HeroSection() {
           }}
         >
           {/* Left — Copy */}
-          <div className="hero-copy" style={{ animation: "fadeSlideUp 0.6s ease both" }}>
+          <div
+            className="hero-copy"
+            style={{ animation: "fadeSlideUp 0.6s ease both" }}
+          >
             {/* Eyebrow badge */}
             <div
               style={{
@@ -121,7 +154,15 @@ export function HeroSection() {
             </p>
 
             {/* CTA row */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "center", marginBottom: "2rem" }}>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "0.75rem",
+                alignItems: "center",
+                marginBottom: "2rem",
+              }}
+            >
               <Link
                 href="/sign-up"
                 style={{
@@ -141,13 +182,16 @@ export function HeroSection() {
                   boxShadow: "0 0 24px oklch(0.72 0.18 162 / 0.3)",
                 }}
               >
-                <span style={{ position: "relative", zIndex: 1 }}>Start free — no credit card</span>
+                <span style={{ position: "relative", zIndex: 1 }}>
+                  Start free
+                </span>
                 <span
                   aria-hidden="true"
                   style={{
                     position: "absolute",
                     inset: 0,
-                    background: "linear-gradient(90deg, transparent, oklch(1 0 0 / 0.15), transparent)",
+                    background:
+                      "linear-gradient(90deg, transparent, oklch(1 0 0 / 0.15), transparent)",
                     transform: "translateX(-100%)",
                     animation: "shimmer 3s infinite 0.5s",
                   }}
@@ -171,7 +215,6 @@ export function HeroSection() {
                 }}
               >
                 See how it works
-                <span aria-hidden="true">↓</span>
               </a>
             </div>
 

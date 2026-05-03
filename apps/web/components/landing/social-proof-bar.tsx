@@ -31,7 +31,9 @@ function Item({ label }: { label: string }) {
       }}
     >
       {label}
-      <span aria-hidden="true" style={{ color: "var(--border)", opacity: 0.6 }}>·</span>
+      <span aria-hidden="true" style={{ color: "var(--border)", opacity: 0.6 }}>
+        ·
+      </span>
     </span>
   )
 }
@@ -40,6 +42,7 @@ export function SocialProofBar() {
   return (
     <div
       style={{
+        position: "relative",
         height: "48px",
         background: "var(--card)",
         borderTop: "1px solid var(--border)",
@@ -49,11 +52,17 @@ export function SocialProofBar() {
         overflow: "hidden",
       }}
     >
-      <Marquee pauseOnHover={false} repeat={4} className="p-0 [--duration:20s] [--gap:0px]">
+      <Marquee
+        pauseOnHover={false}
+        repeat={4}
+        className="p-0 [--duration:20s] [--gap:0px]"
+      >
         {items.map((item) => (
           <Item key={item} label={item} />
         ))}
       </Marquee>
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-linear-to-r from-background" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-linear-to-l from-background" />
     </div>
   )
 }
