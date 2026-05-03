@@ -100,8 +100,22 @@ export function Navbar() {
       >
         {/* Logo */}
         <Link href="/" className="shrink-0">
-          <Image src="/codepulse-dark.svg" alt="CodePulse" width={110} height={35} className="hidden dark:block" priority />
-          <Image src="/codepulse-light.svg" alt="CodePulse" width={110} height={35} className="block dark:hidden" priority />
+          <Image
+            src="/codepulse-dark.svg"
+            alt="CodePulse"
+            width={110}
+            height={35}
+            className="hidden dark:block"
+            priority
+          />
+          <Image
+            src="/codepulse-light.svg"
+            alt="CodePulse"
+            width={110}
+            height={35}
+            className="block dark:hidden"
+            priority
+          />
         </Link>
 
         {/* Desktop nav pills */}
@@ -148,7 +162,7 @@ export function Navbar() {
               border: "1px solid var(--border)",
               transition: "color 0.15s, border-color 0.15s",
             }}
-            className="hover:!border-foreground/20 hover:!text-foreground"
+            className="hover:border-foreground/20! hover:text-foreground!"
           >
             Sign in
           </Link>
@@ -223,8 +237,20 @@ export function Navbar() {
                 }}
               >
                 <Link href="/" onClick={() => setIsOpen(false)}>
-                  <Image src="/codepulse-dark.svg" alt="CodePulse" width={100} height={32} className="hidden dark:block" />
-                  <Image src="/codepulse-light.svg" alt="CodePulse" width={100} height={32} className="block dark:hidden" />
+                  <Image
+                    src="/codepulse-dark.svg"
+                    alt="CodePulse"
+                    width={100}
+                    height={32}
+                    className="hidden dark:block"
+                  />
+                  <Image
+                    src="/codepulse-light.svg"
+                    alt="CodePulse"
+                    width={100}
+                    height={32}
+                    className="block dark:hidden"
+                  />
                 </Link>
                 <SheetClose
                   render={
@@ -298,17 +324,6 @@ export function Navbar() {
                         </NavigationMenuItem>
                       )
                     })}
-                    <NavigationMenuItem className="w-full">
-                      <NavigationMenuLink
-                        href="https://github.com/prithaxdev/CodePulse"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex cursor-pointer items-center py-2.5 text-lg font-medium tracking-tight text-muted-foreground transition-all duration-200 hover:translate-x-1 hover:text-foreground/80"
-                        style={{ fontFamily: "var(--font-heading)" }}
-                      >
-                        GitHub
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
                   </NavigationMenuList>
                 </NavigationMenu>
 
