@@ -42,9 +42,9 @@ function buildDays(logs: ReviewLog[]): DayCell[] {
 
 function cellBg(count: number): string {
   if (count === 0) return "bg-muted/40"
-  if (count <= 2)  return "bg-primary/15"
-  if (count <= 5)  return "bg-primary/30"
-  if (count <= 9)  return "bg-primary/55"
+  if (count <= 2) return "bg-primary/15"
+  if (count <= 5) return "bg-primary/30"
+  if (count <= 9) return "bg-primary/55"
   return "bg-primary/75"
 }
 
@@ -102,34 +102,44 @@ export function ReviewActivity() {
                 : `${cell.dateStr} · ${cell.count} review${cell.count === 1 ? "" : "s"}`
             }
             className={cn(
-              "flex min-w-[48px] flex-1 cursor-default select-none flex-col items-center gap-0.5",
-              "rounded-lg border-2 px-2 py-2.5",
+              "flex min-w-12 flex-1 cursor-default flex-col items-center gap-0.5 select-none",
+              "rounded-lg border px-2 py-2.5",
               "transition-colors duration-150",
               cellBg(cell.count),
-              cell.isToday ? "border-primary/50" : "border-transparent",
+              cell.isToday
+                ? "border-dashed border-primary/50"
+                : "border-transparent"
             )}
           >
             {/* Day name */}
-            <span className={cn(
-              "text-[10px] font-medium",
-              cell.count > 0 ? "text-foreground/60" : "text-muted-foreground/50",
-            )}>
+            <span
+              className={cn(
+                "text-[10px] font-medium",
+                cell.count > 0
+                  ? "text-foreground/60"
+                  : "text-muted-foreground/50"
+              )}
+            >
               {cell.dayLabel}
             </span>
 
             {/* Day number */}
-            <span className={cn(
-              "text-sm font-semibold tabular-nums",
-              cell.count > 0 ? "text-foreground" : "text-muted-foreground/60",
-            )}>
+            <span
+              className={cn(
+                "text-sm font-semibold tabular-nums",
+                cell.count > 0 ? "text-foreground" : "text-muted-foreground/60"
+              )}
+            >
               {cell.dayNum}
             </span>
 
             {/* Review count */}
-            <span className={cn(
-              "mt-0.5 text-[11px] font-bold tabular-nums",
-              cell.count === 0 ? "text-muted-foreground/25" : "text-primary",
-            )}>
+            <span
+              className={cn(
+                "mt-0.5 text-[11px] font-bold tabular-nums",
+                cell.count === 0 ? "text-muted-foreground/25" : "text-primary"
+              )}
+            >
               {cell.count === 0 ? "–" : cell.count}
             </span>
           </div>
