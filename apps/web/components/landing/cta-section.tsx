@@ -19,7 +19,8 @@ export function CTASection() {
           left: "5%",
           right: "5%",
           height: "1px",
-          background: "linear-gradient(90deg, transparent, var(--border), transparent)",
+          background:
+            "linear-gradient(90deg, transparent, var(--border), transparent)",
         }}
       />
       <div
@@ -30,7 +31,8 @@ export function CTASection() {
           left: "5%",
           right: "5%",
           height: "1px",
-          background: "linear-gradient(90deg, transparent, var(--border), transparent)",
+          background:
+            "linear-gradient(90deg, transparent, var(--border), transparent)",
         }}
       />
 
@@ -46,7 +48,9 @@ export function CTASection() {
         }}
       />
 
-      <div style={{ position: "relative", maxWidth: "680px", margin: "0 auto" }}>
+      <div
+        style={{ position: "relative", maxWidth: "680px", margin: "0 auto" }}
+      >
         {/* Eyebrow */}
         <p
           style={{
@@ -101,20 +105,21 @@ export function CTASection() {
             alignItems: "center",
             gap: "0.5rem",
             fontFamily: "var(--font-mono)",
-            fontSize: "1rem",
+            fontSize: "0.875rem",
             fontWeight: 500,
             color: "var(--primary-foreground)",
             textDecoration: "none",
-            padding: "1rem 2.25rem",
+            padding: "1rem 1.5rem",
             borderRadius: "var(--radius-lg)",
             background: "var(--primary)",
             position: "relative",
             overflow: "hidden",
-            boxShadow: "0 0 40px oklch(0.72 0.18 162 / 0.35), 0 2px 8px oklch(0.05 0.01 255 / 0.4)",
+            boxShadow:
+              "0 0 40px oklch(0.72 0.18 162 / 0.35), 0 2px 8px oklch(0.05 0.01 255 / 0.4)",
           }}
         >
           <span style={{ position: "relative", zIndex: 1 }}>
-            Start building your memory →
+            Start building your memory
           </span>
           {/* Shimmer */}
           <span
@@ -122,7 +127,8 @@ export function CTASection() {
             style={{
               position: "absolute",
               inset: 0,
-              background: "linear-gradient(90deg, transparent 0%, oklch(1 0 0 / 0.15) 50%, transparent 100%)",
+              background:
+                "linear-gradient(90deg, transparent 0%, oklch(1 0 0 / 0.15) 50%, transparent 100%)",
               transform: "translateX(-100%)",
               animation: "shimmer 2.5s infinite 1s",
             }}
