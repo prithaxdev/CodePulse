@@ -200,6 +200,7 @@ export function Navbar() {
 
             <SheetContent
               side="right"
+              showCloseButton={false}
               style={{
                 background: "oklch(0.1 0.012 255 / 0.95)",
                 backdropFilter: "blur(16px)",
