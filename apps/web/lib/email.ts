@@ -32,8 +32,8 @@ export function reviewReminderHtml({
             <td style="padding-bottom:32px;">
               <table cellpadding="0" cellspacing="0">
                 <tr>
-                  <td style="width:36px;height:36px;background:rgba(124,58,237,0.15);border-radius:10px;text-align:center;vertical-align:middle;">
-                    <span style="font-size:18px;line-height:36px;">⚡</span>
+                  <td style="width:36px;height:36px;vertical-align:middle;">
+                    <img src="${appUrl}/codepulse-icon.svg" width="36" height="36" alt="CodePulse" style="display:block;border-radius:10px;" />
                   </td>
                   <td style="padding-left:10px;font-size:17px;font-weight:600;color:#fafafa;letter-spacing:-0.3px;">
                     CodePulse
@@ -59,10 +59,10 @@ export function reviewReminderHtml({
               <!-- CTA -->
               <table cellpadding="0" cellspacing="0">
                 <tr>
-                  <td style="background:#7c3aed;border-radius:10px;">
+                  <td style="background:#10b981;border-radius:10px;">
                     <a href="${reviewUrl}"
-                       style="display:inline-block;padding:13px 28px;font-size:15px;font-weight:600;color:#fff;text-decoration:none;letter-spacing:-0.1px;">
-                      Review now →
+                       style="display:inline-block;padding:13px 28px;font-size:15px;font-weight:600;color:#09090b;text-decoration:none;letter-spacing:-0.1px;">
+                      Review now
                     </a>
                   </td>
                 </tr>
@@ -77,7 +77,7 @@ export function reviewReminderHtml({
                 the optimal moment — right before you&rsquo;d forget.
                 <br />
                 Manage your reminder time in
-                <a href="${appUrl}/settings" style="color:#7c3aed;text-decoration:none;">Settings</a>.
+                <a href="${appUrl}/settings" style="color:#10b981;text-decoration:none;">Settings</a>.
               </p>
 
             </td>
