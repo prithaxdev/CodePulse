@@ -1,18 +1,21 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
 import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Search01Icon, LoaderPinwheelIcon } from "@hugeicons/core-free-icons"
+import { Search01Icon, LoaderPinwheelIcon, ArrowLeft01Icon, ArrowRight01Icon } from "@hugeicons/core-free-icons"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { useSnippets } from "@/hooks/use-snippets"
 import { useSearch } from "@/hooks/use-search"
 import { cn } from "@/lib/utils"
+const PAGE_SIZE = 8
 
 export function SearchView() {
   const [inputValue, setInputValue] = useState("")
   const [debouncedQuery, setDebouncedQuery] = useState("")
+  const [page, setPage] = useState(1)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const { data: snippets = [], isLoading: snippetsLoading } = useSnippets()
@@ -20,12 +23,26 @@ export function SearchView() {
 
   const handleChange = (value: string) => {
     setInputValue(value)
+    setPage(1)
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
     timeoutRef.current = setTimeout(() => setDebouncedQuery(value), 300)
   }
 
   const isSearching = debouncedQuery.trim().length >= 2
   const isEmpty = isSearching && !isFetching && results.length === 0
+
+  // reset to page 1 whenever results change
+  useEffect(() => { setPage(1) }, [debouncedQuery])
+
+  // browsing mode — all snippets sorted newest first
+  const browseItems = [...snippets].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+  )
+
+  // pick the active list
+  const activeList = isSearching ? results.map((r) => ({ ...r.snippet, _score: r.similarity_score })) : browseItems.map((s) => ({ ...s, _score: undefined }))
+  const totalPages = Math.max(1, Math.ceil(activeList.length / PAGE_SIZE))
+  const paginated = activeList.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
@@ -58,106 +75,116 @@ export function SearchView() {
         )}
       </div>
 
-      {/* ── States ───────────────────────────────────────── */}
-      {!isSearching ? (
-        <SearchHint snippetCount={snippets.length} loading={snippetsLoading} />
+      {/* ── Empty / loading states ───────────────────────── */}
+      {snippetsLoading ? (
+        <div className="flex flex-col gap-2.5">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-24 animate-pulse rounded-2xl bg-muted/50" />
+          ))}
+        </div>
+      ) : snippets.length === 0 ? (
+        <div className="py-16 text-center">
+          <p className="text-sm font-medium">No snippets yet</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Save your first snippet to start searching
+          </p>
+        </div>
       ) : isEmpty ? (
         <div className="py-16 text-center">
-          <p className="text-sm font-medium text-foreground">
+          <p className="text-sm font-medium">
             No results for &ldquo;{debouncedQuery}&rdquo;
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             Try different keywords, or check the spelling
           </p>
         </div>
-      ) : null}
-
-      {/* ── Results list ─────────────────────────────────── */}
-      {results.length > 0 && (
+      ) : (
         <>
-          <ul className="flex flex-col divide-y divide-border rounded-2xl border border-border bg-card overflow-hidden">
-            {results.map((result) => (
-              <li key={result.snippet_id}>
+          {/* ── List ─────────────────────────────────────── */}
+          <ul className="flex flex-col divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+            {paginated.map((item) => (
+              <li key={item.id}>
                 <Link
-                  href={`/snippets/${result.snippet_id}`}
+                  href={`/snippets/${item.id}`}
                   className="group flex flex-col gap-3 px-5 py-4 transition-colors duration-100 hover:bg-muted/40"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
                         <Badge variant="outline" className="font-mono text-[10px]">
-                          {result.snippet.language}
+                          {item.language}
                         </Badge>
-                        {result.snippet.tags.slice(0, 3).map((tag) => (
+                        {item.tags.slice(0, 3).map((tag) => (
                           <Badge key={tag} variant="secondary" className="text-[10px]">
                             {tag}
                           </Badge>
                         ))}
                       </div>
                       <h2 className="text-sm font-semibold leading-snug text-foreground text-wrap-balance transition-colors duration-100 group-hover:text-primary">
-                        {result.snippet.title}
+                        {item.title}
                       </h2>
-                      {result.snippet.description && (
+                      {item.description && (
                         <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
-                          {result.snippet.description}
+                          {item.description}
                         </p>
                       )}
                     </div>
-                    <ScoreBadge score={result.similarity_score} />
+                    {item._score !== undefined && <ScoreBadge score={item._score} />}
                   </div>
 
-                  {result.snippet.code && <CodePreview code={result.snippet.code} />}
+                  {item.code && <CodePreview code={item.code} />}
 
                   <p className="text-[11px] tabular-nums text-muted-foreground/60">
-                    Saved {formatDate(result.snippet.created_at)}
+                    Saved {formatDate(item.created_at)}
                   </p>
                 </Link>
               </li>
             ))}
           </ul>
 
-          <p className="mt-3 text-center text-xs tabular-nums text-muted-foreground">
-            {results.length} result{results.length !== 1 ? "s" : ""} ranked by relevance
-          </p>
+          {/* ── Pagination ───────────────────────────────── */}
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <p className="text-xs tabular-nums text-muted-foreground">
+              {isSearching
+                ? `${activeList.length} result${activeList.length !== 1 ? "s" : ""} · ranked by relevance`
+                : `${activeList.length} snippet${activeList.length !== 1 ? "s" : ""}`}
+            </p>
+
+            {totalPages > 1 && (
+              <div className="flex items-center gap-1.5">
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  disabled={page === 1}
+                  onClick={() => setPage((p) => p - 1)}
+                  aria-label="Previous page"
+                >
+                  <HugeiconsIcon icon={ArrowLeft01Icon} size={14} strokeWidth={2} />
+                </Button>
+
+                <span className="min-w-16 text-center text-xs tabular-nums text-muted-foreground">
+                  {page} / {totalPages}
+                </span>
+
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  disabled={page === totalPages}
+                  onClick={() => setPage((p) => p + 1)}
+                  aria-label="Next page"
+                >
+                  <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
+                </Button>
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>
   )
 }
 
-// ── Sub-components (module-level, never inline) ───────────────
-
-function SearchHint({ snippetCount, loading }: { snippetCount: number; loading: boolean }) {
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center gap-3 py-12">
-        <div className="h-2 w-40 animate-pulse rounded-full bg-muted" />
-        <div className="h-2 w-28 animate-pulse rounded-full bg-muted" />
-      </div>
-    )
-  }
-
-  if (snippetCount === 0) {
-    return (
-      <div className="py-16 text-center">
-        <p className="text-sm font-medium text-foreground">No snippets yet</p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Save your first snippet to start searching
-        </p>
-      </div>
-    )
-  }
-
-  return (
-    <div className="py-12 text-center">
-      <p className="text-xs text-muted-foreground">
-        Searching across{" "}
-        <span className="tabular-nums font-medium text-foreground">{snippetCount}</span>{" "}
-        snippet{snippetCount !== 1 ? "s" : ""}
-      </p>
-    </div>
-  )
-}
+// ── Sub-components ───────────────────────────────────────────
 
 function ScoreBadge({ score }: { score: number }) {
   const pct = Math.round(score * 100)
