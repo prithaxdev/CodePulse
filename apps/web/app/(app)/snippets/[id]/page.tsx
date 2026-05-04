@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic"
 
+import Link from "next/link"
 import { notFound } from "next/navigation"
 import { auth } from "@clerk/nextjs/server"
 import { createAdminClient } from "@/lib/supabase/admin"
@@ -44,6 +45,17 @@ export default async function SnippetDetailPage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+
+      {/* ── Back button ────────────────────────────────── */}
+      <Link
+        href="/dashboard"
+        className="mb-6 inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors duration-150 hover:text-foreground"
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+          <path d="M9 11L5 7l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        Dashboard
+      </Link>
 
       {/* ── Header ─────────────────────────────────────── */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

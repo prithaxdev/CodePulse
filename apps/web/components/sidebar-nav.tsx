@@ -185,7 +185,11 @@ export function SidebarNav() {
       {/* Nav items */}
       <ul className="flex flex-1 flex-col gap-0.5">
         {navItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
+          const isActive =
+            pathname === item.href ||
+            pathname.startsWith(item.href + "/") ||
+            // snippet detail pages are under /search conceptually
+            (item.href === "/search" && pathname.startsWith("/snippets/"))
 
           return (
             <li key={item.href}>
