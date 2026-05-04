@@ -5,7 +5,14 @@ import { useUser } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { ConfirmDialog } from "@/components/confirm-dialog"
-import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 // ── Language definitions ─────────────────────────────────────────────
 const LANGUAGES = [
@@ -101,6 +108,27 @@ function Spinner({ className }: { className?: string }) {
       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
     </svg>
   )
+}
+
+// ── Time picker helpers ──────────────────────────────────────────────
+const HOURS = Array.from({ length: 24 }, (_, i) => i)
+const MINUTES = ["00", "15", "30", "45"]
+
+function formatHour(h: number): string {
+  if (h === 0) return "12 AM"
+  if (h < 12) return `${h} AM`
+  if (h === 12) return "12 PM"
+  return `${h - 12} PM`
+}
+
+function parseTime(t: string): { hour: number; minute: string } {
+  const [h, m] = t.split(":")
+  const hour = parseInt(h ?? "9")
+  const rawMin = parseInt(m ?? "0")
+  // snap to nearest quarter
+  const snapped = Math.round(rawMin / 15) * 15
+  const minute = String(snapped === 60 ? 0 : snapped).padStart(2, "0")
+  return { hour, minute }
 }
 
 // ── Page ─────────────────────────────────────────────────────────────
@@ -277,16 +305,54 @@ export default function SettingsPage() {
 
         {/* Reminder time */}
         <div className="mb-5">
-          <label htmlFor="reminder-time" className="mb-2 block text-sm font-medium">
-            Daily reminder time
-          </label>
-          <Input
-            id="reminder-time"
-            type="time"
-            value={reminderTime}
-            onChange={(e) => setReminderTime(e.target.value)}
-            className="w-36"
-          />
+          <p className="mb-2 text-sm font-medium">Daily reminder time</p>
+          <div className="flex items-center gap-2">
+            {/* Hour */}
+            <Select
+              value={String(parseTime(reminderTime).hour)}
+              onValueChange={(val) => {
+                const { minute } = parseTime(reminderTime)
+                setReminderTime(`${String(val).padStart(2, "0")}:${minute}`)
+              }}
+            >
+              <SelectTrigger className="w-28">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {HOURS.map((h) => (
+                    <SelectItem key={h} value={String(h)}>
+                      {formatHour(h)}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+
+            <span className="text-sm text-muted-foreground">:</span>
+
+            {/* Minute */}
+            <Select
+              value={parseTime(reminderTime).minute}
+              onValueChange={(val) => {
+                const { hour } = parseTime(reminderTime)
+                setReminderTime(`${String(hour).padStart(2, "0")}:${val}`)
+              }}
+            >
+              <SelectTrigger className="w-20">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {MINUTES.map((m) => (
+                    <SelectItem key={m} value={m}>
+                      :{m}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
           <p className="mt-1.5 text-[11px] text-muted-foreground">
             Reminder emails are sent at this time (Nepal timezone)
           </p>
