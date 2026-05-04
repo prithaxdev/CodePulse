@@ -48,20 +48,16 @@ export function useDueSnippets() {
 }
 
 export function useSnippet(id: string) {
-  const supabase = createClient()
-
   return useQuery({
     queryKey: snippetKeys.detail(id),
     enabled: !!id,
     queryFn: async (): Promise<Snippet> => {
-      const { data, error } = await supabase
-        .from("snippets")
-        .select("*")
-        .eq("id", id)
-        .single()
-
-      if (error) throw error
-      return data
+      const res = await fetch(`/api/snippets/${id}`)
+      if (!res.ok) {
+        const { error } = await res.json()
+        throw new Error(error ?? "Snippet not found")
+      }
+      return res.json()
     },
   })
 }
