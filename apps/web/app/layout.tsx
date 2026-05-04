@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   title: "CodePulse | Spaced Repetition for Developers",
   description:
     "Save code snippets as you learn. CodePulse schedules your reviews so you actually remember them.",
+  icons: {
+    icon: "/codepulse-icon.svg",
+  },
 }
 
 const playfairDisplay = Playfair_Display({
