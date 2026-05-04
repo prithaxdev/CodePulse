@@ -132,6 +132,13 @@ function parseTime(t: string): { hour: number; minute: string } {
   return { hour, minute }
 }
 
+// ── Helpers ──────────────────────────────────────────────────────────
+function setsEqual(a: Set<LanguageId>, b: Set<LanguageId>): boolean {
+  if (a.size !== b.size) return false
+  for (const item of a) if (!b.has(item)) return false
+  return true
+}
+
 // ── Page ─────────────────────────────────────────────────────────────
 export default function SettingsPage() {
   const { user, isLoaded } = useUser()
@@ -142,6 +149,18 @@ export default function SettingsPage() {
   )
   const [reminderTime, setReminderTime] = useState("09:00")
   const [emailReminders, setEmailReminders] = useState(true)
+
+  // mirror of the last persisted values — used to compute isDirty
+  const [savedLanguages, setSavedLanguages] = useState<Set<LanguageId>>(
+    new Set<LanguageId>(["typescript", "javascript"]),
+  )
+  const [savedReminderTime, setSavedReminderTime] = useState("09:00")
+  const [savedEmailReminders, setSavedEmailReminders] = useState(true)
+
+  const isDirty =
+    !setsEqual(languages, savedLanguages) ||
+    reminderTime !== savedReminderTime ||
+    emailReminders !== savedEmailReminders
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -155,10 +174,14 @@ export default function SettingsPage() {
       if (!res.ok) return
       const data = await res.json()
       if (Array.isArray(data.preferred_languages)) {
-        setLanguages(new Set(data.preferred_languages as LanguageId[]))
+        const langs = new Set(data.preferred_languages as LanguageId[])
+        setLanguages(langs)
+        setSavedLanguages(langs)
       }
       if (data.review_reminder_time) {
-        setReminderTime(data.review_reminder_time.slice(0, 5))
+        const t = data.review_reminder_time.slice(0, 5)
+        setReminderTime(t)
+        setSavedReminderTime(t)
       }
     } finally {
       setLoading(false)
@@ -168,7 +191,9 @@ export default function SettingsPage() {
   useEffect(() => {
     if (!isLoaded) return
     const meta = user?.unsafeMetadata as Record<string, unknown> | undefined
-    if (meta?.emailReminders === false) setEmailReminders(false)
+    const emailOn = meta?.emailReminders !== false
+    setEmailReminders(emailOn)
+    setSavedEmailReminders(emailOn)
     loadPrefs()
   }, [isLoaded, user, loadPrefs])
 
@@ -210,6 +235,9 @@ export default function SettingsPage() {
         throw new Error(error ?? "Save failed")
       }
 
+      setSavedLanguages(new Set(languages))
+      setSavedReminderTime(reminderTime)
+      setSavedEmailReminders(emailReminders)
       toast.success("Preferences saved.")
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong")
@@ -375,7 +403,7 @@ export default function SettingsPage() {
         <button
           type="button"
           onClick={handleSave}
-          disabled={saving}
+          disabled={saving || !isDirty}
           className={cn(
             "flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5",
             "text-sm font-medium text-primary-foreground",
