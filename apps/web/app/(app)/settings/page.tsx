@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { useUser } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { ConfirmDialog } from "@/components/confirm-dialog"
 
 // ── Language definitions ─────────────────────────────────────────────
 const LANGUAGES = [
@@ -385,70 +386,38 @@ export default function SettingsPage() {
 
       {/* ── Danger zone ── */}
       <Section label="Danger zone">
-        {!deleteConfirm ? (
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-sm font-medium">Delete account</p>
-              <p className="mt-0.5 text-[11px] text-muted-foreground">
-                Permanently remove your account, snippets, and all review history
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setDeleteConfirm(true)}
-              className={cn(
-                "shrink-0 rounded-xl border border-destructive/40 px-3.5 py-2",
-                "text-sm font-medium text-destructive",
-                "hover:bg-destructive/10 transition-colors duration-150",
-                "active:scale-[0.97]",
-              )}
-            >
-              Delete account
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-3.5">
-            <p className="rounded-lg bg-destructive/10 px-3.5 py-3 text-sm text-destructive">
-              <strong>This cannot be undone.</strong> All your snippets, review history, and account data will be permanently deleted.
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium">Delete account</p>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">
+              Permanently remove your account, snippets, and all review history
             </p>
-            <div className="flex gap-2.5">
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={deleting}
-                className={cn(
-                  "flex items-center gap-2 rounded-xl bg-destructive px-4 py-2.5",
-                  "text-sm font-medium text-destructive-foreground",
-                  "active:scale-[0.98] transition-[transform,opacity] duration-100",
-                  "disabled:cursor-not-allowed disabled:opacity-50",
-                )}
-              >
-                {deleting ? (
-                  <>
-                    <Spinner className="size-4" />
-                    Deleting…
-                  </>
-                ) : (
-                  "Yes, delete everything"
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={() => setDeleteConfirm(false)}
-                disabled={deleting}
-                className={cn(
-                  "rounded-xl border border-border px-4 py-2.5",
-                  "text-sm font-medium text-muted-foreground",
-                  "hover:bg-accent hover:text-foreground transition-colors duration-150",
-                  "disabled:opacity-50",
-                )}
-              >
-                Cancel
-              </button>
-            </div>
           </div>
-        )}
+          <button
+            type="button"
+            onClick={() => setDeleteConfirm(true)}
+            className={cn(
+              "shrink-0 rounded-xl border border-destructive/40 px-3.5 py-2",
+              "text-sm font-medium text-destructive",
+              "hover:bg-destructive/10 transition-colors duration-150",
+              "active:scale-[0.97]",
+            )}
+          >
+            Delete account
+          </button>
+        </div>
       </Section>
+
+      <ConfirmDialog
+        open={deleteConfirm}
+        onOpenChange={setDeleteConfirm}
+        title="Delete account"
+        description="This cannot be undone. All your snippets, review history, and account data will be permanently deleted."
+        confirmLabel="Yes, delete everything"
+        onConfirm={handleDelete}
+        loading={deleting}
+        variant="destructive"
+      />
     </div>
   )
 }
