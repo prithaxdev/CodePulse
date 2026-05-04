@@ -187,9 +187,7 @@ export function SidebarNav() {
         {navItems.map((item) => {
           const isActive =
             pathname === item.href ||
-            pathname.startsWith(item.href + "/") ||
-            // snippet detail pages are under /search conceptually
-            (item.href === "/search" && pathname.startsWith("/snippets/"))
+            pathname.startsWith(item.href + "/")
 
           return (
             <li key={item.href}>
