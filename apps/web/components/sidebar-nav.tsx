@@ -1,25 +1,30 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { usePathname, useRouter } from "next/navigation"
-import { useUser, useClerk } from "@clerk/nextjs"
-import { DueBadge } from "@/components/due-badge"
+import { usePathname } from "next/navigation"
+import { useUser, UserButton } from "@clerk/nextjs"
+import { HugeiconsIcon } from "@hugeicons/react"
+import type { IconSvgElement } from "@hugeicons/react"
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog"
+  DashboardBrowsingIcon,
+  PlusSignCircleIcon,
+  Clock01Icon,
+  Search01Icon,
+  Settings01Icon,
+} from "@hugeicons/core-free-icons"
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip"
+import { DueBadge } from "@/components/due-badge"
 import { cn } from "@/lib/utils"
 
 type NavItem = {
   href: string
   label: string
-  icon: React.ReactNode
+  icon: IconSvgElement
   badge?: React.ReactNode
 }
 
@@ -27,236 +32,215 @@ const navItems: NavItem[] = [
   {
     href: "/dashboard",
     label: "Dashboard",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-        <rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.9" />
-        <rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.5" />
-        <rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.5" />
-        <rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.9" />
-      </svg>
-    ),
+    icon: DashboardBrowsingIcon as unknown as IconSvgElement,
   },
   {
     href: "/new",
     label: "New Snippet",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-        <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.25" />
-        <path d="M8 5v6M5 8h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
+    icon: PlusSignCircleIcon as unknown as IconSvgElement,
   },
   {
     href: "/review",
     label: "Review",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-        <path
-          d="M2 8a6 6 0 1 1 12 0A6 6 0 0 1 2 8Z"
-          stroke="currentColor"
-          strokeWidth="1.25"
-        />
-        <path d="M8 5.5V8l2 1.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    ),
+    icon: Clock01Icon as unknown as IconSvgElement,
     badge: <DueBadge />,
   },
   {
     href: "/search",
     label: "Search",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-        <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.25" />
-        <path d="M10.5 10.5L13.5 13.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
+    icon: Search01Icon as unknown as IconSvgElement,
   },
   {
     href: "/settings",
     label: "Settings",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-        <circle cx="8" cy="8" r="2" fill="currentColor" />
-        <path
-          d="M8 1.5v1M8 13.5v1M1.5 8h1M13.5 8h1M3.4 3.4l.7.7M11.9 11.9l.7.7M3.4 12.6l.7-.7M11.9 4.1l.7-.7"
-          stroke="currentColor"
-          strokeWidth="1.25"
-          strokeLinecap="round"
-        />
-      </svg>
-    ),
+    icon: Settings01Icon as unknown as IconSvgElement,
   },
 ]
 
-// ── Sign-out confirmation dialog ─────────────────────────────────────
-function SignOutDialog({
-  open,
-  onOpenChange,
-  onConfirm,
-  isSigningOut,
-}: {
-  open: boolean
-  onOpenChange: (v: boolean) => void
-  onConfirm: () => void
-  isSigningOut: boolean
-}) {
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent showCloseButton={false}>
-        <DialogHeader>
-          <DialogTitle>Sign out of CodePulse?</DialogTitle>
-          <DialogDescription>
-            Your snippets and review progress are saved. You can sign back in any time.
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <button
-            onClick={() => onOpenChange(false)}
-            disabled={isSigningOut}
-            className="inline-flex h-9 items-center justify-center rounded-lg border border-border bg-transparent px-4 text-sm font-medium text-foreground transition-[background-color,transform] duration-100 hover:bg-accent active:scale-[0.96] disabled:pointer-events-none disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={isSigningOut}
-            className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-destructive px-4 text-sm font-medium text-white transition-[opacity,transform] duration-100 hover:opacity-90 active:scale-[0.96] disabled:pointer-events-none disabled:opacity-60"
-          >
-            {isSigningOut ? (
-              <>
-                <svg className="size-3.5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden>
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-                Signing out…
-              </>
-            ) : (
-              "Sign out"
-            )}
-          </button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
+interface SidebarNavProps {
+  isCollapsed?: boolean
+  onClose?: () => void
 }
 
-export function SidebarNav() {
+export function SidebarNav({ isCollapsed = false, onClose }: SidebarNavProps) {
   const pathname = usePathname()
-  const router = useRouter()
   const { user } = useUser()
-  const { signOut } = useClerk()
-  const [confirmOpen, setConfirmOpen] = useState(false)
-  const [isSigningOut, setIsSigningOut] = useState(false)
 
-  async function handleSignOut() {
-    setIsSigningOut(true)
-    try {
-      await signOut()
-      router.push("/")
-    } finally {
-      setIsSigningOut(false)
-      setConfirmOpen(false)
-    }
-  }
-
-  // Build initials fallback for avatar
-  const initials = user
-    ? ((user.firstName?.[0] ?? "") + (user.lastName?.[0] ?? "")).toUpperCase() || user.primaryEmailAddress?.emailAddress[0]?.toUpperCase() || "?"
-    : "?"
   const displayName = user?.firstName
     ? `${user.firstName}${user.lastName ? " " + user.lastName : ""}`
-    : user?.primaryEmailAddress?.emailAddress ?? ""
+    : (user?.primaryEmailAddress?.emailAddress ?? "")
 
   return (
-    <>
-    <SignOutDialog
-      open={confirmOpen}
-      onOpenChange={setConfirmOpen}
-      onConfirm={handleSignOut}
-      isSigningOut={isSigningOut}
-    />
-    <nav className="flex h-full flex-col px-3 py-4">
-      {/* Logo */}
-      <Link href="/dashboard" className="mb-6 px-2 py-1">
-        <Image src="/codepulse-dark.svg" alt="CodePulse" width={108} height={34} className="hidden dark:block" priority />
-        <Image src="/codepulse-light.svg" alt="CodePulse" width={108} height={34} className="block dark:hidden" priority />
-      </Link>
+    // pb-3 only — no top padding so the h-12 logo sits flush with the topbar
+    <nav className="flex h-full flex-col pb-3">
+      {/* ── Logo — h-12 matches topbar, border-b separates from nav ── */}
+      <div className="relative h-12 shrink-0">
+        {/* Icon: visible when collapsed */}
+        <div
+          className={cn(
+            "absolute inset-0 flex items-center justify-center",
+            "transition-opacity duration-200",
+            isCollapsed
+              ? "pointer-events-auto opacity-100"
+              : "pointer-events-none opacity-0"
+          )}
+        >
+          <Link href="/dashboard" onClick={onClose}>
+            <Image
+              src="/codepulse-icon.svg"
+              alt="CodePulse"
+              width={28}
+              height={28}
+              priority
+            />
+          </Link>
+        </div>
 
-      {/* Nav items */}
-      <ul className="flex flex-1 flex-col gap-0.5">
+        {/* Wordmark: visible when expanded */}
+        <div
+          className={cn(
+            "absolute inset-0 flex items-center px-3.5",
+            "transition-opacity duration-200",
+            isCollapsed
+              ? "pointer-events-none opacity-0"
+              : "pointer-events-auto opacity-100"
+          )}
+        >
+          <Link href="/dashboard" onClick={onClose}>
+            <Image
+              src="/codepulse-dark.svg"
+              alt="CodePulse"
+              width={100}
+              height={32}
+              className="hidden dark:block"
+              priority
+            />
+            <Image
+              src="/codepulse-light.svg"
+              alt="CodePulse"
+              width={100}
+              height={32}
+              className="block dark:hidden"
+              priority
+            />
+          </Link>
+        </div>
+      </div>
+
+      {/* ── Nav items ── */}
+      <ul className="mt-4 flex flex-1 flex-col gap-0.5 px-2">
         {navItems.map((item) => {
           const isActive =
-            pathname === item.href ||
-            pathname.startsWith(item.href + "/")
+            pathname === item.href || pathname.startsWith(item.href + "/")
+
+          const linkEl = (
+            <Link
+              href={item.href}
+              onClick={onClose}
+              className={cn(
+                "group relative flex h-9 items-center gap-2.5 rounded-xl text-sm font-medium",
+                "transition-[background-color,color,transform] duration-150 active:scale-[0.97]",
+                isCollapsed ? "justify-center gap-0 px-0" : "px-2.5",
+                isActive
+                  ? "bg-primary/12 text-primary"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+              )}
+            >
+              {/* Active indicator — always in DOM, just changes opacity */}
+              <span
+                className={cn(
+                  "absolute -left-2 h-5 w-0.5 rounded-r-full bg-primary",
+                  "transition-opacity duration-200",
+                  isActive && !isCollapsed ? "opacity-100" : "opacity-0"
+                )}
+                aria-hidden
+              />
+
+              {/* Icon */}
+              <span
+                className={cn(
+                  "shrink-0 transition-colors duration-150",
+                  isActive
+                    ? "text-primary"
+                    : "text-muted-foreground group-hover:text-foreground"
+                )}
+              >
+                <HugeiconsIcon
+                  icon={item.icon}
+                  size={18}
+                  color="currentColor"
+                />
+              </span>
+
+              {/* Label — always in DOM, fades + collapses with the sidebar */}
+              <span
+                className={cn(
+                  "min-w-0 overflow-hidden whitespace-nowrap",
+                  "transition-opacity duration-150",
+                  isCollapsed
+                    ? "max-w-0 opacity-0"
+                    : "flex-1 opacity-100 delay-100"
+                )}
+              >
+                {item.label}
+              </span>
+
+              {/* Badge — always in DOM, same fade */}
+              {item.badge && (
+                <span
+                  className={cn(
+                    "overflow-hidden transition-opacity duration-150",
+                    isCollapsed ? "max-w-0 opacity-0" : "opacity-100 delay-100"
+                  )}
+                >
+                  {item.badge}
+                </span>
+              )}
+            </Link>
+          )
 
           return (
             <li key={item.href}>
-              <Link
-                href={item.href}
-                className={cn(
-                  "group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-sm font-medium",
-                  "transition-colors duration-150",
-                  "active:scale-[0.97] transition-[scale,background-color] duration-150",
-                  isActive
-                    ? "bg-primary/12 text-primary"
-                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
-                )}
-              >
-                {/* Active indicator line */}
-                <span
-                  className={cn(
-                    "absolute left-0 h-5 w-0.5 rounded-r-full bg-primary transition-all duration-200",
-                    isActive ? "opacity-100" : "opacity-0",
-                  )}
-                  aria-hidden
-                />
-                <span
-                  className={cn(
-                    "shrink-0 transition-colors duration-150",
-                    isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground",
-                  )}
-                >
-                  {item.icon}
-                </span>
-                <span className="flex-1 truncate">{item.label}</span>
-                {item.badge}
-              </Link>
+              {isCollapsed ? (
+                <Tooltip>
+                  <TooltipTrigger render={<div />}>{linkEl}</TooltipTrigger>
+                  <TooltipContent side="right" sideOffset={12}>
+                    <span className="font-medium">{item.label}</span>
+                    {item.badge && <span className="ml-1.5">{item.badge}</span>}
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                linkEl
+              )}
             </li>
           )
         })}
       </ul>
 
-      {/* Bottom — user + sign out */}
-      <div className="mt-2 border-t border-border pt-3">
-        <div className="flex items-center gap-2.5 rounded-lg px-2 py-1.5">
-          {/* Avatar */}
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 ring-1 ring-primary/20 text-[10px] font-semibold text-primary overflow-hidden">
-            {user?.imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={user.imageUrl} alt="" className="h-full w-full object-cover" />
-            ) : (
-              initials
-            )}
-          </div>
-          <span className="flex-1 truncate text-xs font-medium text-foreground">
+      {/* ── Footer: Clerk UserButton ── */}
+      <div
+        suppressHydrationWarning
+        className={cn(
+          "mt-2 border-t border-border px-3 pt-3",
+          isCollapsed ? "flex justify-center" : "flex items-center gap-2.5"
+        )}
+      >
+        <UserButton
+          appearance={{
+            elements: { avatarBox: isCollapsed ? "size-8" : "size-7" },
+          }}
+        />
+        <span
+          className={cn(
+            "overflow-hidden whitespace-nowrap transition-opacity duration-150",
+            isCollapsed ? "max-w-0 opacity-0" : "flex-1 opacity-100 delay-100"
+          )}
+        >
+          <span className="block truncate text-xs font-medium text-foreground">
             {displayName}
           </span>
-          {/* Sign-out trigger */}
-          <button
-            onClick={() => setConfirmOpen(true)}
-            title="Sign out"
-            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-[color,background-color,transform] duration-100 hover:bg-accent hover:text-foreground active:scale-[0.90]"
-            aria-label="Sign out"
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y2="12" />
-            </svg>
-          </button>
-        </div>
+        </span>
       </div>
     </nav>
-    </>
   )
 }
