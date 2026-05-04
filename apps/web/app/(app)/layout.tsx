@@ -7,11 +7,14 @@ import { useState, useEffect } from "react"
 import { useUser } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { SidebarNav } from "@/components/sidebar-nav"
+import { SidebarToggleIcon } from "@/components/unlumen-ui/sidebar-toggle-icon"
+import { AppBreadcrumb } from "@/components/app-breadcrumb"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const { isLoaded, user } = useUser()
   const router = useRouter()
 
@@ -28,55 +31,77 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [isLoaded, user, router])
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-background">
-      {/* ── Desktop sidebar ─────────────────────────────────── */}
-      <aside className="relative hidden w-56 shrink-0 overflow-y-auto border-r border-border bg-sidebar lg:flex lg:flex-col">
-        <SidebarNav />
+    // Outer background is sidebar color so the sidebar blends in without any border
+    <div className="flex h-dvh gap-2 bg-sidebar p-2">
+      {/* ── Desktop sidebar — borderless, blends into outer bg ── */}
+      <aside
+        className={cn(
+          "relative hidden shrink-0 overflow-hidden bg-sidebar",
+          "transition-[width] duration-300 ease-in-out",
+          "lg:flex lg:flex-col",
+          sidebarCollapsed ? "w-14" : "w-56"
+        )}
+      >
+        <SidebarNav isCollapsed={sidebarCollapsed} />
       </aside>
 
-      {/* ── Mobile overlay ──────────────────────────────────── */}
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
-          onClick={() => setMobileOpen(false)}
-          aria-hidden
-        />
-      )}
+      {/* ── Mobile overlay — always in DOM so opacity can animate ── */}
+      <div
+        className={cn(
+          "fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden",
+          "transition-opacity duration-300 ease-in-out",
+          mobileOpen
+            ? "pointer-events-auto opacity-100"
+            : "pointer-events-none opacity-0"
+        )}
+        onClick={() => setMobileOpen(false)}
+        aria-hidden
+      />
 
       {/* ── Mobile drawer ───────────────────────────────────── */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-56 border-r border-border bg-sidebar",
-          "transition-transform duration-200 ease-out lg:hidden",
+          "fixed inset-y-0 left-0 z-50 w-56 bg-sidebar",
+          "transition-transform duration-300 ease-in-out lg:hidden",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <SidebarNav />
+        <SidebarNav onClose={() => setMobileOpen(false)} />
       </aside>
 
-      {/* ── Main content ────────────────────────────────────── */}
-      <div className="flex min-w-0 flex-1 flex-col">
-        {/* Mobile top bar */}
-        <header className="flex h-12 items-center gap-3 border-b border-border px-4 lg:hidden">
+      {/* ── Main content — floating rounded card ────────────── */}
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border bg-background">
+        {/* Desktop topbar */}
+        <header className="hidden h-12 shrink-0 items-center gap-2 border-b border-border px-3 lg:flex">
           <button
-            onClick={() => setMobileOpen(true)}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-[scale,background-color] duration-150 hover:bg-accent hover:text-foreground active:scale-[0.96]"
-            aria-label="Open menu"
+            onClick={() => setSidebarCollapsed((p) => !p)}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-[background-color,color,transform] duration-150 hover:bg-accent hover:text-foreground active:scale-[0.96]"
+            aria-label={
+              sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"
+            }
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              aria-hidden
-            >
-              <path
-                d="M2 4h12M2 8h12M2 12h12"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
+            <SidebarToggleIcon
+              isOpen={!sidebarCollapsed}
+              strokeWidth={1.5}
+              className="size-4.5"
+            />
+          </button>
+          <div className="h-4 w-px bg-border" />
+          <AppBreadcrumb />
+        </header>
+
+        {/* Mobile topbar */}
+        <header className="flex h-12 shrink-0 items-center gap-3 border-b border-border px-4 lg:hidden">
+          <button
+            onClick={() => setMobileOpen((p) => !p)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-[background-color,color,transform] duration-150 hover:bg-accent hover:text-foreground active:scale-[0.96]"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          >
+            <SidebarToggleIcon
+              isOpen={mobileOpen}
+              strokeWidth={1.5}
+              className="size-4.5"
+            />
           </button>
           <Image
             src="/codepulse-dark.svg"
