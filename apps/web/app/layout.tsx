@@ -12,6 +12,7 @@ import { ClerkProvider } from "@clerk/nextjs"
 import "./globals.css"
 import { Providers } from "@/components/providers"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/ui/sonner"
 import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = {
@@ -69,7 +70,10 @@ export default function RootLayout({
       >
         <body>
           <Providers>
-            <ThemeProvider>{children}</ThemeProvider>
+            <ThemeProvider>
+              {children}
+              <Toaster position="bottom-right" richColors />
+            </ThemeProvider>
           </Providers>
         </body>
       </html>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { useUser } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import {
@@ -144,7 +145,6 @@ export default function SettingsPage() {
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [saveMsg, setSaveMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [exporting, setExporting] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -187,7 +187,6 @@ export default function SettingsPage() {
   async function handleSave() {
     if (saving || !user) return
     setSaving(true)
-    setSaveMsg(null)
     try {
       const [settingsRes] = await Promise.all([
         fetch("/api/settings", {
@@ -211,15 +210,11 @@ export default function SettingsPage() {
         throw new Error(error ?? "Save failed")
       }
 
-      setSaveMsg({ ok: true, text: "Preferences saved." })
+      toast.success("Preferences saved.")
     } catch (err) {
-      setSaveMsg({
-        ok: false,
-        text: err instanceof Error ? err.message : "Something went wrong",
-      })
+      toast.error(err instanceof Error ? err.message : "Something went wrong")
     } finally {
       setSaving(false)
-      setTimeout(() => setSaveMsg(null), 3000)
     }
   }
 
@@ -236,6 +231,9 @@ export default function SettingsPage() {
       a.download = `codepulse-export-${new Date().toISOString().split("T")[0]}.json`
       a.click()
       URL.revokeObjectURL(url)
+      toast.success("Export downloaded.")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Export failed")
     } finally {
       setExporting(false)
     }
@@ -395,11 +393,6 @@ export default function SettingsPage() {
           )}
         </button>
 
-        {saveMsg && (
-          <p className={cn("text-sm", saveMsg.ok ? "text-emerald-400" : "text-destructive")}>
-            {saveMsg.text}
-          </p>
-        )}
       </div>
 
       {/* ── Data ── */}

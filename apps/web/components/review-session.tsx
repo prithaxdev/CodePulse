@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { toast } from "sonner"
 import { useDueSnippets } from "@/hooks/use-snippets"
 import { useSubmitReview } from "@/hooks/use-review"
 import { ReviewCard } from "@/components/review-card"
@@ -21,11 +22,9 @@ export function ReviewSession() {
   const [index, setIndex] = useState(0)
   const [done, setDone] = useState(false)
   const [submittingRating, setSubmittingRating] = useState<1 | 3 | 5 | null>(null)
-  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const handleRate = async (snippet: Snippet, rating: 1 | 3 | 5) => {
     setSubmittingRating(rating)
-    setSubmitError(null)
     try {
       await submitReview.mutateAsync({
         snippetId: snippet.id,
@@ -40,7 +39,7 @@ export function ReviewSession() {
         setIndex((i) => i + 1)
       }
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "Something went wrong. Try again.")
+      toast.error(err instanceof Error ? err.message : "Something went wrong. Try again.")
     } finally {
       setSubmittingRating(null)
     }
@@ -113,12 +112,6 @@ export function ReviewSession() {
           snippet{due.length !== 1 ? "s" : ""} due today
         </p>
       </div>
-
-      {submitError && (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/8 px-4 py-3 text-sm text-destructive">
-          {submitError}
-        </div>
-      )}
 
       <ReviewCard
         key={current.id}

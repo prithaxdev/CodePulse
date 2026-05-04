@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@clerk/nextjs"
+import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
 import CodeMirror from "@uiw/react-codemirror"
 import { getThemeExtension, getFontExtension, cleanGutter } from "@/lib/editor-prefs"
@@ -59,6 +60,7 @@ export function SnippetDetailClient({ snippet }: Props) {
       queryClient.invalidateQueries({ queryKey: snippetKeys.due(clerkId ?? "") })
       router.push("/dashboard")
     } catch {
+      toast.error("Failed to delete snippet.")
       setDeleting(false)
       setDeleteOpen(false)
     }
@@ -66,6 +68,7 @@ export function SnippetDetailClient({ snippet }: Props) {
 
   const handleSaved = () => {
     setEditOpen(false)
+    toast.success("Changes saved.")
     queryClient.invalidateQueries({ queryKey: snippetKeys.all(clerkId ?? "") })
     queryClient.invalidateQueries({ queryKey: snippetKeys.due(clerkId ?? "") })
     queryClient.removeQueries({ queryKey: snippetKeys.detail(snippet.id) })
@@ -137,15 +140,13 @@ function EditDialog({
   const [tags, setTags] = useState(snippet.tags.join(", "))
   const [code, setCode] = useState(snippet.code ?? "")
   const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   const handleSave = async () => {
     if (!title.trim()) {
-      setError("Title is required")
+      toast.error("Title is required.")
       return
     }
     setSaving(true)
-    setError(null)
     const parsedTags = tags.split(",").map((t) => t.trim()).filter(Boolean)
     try {
       const res = await fetch(`/api/snippets/${snippet.id}`, {
@@ -159,7 +160,7 @@ function EditDialog({
       }
       onSaved()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong")
+      toast.error(err instanceof Error ? err.message : "Something went wrong")
       setSaving(false)
     }
   }
@@ -267,7 +268,6 @@ function EditDialog({
             </div>
           </div>
 
-          {error && <p className="text-xs text-destructive">{error}</p>}
         </div>
 
         <DialogFooter
