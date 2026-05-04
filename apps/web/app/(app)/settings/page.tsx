@@ -5,6 +5,7 @@ import { useUser } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { ConfirmDialog } from "@/components/confirm-dialog"
+import { Input } from "@/components/ui/input"
 
 // ── Language definitions ─────────────────────────────────────────────
 const LANGUAGES = [
@@ -279,17 +280,12 @@ export default function SettingsPage() {
           <label htmlFor="reminder-time" className="mb-2 block text-sm font-medium">
             Daily reminder time
           </label>
-          <input
+          <Input
             id="reminder-time"
             type="time"
             value={reminderTime}
             onChange={(e) => setReminderTime(e.target.value)}
-            className={cn(
-              "rounded-xl border border-border bg-input px-3 py-2 text-sm",
-              "text-foreground outline-none",
-              "focus:border-primary/60 focus:ring-1 focus:ring-primary/40",
-              "transition-colors duration-150",
-            )}
+            className="w-36"
           />
           <p className="mt-1.5 text-[11px] text-muted-foreground">
             Reminder emails are sent at this time (Nepal timezone)
