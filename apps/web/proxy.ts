@@ -9,13 +9,13 @@ const isPublicRoute = createRouteMatcher([
   "/api/cron/(.*)",
 ])
 
-const isAuthRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"])
+const isPublicOnlyRoute = createRouteMatcher(["/", "/sign-in(.*)", "/sign-up(.*)"])
 
 export default clerkMiddleware(async (auth, request) => {
   const { userId } = await auth()
 
-  // Redirect logged-in users away from auth pages to dashboard
-  if (userId && isAuthRoute(request)) {
+  // Redirect logged-in users away from landing and auth pages to dashboard
+  if (userId && isPublicOnlyRoute(request)) {
     return NextResponse.redirect(new URL("/dashboard", request.url))
   }
 
