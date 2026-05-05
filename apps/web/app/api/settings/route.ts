@@ -9,7 +9,7 @@ export async function GET() {
   const supabase = createAdminClient()
   const { data: user, error } = await supabase
     .from("users")
-    .select("preferred_languages, review_reminder_time, display_name, email")
+    .select("preferred_languages, review_reminder_time, email_reminders_enabled, display_name, email")
     .eq("clerk_id", clerkId)
     .single()
 
@@ -23,7 +23,7 @@ export async function PATCH(req: Request) {
   if (!clerkId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const body = await req.json()
-  const allowed = ["preferred_languages", "review_reminder_time"] as const
+  const allowed = ["preferred_languages", "review_reminder_time", "email_reminders_enabled"] as const
   const updates: Record<string, unknown> = {}
 
   for (const key of allowed) {

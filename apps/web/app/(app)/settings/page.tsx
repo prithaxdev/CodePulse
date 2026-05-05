@@ -183,6 +183,10 @@ export default function SettingsPage() {
         setReminderTime(t)
         setSavedReminderTime(t)
       }
+      if (typeof data.email_reminders_enabled === "boolean") {
+        setEmailReminders(data.email_reminders_enabled)
+        setSavedEmailReminders(data.email_reminders_enabled)
+      }
     } finally {
       setLoading(false)
     }
@@ -190,12 +194,8 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (!isLoaded) return
-    const meta = user?.unsafeMetadata as Record<string, unknown> | undefined
-    const emailOn = meta?.emailReminders !== false
-    setEmailReminders(emailOn)
-    setSavedEmailReminders(emailOn)
     loadPrefs()
-  }, [isLoaded, user, loadPrefs])
+  }, [isLoaded, loadPrefs])
 
   function toggleLanguage(id: LanguageId) {
     setLanguages((prev) => {
@@ -213,22 +213,15 @@ export default function SettingsPage() {
     if (saving || !user) return
     setSaving(true)
     try {
-      const [settingsRes] = await Promise.all([
-        fetch("/api/settings", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            preferred_languages: Array.from(languages),
-            review_reminder_time: reminderTime,
-          }),
+      const settingsRes = await fetch("/api/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          preferred_languages: Array.from(languages),
+          review_reminder_time: reminderTime,
+          email_reminders_enabled: emailReminders,
         }),
-        user.update({
-          unsafeMetadata: {
-            ...(user.unsafeMetadata as Record<string, unknown>),
-            emailReminders,
-          },
-        }),
-      ])
+      })
 
       if (!settingsRes.ok) {
         const { error } = await settingsRes.json()

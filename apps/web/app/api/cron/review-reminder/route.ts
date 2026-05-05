@@ -2,25 +2,34 @@ import { NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { resend, reviewReminderHtml } from "@/lib/email"
 
-// Vercel Cron calls this endpoint daily at 09:00 Nepal time (03:15 UTC).
-// It is secured by the CRON_SECRET env var that Vercel sets automatically —
-// the same secret is forwarded as `Authorization: Bearer <secret>` in the
-// cron request headers.
+// Vercel Cron calls this endpoint hourly at :15 (e.g. 00:15, 01:15 UTC).
+// Nepal is UTC+5:45, so cron at X:15 UTC = (X+6):00 Nepal — each UTC hour
+// aligns with exactly one Nepal clock hour, making per-user reminder times work.
+// Requires Vercel Pro for hourly execution; on Hobby it fires once daily.
 export async function GET(req: Request) {
   const authHeader = req.headers.get("authorization")
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
+  // Compute current Nepal hour (UTC+5:45). Cron fires at :15 past the hour,
+  // which corresponds to the top of the next Nepal hour.
+  const now = new Date()
+  const nepalOffsetMs = (5 * 60 + 45) * 60 * 1000
+  const nepalNow = new Date(now.getTime() + nepalOffsetMs)
+  const nepalHour = nepalNow.getUTCHours()
+
   const supabase = createAdminClient()
   const appUrl =
     process.env.NEXT_PUBLIC_APP_URL ?? "https://web-two-beta-49.vercel.app"
   const today = new Date().toISOString().split("T")[0]
 
-  // Fetch all snippets due today or earlier, joined with their owner's profile.
+  // Fetch all snippets due today or earlier, with their owner's email preferences.
   const { data: dueRows, error } = await supabase
     .from("snippets")
-    .select("user_id, users!inner(email, display_name)")
+    .select(
+      "user_id, users!inner(email, display_name, email_reminders_enabled, review_reminder_time)"
+    )
     .lte("next_review", today)
 
   if (error) {
@@ -31,7 +40,6 @@ export async function GET(req: Request) {
     return NextResponse.json({ sent: 0, message: "No due snippets today" })
   }
 
-  // Group by user so each person gets one email with their total count.
   type UserInfo = { email: string; display_name: string | null; count: number }
   const byUser = new Map<string, UserInfo>()
 
@@ -39,7 +47,20 @@ export async function GET(req: Request) {
     const u = row.users as unknown as {
       email: string
       display_name: string | null
+      email_reminders_enabled: boolean | null
+      review_reminder_time: string | null
     }
+
+    // Skip users who have opted out of email reminders.
+    if (u.email_reminders_enabled === false) continue
+
+    // Only send during the user's preferred Nepal hour.
+    // Default to 9 AM Nepal (03:15 UTC) if preference is unset.
+    const preferredHour = u.review_reminder_time
+      ? parseInt(u.review_reminder_time.split(":")[0] ?? "9", 10)
+      : 9
+    if (preferredHour !== nepalHour) continue
+
     const existing = byUser.get(row.user_id)
     if (existing) {
       existing.count++
@@ -52,7 +73,10 @@ export async function GET(req: Request) {
     }
   }
 
-  // Send one email per user, collect results.
+  if (byUser.size === 0) {
+    return NextResponse.json({ sent: 0, message: "No eligible users this hour" })
+  }
+
   const results = await Promise.allSettled(
     Array.from(byUser.values()).map(({ email, display_name, count }) =>
       resend.emails.send({
