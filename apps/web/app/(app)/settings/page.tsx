@@ -373,7 +373,7 @@ export default function SettingsPage() {
             </Select>
           </div>
           <p className="mt-1.5 text-[11px] text-muted-foreground">
-            Reminder emails are sent at this time (Nepal timezone)
+            Emails are sent at ~9 AM Nepal time · custom times require Vercel Pro
           </p>
         </div>
 
