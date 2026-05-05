@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation"
 import { SidebarNav } from "@/components/sidebar-nav"
 import { SidebarToggleIcon } from "@/components/unlumen-ui/sidebar-toggle-icon"
 import { AppBreadcrumb } from "@/components/app-breadcrumb"
+import { ThemeSwitcher } from "@/components/theme-switcher/theme-switcher"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 
@@ -87,7 +88,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             />
           </button>
           <div className="h-4 w-px bg-border" />
-          <AppBreadcrumb />
+          <div className="flex-1">
+            <AppBreadcrumb />
+          </div>
+          <ThemeSwitcher />
         </header>
 
         {/* Mobile topbar */}
@@ -117,6 +121,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             height={32}
             className="block dark:hidden"
           />
+          <div className="flex-1" />
+          <ThemeSwitcher />
         </header>
 
         <main className="flex-1 overflow-auto">{children}</main>
