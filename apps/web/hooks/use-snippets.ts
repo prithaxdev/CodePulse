@@ -3,6 +3,7 @@
 import { useAuth } from "@clerk/nextjs"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/lib/supabase/client"
+import { logActivity } from "@/lib/activity"
 import type { Snippet, SnippetInsert, SnippetUpdate } from "@/types/snippet"
 
 export const snippetKeys = {
@@ -79,7 +80,8 @@ export function useCreateSnippet() {
       }
       return res.json()
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      logActivity("snippet_created", data.id, { title: data.title, language: data.language })
       queryClient.invalidateQueries({ queryKey: snippetKeys.all(clerkId ?? "") })
       queryClient.invalidateQueries({ queryKey: snippetKeys.due(clerkId ?? "") })
     },

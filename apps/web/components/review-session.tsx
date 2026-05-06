@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import { useDueSnippets } from "@/hooks/use-snippets"
 import { useSubmitReview } from "@/hooks/use-review"
 import { ReviewCard } from "@/components/review-card"
+import { logActivity } from "@/lib/activity"
 import type { Snippet } from "@/types/snippet"
 
 export function ReviewSession() {
@@ -33,7 +34,9 @@ export function ReviewSession() {
         currentInterval: snippet.interval_days,
         currentReps: snippet.repetitions,
       })
+      logActivity("review_rated", snippet.id, { snippet_title: snippet.title, rating })
       if (index + 1 >= due.length) {
+        logActivity("review_session_completed", null, { count: due.length })
         setDone(true)
       } else {
         setIndex((i) => i + 1)

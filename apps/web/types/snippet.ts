@@ -9,3 +9,13 @@ export type ReviewLogInsert = Database["public"]["Tables"]["review_logs"]["Inser
 
 export type User = Database["public"]["Tables"]["users"]["Row"]
 export type UserInsert = Database["public"]["Tables"]["users"]["Insert"]
+
+export type ActivityLog = Database["public"]["Tables"]["activity_logs"]["Row"]
+export type ActivityLogInsert = Database["public"]["Tables"]["activity_logs"]["Insert"]
+
+export type ActivityAction =
+  | "snippet_created"
+  | "snippet_edited"
+  | "snippet_deleted"
+  | "review_rated"
+  | "review_session_completed"

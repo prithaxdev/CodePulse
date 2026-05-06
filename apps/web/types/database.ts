@@ -108,6 +108,25 @@ export type Database = {
           reviewed_at?: string
         }
       }
+      activity_logs: {
+        Row: {
+          id: string
+          user_id: string
+          action: string
+          entity_id: string | null
+          metadata: Record<string, unknown> | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          action: string
+          entity_id?: string | null
+          metadata?: Record<string, unknown> | null
+          created_at?: string
+        }
+        Update: never
+      }
     }
     Views: Record<string, never>
     Functions: Record<string, never>
