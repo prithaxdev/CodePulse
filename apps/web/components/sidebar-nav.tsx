@@ -2,8 +2,14 @@
 
 import Link from "next/link"
 import Image from "next/image"
+import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
-import { useUser, UserButton } from "@clerk/nextjs"
+import { useUser } from "@clerk/nextjs"
+
+const UserButton = dynamic(
+  () => import("@clerk/nextjs").then((m) => m.UserButton),
+  { ssr: false },
+)
 import { HugeiconsIcon } from "@hugeicons/react"
 import type { IconSvgElement } from "@hugeicons/react"
 import {
