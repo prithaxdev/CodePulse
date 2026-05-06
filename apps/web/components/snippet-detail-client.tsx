@@ -33,6 +33,7 @@ import {
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { getLanguageExtension, LANGUAGES, type Language } from "@/lib/languages"
 import { snippetKeys } from "@/hooks/use-snippets"
+import { logActivity } from "@/lib/activity"
 import type { Snippet } from "@/types/snippet"
 
 interface Props {
@@ -56,6 +57,7 @@ export function SnippetDetailClient({ snippet }: Props) {
         const body = await res.json()
         throw new Error(body.error ?? "Delete failed")
       }
+      logActivity("snippet_deleted", snippet.id, { title: snippet.title })
       queryClient.invalidateQueries({ queryKey: snippetKeys.all(clerkId ?? "") })
       queryClient.invalidateQueries({ queryKey: snippetKeys.due(clerkId ?? "") })
       router.push("/dashboard")
@@ -158,9 +160,11 @@ function EditDialog({
         const body = await res.json()
         throw new Error(body.error ?? "Save failed")
       }
+      logActivity("snippet_edited", snippet.id, { title: title.trim(), language })
       onSaved()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong")
+    } finally {
       setSaving(false)
     }
   }
