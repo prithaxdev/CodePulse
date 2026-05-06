@@ -164,6 +164,7 @@ function EditDialog({
       onSaved()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong")
+    } finally {
       setSaving(false)
     }
   }
