@@ -5,7 +5,6 @@ import { useUser } from "@clerk/nextjs"
 import { StatsCards } from "@/components/stats-cards"
 import { ClusterView } from "@/components/cluster-view"
 import { ReviewActivity } from "@/components/review-activity"
-import { ActivityFeed } from "@/components/activity-feed"
 import { useSnippets } from "@/hooks/use-snippets"
 import { useClusters } from "@/hooks/use-clusters"
 
@@ -67,18 +66,6 @@ export default function DashboardPage() {
         </div>
         <div className="rounded-2xl border border-border bg-card p-5">
           <ReviewActivity />
-        </div>
-      </section>
-
-      {/* ── Activity feed ────────────────────────────────────── */}
-      <section>
-        <div className="mb-4">
-          <h2 className="font-heading text-base font-semibold tracking-tight">
-            Recent Activity
-          </h2>
-        </div>
-        <div className="rounded-2xl border border-border bg-card px-5 py-4">
-          <ActivityFeed />
         </div>
       </section>
 

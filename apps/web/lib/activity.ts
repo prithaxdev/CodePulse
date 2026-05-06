@@ -9,5 +9,7 @@ export function logActivity(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ action, entity_id: entityId ?? null, metadata: metadata ?? null }),
-  }).catch(() => {})
+  }).catch((err) => {
+    console.warn("[activity] log failed:", err)
+  })
 }

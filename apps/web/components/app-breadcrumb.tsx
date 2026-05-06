@@ -17,6 +17,7 @@ const LABELS: Record<string, string> = {
   new: "New Snippet",
   review: "Review",
   search: "Search",
+  activity: "Activity",
   settings: "Settings",
   snippets: "Snippets",
   onboarding: "Onboarding",

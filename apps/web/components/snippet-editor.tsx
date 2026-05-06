@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useCreateSnippet, useSnippets } from "@/hooks/use-snippets"
+import { logActivity } from "@/lib/activity"
 import { api } from "@/lib/api"
 import { toast } from "sonner"
 import type { DuplicateMatch } from "@/types/api"
@@ -89,7 +90,7 @@ export function SnippetEditor() {
   async function saveSnippet(value: FormValues) {
     const nextReview = new Date().toISOString().split("T")[0]
 
-    await createSnippet.mutateAsync({
+    const saved = await createSnippet.mutateAsync({
       title: value.title,
       language: value.language,
       code: value.code,
@@ -101,6 +102,7 @@ export function SnippetEditor() {
       next_review: nextReview,
     })
 
+    logActivity("snippet_created", saved.id, { title: saved.title, language: saved.language })
     toast.success("Snippet saved!")
     router.push("/dashboard")
   }
