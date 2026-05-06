@@ -215,8 +215,8 @@ function EmptyFeed() {
 }
 
 // ── Public component ──────────────────────────────────────────────────
-export function ActivityFeed() {
-  const { data: logs, isLoading } = useActivityLog(15)
+export function ActivityFeed({ limit = 15 }: { limit?: number }) {
+  const { data: logs, isLoading } = useActivityLog(limit)
 
   if (isLoading) return <ActivityFeedSkeleton />
   if (!logs || logs.length === 0) return <EmptyFeed />

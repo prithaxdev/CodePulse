@@ -12,6 +12,7 @@ import {
   Clock01Icon,
   Search01Icon,
   Settings01Icon,
+  LeftToRightListBulletIcon,
 } from "@hugeicons/core-free-icons"
 import {
   Tooltip,
@@ -49,6 +50,11 @@ const navItems: NavItem[] = [
     href: "/search",
     label: "Search",
     icon: Search01Icon as unknown as IconSvgElement,
+  },
+  {
+    href: "/activity",
+    label: "Activity",
+    icon: LeftToRightListBulletIcon as unknown as IconSvgElement,
   },
   {
     href: "/settings",
