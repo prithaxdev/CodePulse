@@ -165,6 +165,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [rebuildingGraph, setRebuildingGraph] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
@@ -257,6 +258,21 @@ export default function SettingsPage() {
       toast.error(err instanceof Error ? err.message : "Export failed")
     } finally {
       setExporting(false)
+    }
+  }
+
+  async function handleRebuildGraph() {
+    if (rebuildingGraph) return
+    setRebuildingGraph(true)
+    try {
+      const res = await fetch("/api/graph", { method: "POST" })
+      if (!res.ok) throw new Error("Rebuild failed")
+      const { count } = await res.json()
+      toast.success(`Knowledge graph rebuilt — ${count} connection${count !== 1 ? "s" : ""} found.`)
+    } catch {
+      toast.error("Graph rebuild failed. Make sure the API is running.")
+    } finally {
+      setRebuildingGraph(false)
     }
   }
 
@@ -454,6 +470,53 @@ export default function SettingsPage() {
                   />
                 </svg>
                 Download
+              </>
+            )}
+          </button>
+        </div>
+
+        <div className="mt-4 flex items-center justify-between gap-4 border-t border-border pt-4">
+          <div>
+            <p className="text-sm font-medium">Knowledge graph</p>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">
+              Re-analyse all snippets to detect prerequisite relationships
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleRebuildGraph}
+            disabled={rebuildingGraph}
+            className={cn(
+              "flex shrink-0 items-center gap-1.5 rounded-xl border border-border px-3.5 py-2",
+              "text-sm font-medium text-foreground",
+              "hover:bg-accent transition-colors duration-150",
+              "active:scale-[0.97]",
+              "disabled:cursor-not-allowed disabled:opacity-50",
+            )}
+          >
+            {rebuildingGraph ? (
+              <>
+                <Spinner className="size-3.5" />
+                Building…
+              </>
+            ) : (
+              <>
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+                  <path
+                    d="M2 6.5a4.5 4.5 0 014.5-4.5A4.5 4.5 0 0111 6.5M11 6.5a4.5 4.5 0 01-4.5 4.5A4.5 4.5 0 012 6.5"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M9.5 4.5L11 6.5l2-1.5"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                Rebuild
               </>
             )}
           </button>
