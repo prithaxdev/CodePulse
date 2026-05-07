@@ -36,6 +36,7 @@ export async function POST() {
       tags: s.tags ?? [],
       created_at: s.created_at,
     })),
+    similarity_threshold: 0.08,
   })
 
   // Delete old edges for this user, then insert the fresh set

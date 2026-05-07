@@ -20,7 +20,7 @@ def _snippet_text(snippet: dict) -> str:
 
 def build_dependency_graph(
     snippets: list[dict],
-    similarity_threshold: float = 0.25,
+    similarity_threshold: float = 0.08,
 ) -> list[dict]:
     """Build a knowledge dependency graph from a list of snippets.
 
