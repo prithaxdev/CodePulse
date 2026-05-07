@@ -8,6 +8,7 @@ of multivariate observations. Proceedings of the 5th Berkeley Symposium on
 Mathematical Statistics and Probability, 1, 281–297.
 """
 
+import math
 import random
 from typing import Optional
 
@@ -217,9 +218,12 @@ class KMeansClusterer:
 
 
 def auto_k(num_snippets: int) -> int:
-    """Recommend a cluster count using the project's heuristic.
+    """Recommend a cluster count using the sqrt rule-of-thumb.
 
-    K = max(3, num_snippets // 8)
+    K = max(3, min(10, ceil(sqrt(num_snippets))))
+
+    This produces more clusters earlier than a fixed divisor — e.g. 4 clusters
+    at 10 snippets, 5 at 20, 8 at 50 — while capping at 10 to avoid noise.
 
     Args:
         num_snippets: Total number of snippets to cluster.
@@ -227,4 +231,4 @@ def auto_k(num_snippets: int) -> int:
     Returns:
         Recommended number of clusters.
     """
-    return max(3, num_snippets // 8)
+    return max(3, min(10, math.ceil(math.sqrt(num_snippets))))

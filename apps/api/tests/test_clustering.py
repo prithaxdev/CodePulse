@@ -64,14 +64,21 @@ def test_mean_vector_averages_correctly():
 def test_auto_k_minimum_is_3():
     assert auto_k(0) == 3
     assert auto_k(1) == 3
-    assert auto_k(10) == 3
-    assert auto_k(23) == 3
+    assert auto_k(4) == 3   # ceil(sqrt(4)) == 2, clamped to 3
+    assert auto_k(9) == 3   # ceil(sqrt(9)) == 3
 
 
 def test_auto_k_scales_with_snippets():
-    assert auto_k(24) == 3
-    assert auto_k(50) == 6
-    assert auto_k(80) == 10
+    assert auto_k(10) == 4  # ceil(sqrt(10)) == 4
+    assert auto_k(20) == 5  # ceil(sqrt(20)) == 5
+    assert auto_k(25) == 5  # ceil(sqrt(25)) == 5
+    assert auto_k(50) == 8  # ceil(sqrt(50)) == 8
+
+
+def test_auto_k_caps_at_10():
+    assert auto_k(100) == 10  # ceil(sqrt(100)) == 10
+    assert auto_k(200) == 10  # ceil(sqrt(200)) == 15, capped to 10
+    assert auto_k(500) == 10
 
 
 # ---------------------------------------------------------------------------
