@@ -186,7 +186,7 @@ export function SearchView() {
 
 // ── Sub-components ───────────────────────────────────────────
 
-function ScoreBadge({ score }: { score: number }) {
+export function ScoreBadge({ score }: { score: number }) {
   const pct = Math.round(score * 100)
   return (
     <Badge
@@ -204,7 +204,7 @@ function ScoreBadge({ score }: { score: number }) {
   )
 }
 
-function CodePreview({ code }: { code: string }) {
+export function CodePreview({ code }: { code: string }) {
   const lines = code.split("\n")
   const preview = lines.slice(0, 3).join("\n")
   const truncated = lines.length > 3
@@ -215,7 +215,7 @@ function CodePreview({ code }: { code: string }) {
   )
 }
 
-function formatDate(iso: string): string {
+export function formatDate(iso: string): string {
   const d = new Date(iso)
   const diffDays = Math.floor((Date.now() - d.getTime()) / 86_400_000)
   if (diffDays === 0) return "today"

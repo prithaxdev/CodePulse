@@ -28,8 +28,8 @@ import { toast } from "sonner"
 import type { DuplicateMatch } from "@/types/api"
 import { z } from "zod"
 
-const titleSchema = z.string().min(1, "Title is required").max(120, "Keep it under 120 characters")
-const codeSchema = z.string().min(1, "Paste your code to save it")
+export const titleSchema = z.string().min(1, "Title is required").max(120, "Keep it under 120 characters")
+export const codeSchema = z.string().min(1, "Paste your code to save it")
 
 type FormValues = {
   title: string
