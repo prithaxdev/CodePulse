@@ -6,6 +6,7 @@ import { auth } from "@clerk/nextjs/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { CodeDisplay } from "@/components/code-display"
 import { SnippetDetailClient } from "@/components/snippet-detail-client"
+import { DependencyGraph, type DependencySnippet } from "@/components/dependency-graph"
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -32,6 +33,46 @@ export default async function SnippetDetailPage({ params }: Props) {
     .single()
 
   if (!snippet) notFound()
+
+  // Query prerequisite edges (snippets this one builds on)
+  const { data: prereqEdges } = await supabase
+    .from("snippet_dependencies")
+    .select("from_id, confidence")
+    .eq("to_id", id)
+    .order("confidence", { ascending: false })
+    .limit(5)
+
+  // Query dependent edges (snippets that need this one)
+  const { data: dependentEdges } = await supabase
+    .from("snippet_dependencies")
+    .select("to_id, confidence")
+    .eq("from_id", id)
+    .order("confidence", { ascending: false })
+    .limit(5)
+
+  let prerequisites: DependencySnippet[] = []
+  if (prereqEdges && prereqEdges.length > 0) {
+    const { data: prereqSnippets } = await supabase
+      .from("snippets")
+      .select("id, title, language")
+      .in("id", prereqEdges.map((e) => e.from_id))
+    prerequisites = (prereqSnippets ?? []).map((s) => ({
+      ...s,
+      confidence: prereqEdges.find((e) => e.from_id === s.id)?.confidence ?? 0,
+    }))
+  }
+
+  let dependents: DependencySnippet[] = []
+  if (dependentEdges && dependentEdges.length > 0) {
+    const { data: dependentSnippets } = await supabase
+      .from("snippets")
+      .select("id, title, language")
+      .in("id", dependentEdges.map((e) => e.to_id))
+    dependents = (dependentSnippets ?? []).map((s) => ({
+      ...s,
+      confidence: dependentEdges.find((e) => e.to_id === s.id)?.confidence ?? 0,
+    }))
+  }
 
   const nextReview = new Date(snippet.next_review)
   const today = new Date()
@@ -129,6 +170,9 @@ export default async function SnippetDetailPage({ params }: Props) {
           />
         </div>
       </div>
+
+      {/* ── Knowledge Graph ────────────────────────────── */}
+      <DependencyGraph prerequisites={prerequisites} dependents={dependents} />
     </div>
   )
 }

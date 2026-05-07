@@ -128,3 +128,34 @@ class ThreadPoint(BaseModel):
 
 class SummarizeResponse(BaseModel):
     thread_draft: list[ThreadPoint]
+
+
+# ---------------------------------------------------------------------------
+# POST /api/graph/build
+# ---------------------------------------------------------------------------
+
+
+class GraphSnippetInput(BaseModel):
+    """A snippet used as input for dependency graph construction."""
+
+    id: str
+    title: str = ""
+    code: str = ""
+    description: str = ""
+    tags: list[str] = Field(default_factory=list)
+    created_at: str = ""  # ISO timestamp — determines prerequisite direction
+
+
+class GraphBuildRequest(BaseModel):
+    snippets: list[GraphSnippetInput]
+    similarity_threshold: float = Field(default=0.25, ge=0.0, le=1.0)
+
+
+class DependencyEdge(BaseModel):
+    from_id: str
+    to_id: str
+    confidence: float
+
+
+class GraphBuildResponse(BaseModel):
+    edges: list[DependencyEdge]

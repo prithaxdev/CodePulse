@@ -9,6 +9,8 @@ import type {
   DuplicateCheckResponse,
   SummarizeRequest,
   SummarizeResponse,
+  GraphBuildRequest,
+  GraphBuildResponse,
 } from "@/types/api"
 
 const BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "")
@@ -63,6 +65,14 @@ export const api = {
   summarize: {
     generate: (body: SummarizeRequest) =>
       request<SummarizeResponse>("/api/summarize", {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+  },
+
+  graph: {
+    build: (body: GraphBuildRequest) =>
+      request<GraphBuildResponse>("/api/graph/build", {
         method: "POST",
         body: JSON.stringify(body),
       }),

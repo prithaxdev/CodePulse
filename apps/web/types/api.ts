@@ -86,3 +86,27 @@ export type ThreadPoint = {
 export type SummarizeResponse = {
   thread_draft: ThreadPoint[]
 }
+
+export type GraphSnippetInput = {
+  id: string
+  title: string
+  code: string | null
+  description: string | null
+  tags: string[]
+  created_at: string
+}
+
+export type DependencyEdge = {
+  from_id: string
+  to_id: string
+  confidence: number
+}
+
+export type GraphBuildRequest = {
+  snippets: GraphSnippetInput[]
+  similarity_threshold?: number
+}
+
+export type GraphBuildResponse = {
+  edges: DependencyEdge[]
+}

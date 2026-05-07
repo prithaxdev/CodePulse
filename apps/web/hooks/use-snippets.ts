@@ -82,6 +82,8 @@ export function useCreateSnippet() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: snippetKeys.all(clerkId ?? "") })
       queryClient.invalidateQueries({ queryKey: snippetKeys.due(clerkId ?? "") })
+      // Rebuild dependency graph in the background — best-effort, non-blocking
+      fetch("/api/graph", { method: "POST" }).catch(() => {})
     },
   })
 }
