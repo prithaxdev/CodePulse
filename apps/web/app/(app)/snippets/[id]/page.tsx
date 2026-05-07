@@ -172,7 +172,11 @@ export default async function SnippetDetailPage({ params }: Props) {
       </div>
 
       {/* ── Knowledge Graph ────────────────────────────── */}
-      <DependencyGraph prerequisites={prerequisites} dependents={dependents} />
+      <DependencyGraph
+        currentTitle={snippet.title}
+        prerequisites={prerequisites}
+        dependents={dependents}
+      />
     </div>
   )
 }
