@@ -1,4 +1,8 @@
+"use client"
+
 import { ForgettingCurve } from "./illustrations/forgetting-curve"
+import { Badge } from "@/components/ui/badge"
+import { motion } from "motion/react"
 
 const steps = [
   {
@@ -55,42 +59,31 @@ export function HowItWorksSection() {
   return (
     <section
       id="how-it-works"
-      style={{
-        padding: "6rem 1.5rem",
-        maxWidth: "1000px",
-        margin: "0 auto",
-      }}
+      className="mx-auto px-6 py-24"
+      style={{ maxWidth: "1200px" }}
     >
       {/* Section header */}
-      <div style={{ textAlign: "center", marginBottom: "4rem" }}>
-        <p
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: "0.7rem",
-            color: "var(--muted-foreground)",
-            letterSpacing: "0.15em",
-            textTransform: "uppercase",
-            marginBottom: "1rem",
-          }}
-        >
+      <motion.div
+        initial={{ y: -40, opacity: 0 }}
+        whileInView={{ y: 0, opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
+        className="mx-auto mb-16 flex max-w-xl flex-col items-center justify-center gap-4 text-center"
+      >
+        <Badge variant="outline" className="h-auto px-3 py-1 text-sm">
           How it works
-        </p>
-        <h2
-          style={{
-            fontFamily: "var(--font-heading)",
-            fontSize: "clamp(2.25rem, 4.5vw, 3.5rem)",
-            fontWeight: 700,
-            lineHeight: 1.1,
-            letterSpacing: "-0.025em",
-            color: "var(--foreground)",
-          }}
-        >
+        </Badge>
+        <h2 className="text-balance text-3xl font-medium text-foreground md:text-5xl">
           Save once.{" "}
-          <span style={{ color: "var(--primary)" }}>Review smart.</span>
-          <br />
-          Never forget.
+          <span
+            className="tracking-tight italic text-primary"
+            style={{ fontFamily: "'Instrument Serif', serif" }}
+          >
+            Review smart.
+          </span>
+          {" "}Never forget.
         </h2>
-      </div>
+      </motion.div>
 
       {/* 3 Steps */}
       <div
