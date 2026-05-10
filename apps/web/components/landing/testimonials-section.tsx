@@ -1,5 +1,9 @@
+"use client"
+
 import { Marquee } from "@/components/animations/marquee"
 import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { motion } from "motion/react"
 
 const testimonials = [
   {
@@ -111,48 +115,28 @@ function TestimonialCard({
 
 export function TestimonialsSection() {
   return (
-    <section
-      style={{
-        padding: "6rem 0",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "0 1.5rem",
-          marginBottom: "3rem",
-        }}
-      >
-        <p
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: "0.7rem",
-            color: "var(--muted-foreground)",
-            letterSpacing: "0.15em",
-            textTransform: "uppercase",
-            marginBottom: "0.75rem",
-          }}
+    <section className="overflow-hidden py-24">
+      <div className="mx-auto mb-12 max-w-[1200px] px-6">
+        <motion.div
+          initial={{ y: -40, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
+          className="flex flex-col items-center justify-center gap-4 text-center"
         >
-          Developers say
-        </p>
-        <h2
-          style={{
-            fontFamily: "var(--font-heading)",
-            fontSize: "clamp(1.75rem, 3.5vw, 2.75rem)",
-            fontWeight: 700,
-            lineHeight: 1.15,
-            letterSpacing: "-0.025em",
-            color: "var(--foreground)",
-          }}
-        >
-          What developers say
-          <br />
-          <span style={{ color: "var(--primary)" }}>
-            after using it for a week.
-          </span>
-        </h2>
+          <Badge variant="outline" className="h-auto px-3 py-1 text-sm">
+            Developers say
+          </Badge>
+          <h2 className="text-balance text-3xl font-medium text-foreground md:text-5xl">
+            What developers say{" "}
+            <span
+              className="block tracking-tight italic text-primary"
+              style={{ fontFamily: "'Instrument Serif', serif" }}
+            >
+              after using it for a week.
+            </span>
+          </h2>
+        </motion.div>
       </div>
 
       <div className="relative flex w-full flex-col items-center justify-center gap-4 overflow-hidden">
