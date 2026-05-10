@@ -3,8 +3,10 @@
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Menu, X } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import {
   Sheet,
   SheetContent,
@@ -45,6 +47,7 @@ const NavBadge = ({ children }: { children: React.ReactNode }) => (
 export function Navbar() {
   const [sticky, setSticky] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const router = useRouter()
   const { scrollTo } = useScrollNavigation()
   const sectionIds = NAV_LINKS.map((l) => l.id)
   const activeSection = useActiveSection(sectionIds)
@@ -192,6 +195,7 @@ export function Navbar() {
             <SheetTrigger
               render={
                 <button
+                  id="mobile-menu-trigger"
                   aria-label="Open menu"
                   style={{
                     borderRadius: "50%",
@@ -335,40 +339,21 @@ export function Navbar() {
                     gap: "0.625rem",
                   }}
                 >
-                  <Link
-                    href="/sign-in"
-                    onClick={() => setIsOpen(false)}
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "0.875rem",
-                      color: "var(--muted-foreground)",
-                      textDecoration: "none",
-                      padding: "0.75rem 1rem",
-                      border: "1px solid var(--border)",
-                      borderRadius: "var(--radius-lg)",
-                      textAlign: "center",
-                      display: "block",
-                    }}
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full"
+                    onClick={() => { setIsOpen(false); router.push("/sign-in") }}
                   >
                     Sign in
-                  </Link>
-                  <Link
-                    href="/sign-up"
-                    onClick={() => setIsOpen(false)}
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "0.875rem",
-                      color: "var(--primary-foreground)",
-                      textDecoration: "none",
-                      padding: "0.75rem 1rem",
-                      background: "var(--primary)",
-                      borderRadius: "var(--radius-lg)",
-                      textAlign: "center",
-                      display: "block",
-                    }}
+                  </Button>
+                  <Button
+                    size="lg"
+                    className="w-full"
+                    onClick={() => { setIsOpen(false); router.push("/sign-up") }}
                   >
                     Start free
-                  </Link>
+                  </Button>
                 </div>
               </div>
             </SheetContent>

@@ -1,277 +1,60 @@
 "use client"
 
-import Link from "next/link"
-import dynamic from "next/dynamic"
-import { KnowledgeStack } from "./illustrations/knowledge-stack"
-
-const ColorBends = dynamic(() => import("@/components/ColorBends"), {
-  ssr: false,
-})
+import { useRouter } from "next/navigation"
+import { motion } from "motion/react"
+import { AnimatedCTAButton } from "@/components/landing/animated-cta-button"
 
 export function HeroSection() {
+  const router = useRouter()
+
   return (
-    <section
-      style={{
-        position: "relative",
-        minHeight: "100svh",
-        display: "flex",
-        alignItems: "center",
-        overflow: "hidden",
-      }}
-    >
-      {/* ColorBends animated background */}
-      <div
-        aria-hidden="true"
-        className="opacity-[0.09] dark:opacity-100"
-        style={{
-          position: "absolute",
-          inset: 0,
-          zIndex: 0,
-          maskImage: "linear-gradient(to bottom, black 55%, transparent 100%)",
-          WebkitMaskImage:
-            "linear-gradient(to bottom, black 55%, transparent 100%)",
-        }}
-      >
-        <ColorBends
-          className="h-full! w-full!"
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-          }}
-          colors={["#10B981"]}
-          rotation={90}
-          speed={0.2}
-          scale={1}
-          frequency={1}
-          warpStrength={1}
-          mouseInfluence={1}
-          noise={0.15}
-          parallax={0.5}
-          iterations={1}
-          intensity={1.5}
-          bandWidth={6}
-          transparent
-          autoRotate={0}
-        />
-      </div>
+    <section className="relative h-full w-full">
+      <div className="relative w-full pt-28 pb-6 before:absolute before:top-24 before:-z-10 before:h-full before:w-full before:rounded-full before:bg-linear-to-r before:from-emerald-950/60 before:via-background before:to-amber-950/30 before:blur-3xl md:pt-36 md:pb-10">
+        <div className="relative z-10 container mx-auto">
 
-      <div
-        style={{
-          position: "relative",
-          zIndex: 1,
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "8rem 1.5rem 4rem",
-          width: "100%",
-        }}
-      >
-        <div
-          className="hero-grid"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "4rem",
-            alignItems: "center",
-          }}
-        >
-          {/* Left — Copy */}
-          <div
-            className="hero-copy"
-            style={{ animation: "fadeSlideUp 0.6s ease both" }}
-          >
-            {/* Eyebrow badge */}
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                background: "oklch(0.78 0.17 68 / 0.08)",
-                border: "1px solid oklch(0.78 0.17 68 / 0.25)",
-                borderRadius: "999px",
-                padding: "0.3rem 0.875rem",
-                marginBottom: "2rem",
-              }}
+          {/* Headline */}
+          <div className="mx-auto flex max-w-5xl flex-col gap-8">
+            <motion.h1
+              initial={{ opacity: 0, y: 32 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, ease: "easeInOut" }}
+              className="text-balance text-center text-5xl leading-14 font-medium md:text-7xl md:leading-20 lg:text-8xl lg:leading-24"
             >
+              Stop Googling the{" "}
               <span
-                style={{
-                  width: "7px",
-                  height: "7px",
-                  borderRadius: "50%",
-                  background: "var(--pulse)",
-                  boxShadow: "0 0 8px var(--pulse)",
-                  display: "inline-block",
-                  animation: "pulse-ring 2s ease-out infinite",
-                }}
-              />
-              <span
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "0.75rem",
-                  color: "var(--pulse)",
-                  letterSpacing: "0.04em",
-                }}
+                className="tracking-tight italic"
+                style={{ fontFamily: "'Instrument Serif', serif" }}
               >
-                Spaced repetition for developers
+                Same Thing Twice.
               </span>
-            </div>
+            </motion.h1>
 
-            {/* H1 */}
-            <h1
-              style={{
-                fontFamily: "var(--font-heading)",
-                fontSize: "clamp(3rem, 6vw, 5.5rem)",
-                fontWeight: 700,
-                lineHeight: 1.05,
-                letterSpacing: "-0.03em",
-                marginBottom: "1.5rem",
-                color: "var(--foreground)",
-              }}
+            <motion.p
+              initial={{ opacity: 0, y: 32 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.1, ease: "easeInOut" }}
+              className="text-muted-foreground mx-auto max-w-2xl text-center text-base font-normal"
             >
-              Stop Googling
-              <br />
-              The Same Thing
-              <br />
-              <span style={{ color: "var(--primary)" }}>Twice.</span>
-            </h1>
-
-            {/* Subheadline */}
-            <p
-              style={{
-                fontSize: "1.125rem",
-                color: "var(--muted-foreground)",
-                maxWidth: "38ch",
-                lineHeight: 1.65,
-                marginBottom: "2.5rem",
-              }}
-            >
-              Save code snippets as you learn.
-              <br />
-              CodePulse schedules your reviews so
-              <br />
-              you actually remember them.
-            </p>
-
-            {/* CTA row */}
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "0.75rem",
-                alignItems: "center",
-                marginBottom: "2rem",
-              }}
-            >
-              <Link
-                href="/sign-up"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "0.9rem",
-                  fontWeight: 500,
-                  color: "var(--primary-foreground)",
-                  textDecoration: "none",
-                  padding: "0.75rem 1.5rem",
-                  borderRadius: "var(--radius-lg)",
-                  background: "var(--primary)",
-                  position: "relative",
-                  overflow: "hidden",
-                  transition: "opacity 0.15s, transform 0.15s",
-                  boxShadow: "0 0 24px oklch(0.72 0.18 162 / 0.3)",
-                }}
-              >
-                <span style={{ position: "relative", zIndex: 1 }}>
-                  Start free
-                </span>
-                <span
-                  aria-hidden="true"
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    background:
-                      "linear-gradient(90deg, transparent, oklch(1 0 0 / 0.15), transparent)",
-                    transform: "translateX(-100%)",
-                    animation: "shimmer 3s infinite 0.5s",
-                  }}
-                />
-              </Link>
-
-              <a
-                href="#how-it-works"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.375rem",
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "0.875rem",
-                  color: "var(--muted-foreground)",
-                  textDecoration: "none",
-                  padding: "0.75rem 1.25rem",
-                  borderRadius: "var(--radius-lg)",
-                  border: "1px solid var(--border)",
-                  transition: "color 0.15s, border-color 0.15s",
-                }}
-              >
-                See how it works
-              </a>
-            </div>
-
-            {/* Social proof micro-copy */}
-            <p
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "0.75rem",
-                color: "var(--muted-foreground)",
-                opacity: 0.7,
-              }}
-            >
-              Join 400+ developers building their second brain
-            </p>
+              Save code snippets as you learn. CodePulse schedules your reviews
+              using the SM-2 algorithm so you actually remember them.
+            </motion.p>
           </div>
 
-          {/* Right — Illustration */}
-          <div
-            className="hero-illustration"
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              position: "relative",
-              animation: "fadeSlideUp 0.9s ease 0.2s both",
-            }}
+          {/* CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 32 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.2, ease: "easeInOut" }}
+            className="my-10 flex items-center justify-center"
           >
-            {/* Radial glow behind illustration */}
-            <div
-              aria-hidden="true"
-              style={{
-                position: "absolute",
-                inset: "-20%",
-                background:
-                  "radial-gradient(ellipse 60% 50% at 50% 50%, oklch(0.72 0.18 162 / 0.1), transparent)",
-                borderRadius: "50%",
-                pointerEvents: "none",
-              }}
+            <AnimatedCTAButton
+              label="Start free"
+              onClick={() => router.push("/sign-up")}
             />
-            <KnowledgeStack />
-          </div>
+          </motion.div>
+
         </div>
       </div>
-
-      <style>{`
-        @media (max-width: 768px) {
-          .hero-grid {
-            grid-template-columns: 1fr !important;
-            gap: 2rem !important;
-          }
-          .hero-illustration {
-            order: -1;
-            max-width: 320px;
-            margin: 0 auto;
-          }
-        }
-      `}</style>
     </section>
   )
 }

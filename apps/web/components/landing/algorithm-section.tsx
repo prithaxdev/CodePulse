@@ -1,6 +1,8 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { Badge } from "@/components/ui/badge"
+import { motion } from "motion/react"
 
 type CodeToken = { text: string; color: string }
 type CodeLine = CodeToken[]
@@ -146,11 +148,8 @@ export function AlgorithmSection() {
     <section
       id="algorithm"
       ref={sectionRef}
-      style={{
-        padding: "6rem 1.5rem",
-        maxWidth: "1200px",
-        margin: "0 auto",
-      }}
+      className="mx-auto px-6 py-24"
+      style={{ maxWidth: "1200px" }}
     >
       <div
         className="algo-grid"
@@ -162,34 +161,27 @@ export function AlgorithmSection() {
         }}
       >
         {/* Left — copy */}
-        <div>
-          <p
-            style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: "0.7rem",
-              color: "var(--muted-foreground)",
-              letterSpacing: "0.15em",
-              textTransform: "uppercase",
-              marginBottom: "1rem",
-            }}
+        <div className="flex flex-col items-center text-center md:items-start md:text-left">
+          <motion.div
+            initial={{ y: -40, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
+            className="mb-6 flex flex-col items-center gap-4 md:items-start"
           >
-            Under the hood
-          </p>
-          <h2
-            style={{
-              fontFamily: "var(--font-heading)",
-              fontSize: "clamp(2rem, 3.5vw, 2.75rem)",
-              fontWeight: 700,
-              lineHeight: 1.1,
-              letterSpacing: "-0.025em",
-              color: "var(--foreground)",
-              marginBottom: "1.5rem",
-            }}
-          >
-            Built from scratch.
-            <br />
-            <span style={{ color: "var(--primary)" }}>No black boxes.</span>
-          </h2>
+            <Badge variant="outline" className="h-auto px-3 py-1 text-sm">
+              Under the hood
+            </Badge>
+            <h2 className="text-balance text-3xl font-medium text-foreground md:text-4xl">
+              Built from scratch.{" "}
+              <span
+                className="tracking-tight italic text-primary"
+                style={{ fontFamily: "'Instrument Serif', serif" }}
+              >
+                No black boxes.
+              </span>
+            </h2>
+          </motion.div>
           <p
             style={{
               fontSize: "0.9375rem",
@@ -204,7 +196,7 @@ export function AlgorithmSection() {
           </p>
 
           {/* Algorithm pills */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+          <div className="flex flex-wrap justify-center gap-2 md:justify-start">
             {algoTags.map((tag) => (
               <span
                 key={tag}

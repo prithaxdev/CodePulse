@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import {
-  Playfair_Display,
+  Instrument_Serif,
   Geist_Mono,
   Inter,
   JetBrains_Mono,
@@ -24,10 +24,10 @@ export const metadata: Metadata = {
   },
 }
 
-const playfairDisplay = Playfair_Display({
+const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
-  variable: "--font-heading",
-  weight: ["400", "500", "600", "700"],
+  variable: "--font-instrument",
+  weight: "400",
   style: ["normal", "italic"],
 })
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
@@ -60,7 +60,7 @@ export default function RootLayout({
         suppressHydrationWarning
         className={cn(
           "font-sans antialiased",
-          playfairDisplay.variable,
+          instrumentSerif.variable,
           fontMono.variable,
           inter.variable,
           jetbrainsMono.variable,
