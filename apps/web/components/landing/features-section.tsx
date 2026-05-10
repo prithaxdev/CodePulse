@@ -1,44 +1,37 @@
+"use client"
+
 import { BrainCluster } from "./illustrations/brain-cluster"
+import { Badge } from "@/components/ui/badge"
+import { motion } from "motion/react"
 
 export function FeaturesSection() {
   return (
     <section
       id="features"
-      style={{
-        padding: "6rem 1.5rem",
-        maxWidth: "1200px",
-        margin: "0 auto",
-      }}
+      className="mx-auto px-6 py-24"
+      style={{ maxWidth: "1200px" }}
     >
       {/* Header */}
-      <div style={{ marginBottom: "3rem" }}>
-        <p
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: "0.7rem",
-            color: "var(--muted-foreground)",
-            letterSpacing: "0.15em",
-            textTransform: "uppercase",
-            marginBottom: "0.75rem",
-          }}
-        >
+      <motion.div
+        initial={{ y: -40, opacity: 0 }}
+        whileInView={{ y: 0, opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
+        className="mb-12 flex flex-col items-center justify-center gap-4 text-center"
+      >
+        <Badge variant="outline" className="h-auto px-3 py-1 text-sm">
           Features
-        </p>
-        <h2
-          style={{
-            fontFamily: "var(--font-heading)",
-            fontSize: "clamp(2rem, 4vw, 3rem)",
-            fontWeight: 700,
-            lineHeight: 1.1,
-            letterSpacing: "-0.025em",
-            color: "var(--foreground)",
-          }}
-        >
-          Everything your memory needs.
-          <br />
-          <span style={{ color: "var(--primary)" }}>Nothing it doesn&apos;t.</span>
+        </Badge>
+        <h2 className="text-3xl font-medium text-balance text-foreground md:text-5xl">
+          Everything your memory needs.{" "}
+          <span
+            className="block tracking-tight italic text-primary"
+            style={{ fontFamily: "'Instrument Serif', serif" }}
+          >
+            Nothing it doesn&apos;t.
+          </span>
         </h2>
-      </div>
+      </motion.div>
 
       {/* Bento grid */}
       <div
@@ -68,7 +61,8 @@ export function FeaturesSection() {
             style={{
               position: "absolute",
               inset: 0,
-              background: "radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.72 0.18 162 / 0.05), transparent)",
+              background:
+                "radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.72 0.18 162 / 0.05), transparent)",
               pointerEvents: "none",
             }}
           />
@@ -112,7 +106,8 @@ export function FeaturesSection() {
                 marginBottom: "1.75rem",
               }}
             >
-              The SM-2 algorithm — same science behind Anki — schedules each snippet at the exact moment your memory starts to fade.
+              The SM-2 algorithm — same science behind Anki — schedules each
+              snippet at the exact moment your memory starts to fade.
             </p>
 
             {/* Mock review card UI */}
@@ -126,11 +121,33 @@ export function FeaturesSection() {
               }}
             >
               {/* Card header */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.875rem" }}>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", color: "var(--muted-foreground)" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "0.875rem",
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.7rem",
+                    color: "var(--muted-foreground)",
+                  }}
+                >
                   useCallback optimization
                 </span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--primary)", background: "oklch(0.72 0.18 162 / 0.1)", padding: "0.15rem 0.5rem", borderRadius: "var(--radius-sm)" }}>
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.65rem",
+                    color: "var(--primary)",
+                    background: "oklch(0.72 0.18 162 / 0.1)",
+                    padding: "0.15rem 0.5rem",
+                    borderRadius: "var(--radius-sm)",
+                  }}
+                >
                   TypeScript
                 </span>
               </div>
@@ -151,12 +168,19 @@ export function FeaturesSection() {
                 <span style={{ color: "oklch(0.65 0.18 320)" }}>const</span>{" "}
                 <span style={{ color: "oklch(0.72 0.18 162)" }}>memoized</span>{" "}
                 <span style={{ color: "var(--muted-foreground)" }}>=</span>{" "}
-                <span style={{ color: "oklch(0.65 0.18 320)" }}>useCallback</span>
+                <span style={{ color: "oklch(0.65 0.18 320)" }}>
+                  useCallback
+                </span>
                 <span style={{ color: "var(--muted-foreground)" }}>{"(("}</span>
                 <span style={{ color: "oklch(0.78 0.17 68)" }}>deps</span>
-                <span style={{ color: "var(--muted-foreground)" }}>{") => {"}</span>
+                <span style={{ color: "var(--muted-foreground)" }}>
+                  {") => {"}
+                </span>
                 <br />
-                &nbsp;&nbsp;<span style={{ color: "var(--muted-foreground)" }}>{"//"} avoid re-renders</span>
+                &nbsp;&nbsp;
+                <span style={{ color: "var(--muted-foreground)" }}>
+                  {"//"} avoid re-renders
+                </span>
                 <br />
                 <span style={{ color: "var(--muted-foreground)" }}>{"})"}</span>
               </div>
@@ -229,13 +253,39 @@ export function FeaturesSection() {
             overflow: "hidden",
           }}
         >
-          <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.72 0.18 162 / 0.04), transparent)", pointerEvents: "none" }} />
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.72 0.18 162 / 0.04), transparent)",
+              pointerEvents: "none",
+            }}
+          />
           <div style={{ position: "relative" }}>
-            <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "1.1rem", fontWeight: 600, color: "var(--foreground)", marginBottom: "0.4rem", letterSpacing: "-0.01em" }}>
+            <h3
+              style={{
+                fontFamily: "var(--font-heading)",
+                fontSize: "1.1rem",
+                fontWeight: 600,
+                color: "var(--foreground)",
+                marginBottom: "0.4rem",
+                letterSpacing: "-0.01em",
+              }}
+            >
               Find anything instantly
             </h3>
-            <p style={{ fontSize: "0.8rem", color: "var(--muted-foreground)", lineHeight: 1.6, marginBottom: "1.5rem" }}>
-              TF-IDF semantic search ranks results by relevance — not just keyword match. Built from scratch.
+            <p
+              style={{
+                fontSize: "0.8rem",
+                color: "var(--muted-foreground)",
+                lineHeight: 1.6,
+                marginBottom: "1.5rem",
+              }}
+            >
+              TF-IDF semantic search ranks results by relevance — not just
+              keyword match. Built from scratch.
             </p>
 
             {/* Mock search UI */}
@@ -252,11 +302,34 @@ export function FeaturesSection() {
                   marginBottom: "0.75rem",
                 }}
               >
-                <span style={{ color: "var(--primary)", fontFamily: "var(--font-mono)", fontSize: "0.8rem" }}>&gt;</span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.78rem", color: "var(--foreground)" }}>
+                <span
+                  style={{
+                    color: "var(--primary)",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.8rem",
+                  }}
+                >
+                  &gt;
+                </span>
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.78rem",
+                    color: "var(--foreground)",
+                  }}
+                >
                   useCallback optimization
                 </span>
-                <span style={{ marginLeft: "auto", width: "6px", height: "14px", background: "var(--primary)", opacity: 0.8, animation: "blink 1s step-end infinite" }} />
+                <span
+                  style={{
+                    marginLeft: "auto",
+                    width: "6px",
+                    height: "14px",
+                    background: "var(--primary)",
+                    opacity: 0.8,
+                    animation: "blink 1s step-end infinite",
+                  }}
+                />
               </div>
 
               {[
@@ -272,15 +345,33 @@ export function FeaturesSection() {
                     alignItems: "center",
                     padding: "0.5rem 0.75rem",
                     borderRadius: "var(--radius-lg)",
-                    background: i === 0 ? "oklch(0.72 0.18 162 / 0.06)" : "transparent",
-                    border: i === 0 ? "1px solid oklch(0.72 0.18 162 / 0.15)" : "1px solid transparent",
+                    background:
+                      i === 0 ? "oklch(0.72 0.18 162 / 0.06)" : "transparent",
+                    border:
+                      i === 0
+                        ? "1px solid oklch(0.72 0.18 162 / 0.15)"
+                        : "1px solid transparent",
                     marginBottom: "0.25rem",
                   }}
                 >
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--foreground)", opacity: i === 0 ? 1 : 0.6 }}>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.72rem",
+                      color: "var(--foreground)",
+                      opacity: i === 0 ? 1 : 0.6,
+                    }}
+                  >
                     {r.label}
                   </span>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--primary)", fontVariantNumeric: "tabular-nums" }}>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.65rem",
+                      color: "var(--primary)",
+                      fontVariantNumeric: "tabular-nums",
+                    }}
+                  >
                     {r.score}
                   </span>
                 </div>
@@ -302,13 +393,39 @@ export function FeaturesSection() {
             overflow: "hidden",
           }}
         >
-          <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.72 0.18 162 / 0.03), transparent)", pointerEvents: "none" }} />
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.72 0.18 162 / 0.03), transparent)",
+              pointerEvents: "none",
+            }}
+          />
           <div style={{ position: "relative" }}>
-            <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "1.05rem", fontWeight: 600, color: "var(--foreground)", marginBottom: "0.4rem", letterSpacing: "-0.01em" }}>
+            <h3
+              style={{
+                fontFamily: "var(--font-heading)",
+                fontSize: "1.05rem",
+                fontWeight: 600,
+                color: "var(--foreground)",
+                marginBottom: "0.4rem",
+                letterSpacing: "-0.01em",
+              }}
+            >
               No duplicate clutter
             </h3>
-            <p style={{ fontSize: "0.8rem", color: "var(--muted-foreground)", lineHeight: 1.6, marginBottom: "1.5rem" }}>
-              Levenshtein edit distance catches near-identical snippets before you save.
+            <p
+              style={{
+                fontSize: "0.8rem",
+                color: "var(--muted-foreground)",
+                lineHeight: 1.6,
+                marginBottom: "1.5rem",
+              }}
+            >
+              Levenshtein edit distance catches near-identical snippets before
+              you save.
             </p>
 
             {/* Warning banner mockup */}
@@ -323,12 +440,29 @@ export function FeaturesSection() {
                 padding: "0.875rem",
               }}
             >
-              <span style={{ fontSize: "0.9rem", flexShrink: 0, marginTop: "1px" }}>⚠</span>
+              <span
+                style={{ fontSize: "0.9rem", flexShrink: 0, marginTop: "1px" }}
+              >
+                ⚠
+              </span>
               <div>
-                <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--pulse)", marginBottom: "0.2rem" }}>
+                <p
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.72rem",
+                    color: "var(--pulse)",
+                    marginBottom: "0.2rem",
+                  }}
+                >
                   87% similar snippet found
                 </p>
-                <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.68rem", color: "oklch(0.56 0.014 255)" }}>
+                <p
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.68rem",
+                    color: "oklch(0.56 0.014 255)",
+                  }}
+                >
                   &quot;useEffect cleanup pattern&quot;
                 </p>
               </div>
@@ -349,15 +483,48 @@ export function FeaturesSection() {
             overflow: "hidden",
           }}
         >
-          <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.72 0.18 162 / 0.04), transparent)", pointerEvents: "none" }} />
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.72 0.18 162 / 0.04), transparent)",
+              pointerEvents: "none",
+            }}
+          />
           <div style={{ position: "relative" }}>
-            <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "1.05rem", fontWeight: 600, color: "var(--foreground)", marginBottom: "0.4rem", letterSpacing: "-0.01em" }}>
+            <h3
+              style={{
+                fontFamily: "var(--font-heading)",
+                fontSize: "1.05rem",
+                fontWeight: 600,
+                color: "var(--foreground)",
+                marginBottom: "0.4rem",
+                letterSpacing: "-0.01em",
+              }}
+            >
               Your snippets auto-organize
             </h3>
-            <p style={{ fontSize: "0.8rem", color: "var(--muted-foreground)", lineHeight: 1.6, marginBottom: "1rem" }}>
-              K-means clustering groups related snippets into topics — no manual tagging required.
+            <p
+              style={{
+                fontSize: "0.8rem",
+                color: "var(--muted-foreground)",
+                lineHeight: 1.6,
+                marginBottom: "1rem",
+              }}
+            >
+              K-means clustering groups related snippets into topics — no manual
+              tagging required.
             </p>
-            <div style={{ transform: "scale(0.75)", transformOrigin: "top left", width: "133%", pointerEvents: "none" }}>
+            <div
+              style={{
+                transform: "scale(0.75)",
+                transformOrigin: "top left",
+                width: "133%",
+                pointerEvents: "none",
+              }}
+            >
               <BrainCluster />
             </div>
           </div>
@@ -376,24 +543,71 @@ export function FeaturesSection() {
             overflow: "hidden",
           }}
         >
-          <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.72 0.18 162 / 0.03), transparent)", pointerEvents: "none" }} />
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.72 0.18 162 / 0.03), transparent)",
+              pointerEvents: "none",
+            }}
+          />
           {/* X watermark */}
-          <div aria-hidden="true" style={{ position: "absolute", bottom: "1rem", right: "1.25rem", fontFamily: "var(--font-mono)", fontSize: "1.5rem", color: "var(--border)", opacity: 0.4, fontWeight: 700, lineHeight: 1 }}>
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              bottom: "1rem",
+              right: "1.25rem",
+              fontFamily: "var(--font-mono)",
+              fontSize: "1.5rem",
+              color: "var(--border)",
+              opacity: 0.4,
+              fontWeight: 700,
+              lineHeight: 1,
+            }}
+          >
             𝕏
           </div>
           <div style={{ position: "relative" }}>
-            <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "1.05rem", fontWeight: 600, color: "var(--foreground)", marginBottom: "0.4rem", letterSpacing: "-0.01em" }}>
+            <h3
+              style={{
+                fontFamily: "var(--font-heading)",
+                fontSize: "1.05rem",
+                fontWeight: 600,
+                color: "var(--foreground)",
+                marginBottom: "0.4rem",
+                letterSpacing: "-0.01em",
+              }}
+            >
               Turn clusters into content
             </h3>
-            <p style={{ fontSize: "0.8rem", color: "var(--muted-foreground)", lineHeight: 1.6, marginBottom: "1.25rem" }}>
+            <p
+              style={{
+                fontSize: "0.8rem",
+                color: "var(--muted-foreground)",
+                lineHeight: 1.6,
+                marginBottom: "1.25rem",
+              }}
+            >
               Generate a dev tip thread from any topic cluster with one click.
             </p>
 
             {/* Thread mockup */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.5rem",
+              }}
+            >
               {[
                 { n: "1/", text: "useCallback vs useMemo — a thread" },
-                { n: "2/", text: "useCallback memoizes functions, not values." },
+                {
+                  n: "2/",
+                  text: "useCallback memoizes functions, not values.",
+                },
                 { n: "3/", text: "useMemo is for expensive computations." },
               ].map((t, i) => (
                 <div
@@ -402,15 +616,37 @@ export function FeaturesSection() {
                     display: "flex",
                     gap: "0.5rem",
                     padding: "0.5rem 0.625rem",
-                    background: i === 0 ? "oklch(0.72 0.18 162 / 0.05)" : "transparent",
+                    background:
+                      i === 0 ? "oklch(0.72 0.18 162 / 0.05)" : "transparent",
                     borderRadius: "var(--radius-lg)",
-                    border: i === 0 ? "1px solid oklch(0.72 0.18 162 / 0.12)" : "none",
+                    border:
+                      i === 0
+                        ? "1px solid oklch(0.72 0.18 162 / 0.12)"
+                        : "none",
                   }}
                 >
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", color: "var(--primary)", flexShrink: 0, minWidth: "20px" }}>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.65rem",
+                      color: "var(--primary)",
+                      flexShrink: 0,
+                      minWidth: "20px",
+                    }}
+                  >
                     {i === 0 ? "🧵" : t.n}
                   </span>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.7rem", color: i === 0 ? "var(--foreground)" : "var(--muted-foreground)", lineHeight: 1.4 }}>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.7rem",
+                      color:
+                        i === 0
+                          ? "var(--foreground)"
+                          : "var(--muted-foreground)",
+                      lineHeight: 1.4,
+                    }}
+                  >
                     {t.text}
                   </span>
                 </div>

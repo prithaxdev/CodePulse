@@ -1,15 +1,15 @@
-import Link from "next/link"
+"use client"
+
+import { useRouter } from "next/navigation"
+import { AnimatedCTAButton } from "@/components/landing/animated-cta-button"
+import { Badge } from "@/components/ui/badge"
+import { motion } from "motion/react"
 
 export function CTASection() {
+  const router = useRouter()
+
   return (
-    <section
-      style={{
-        padding: "6rem 1.5rem",
-        position: "relative",
-        overflow: "hidden",
-        textAlign: "center",
-      }}
-    >
+    <section className="relative overflow-hidden px-6 py-24 text-center">
       {/* Decorative horizontal lines */}
       <div
         aria-hidden="true"
@@ -51,34 +51,28 @@ export function CTASection() {
       <div
         style={{ position: "relative", maxWidth: "680px", margin: "0 auto" }}
       >
-        {/* Eyebrow */}
-        <p
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: "0.7rem",
-            color: "var(--muted-foreground)",
-            letterSpacing: "0.15em",
-            textTransform: "uppercase",
-            marginBottom: "2rem",
-          }}
+        {/* Badge + H2 */}
+        <motion.div
+          initial={{ y: -40, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
+          className="mb-6 flex flex-col items-center justify-center gap-4"
         >
-          Start today
-        </p>
+          <Badge variant="outline" className="h-auto px-3 py-1 text-sm">
+            Start today
+          </Badge>
+        </motion.div>
 
-        <h2
-          style={{
-            fontFamily: "var(--font-heading)",
-            fontSize: "clamp(2.25rem, 5vw, 4rem)",
-            fontWeight: 700,
-            lineHeight: 1.08,
-            letterSpacing: "-0.03em",
-            color: "var(--foreground)",
-            marginBottom: "1.5rem",
-          }}
-        >
-          You&apos;re going to forget
-          <br />
-          what you learned today.
+        {/* H2 — same two-font pattern as hero */}
+        <h2 className="text-balance text-center text-4xl font-medium leading-tight md:text-5xl lg:text-6xl" style={{ marginBottom: "1.5rem" }}>
+          You&apos;re going to forget{" "}
+          <span
+            className="tracking-tight italic"
+            style={{ fontFamily: "'Instrument Serif', serif" }}
+          >
+            what you learned today.
+          </span>
         </h2>
 
         <p
@@ -97,43 +91,10 @@ export function CTASection() {
         </p>
 
         {/* CTA button */}
-        <Link
-          href="/sign-up"
-          className="cta-primary-btn"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            fontFamily: "var(--font-mono)",
-            fontSize: "0.875rem",
-            fontWeight: 500,
-            color: "var(--primary-foreground)",
-            textDecoration: "none",
-            padding: "1rem 1.5rem",
-            borderRadius: "var(--radius-lg)",
-            background: "var(--primary)",
-            position: "relative",
-            overflow: "hidden",
-            boxShadow:
-              "0 0 40px oklch(0.72 0.18 162 / 0.35), 0 2px 8px oklch(0.05 0.01 255 / 0.4)",
-          }}
-        >
-          <span style={{ position: "relative", zIndex: 1 }}>
-            Start building your memory
-          </span>
-          {/* Shimmer */}
-          <span
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              inset: 0,
-              background:
-                "linear-gradient(90deg, transparent 0%, oklch(1 0 0 / 0.15) 50%, transparent 100%)",
-              transform: "translateX(-100%)",
-              animation: "shimmer 2.5s infinite 1s",
-            }}
-          />
-        </Link>
+        <AnimatedCTAButton
+          label="Start building your memory"
+          onClick={() => router.push("/sign-up")}
+        />
 
         <p
           style={{
