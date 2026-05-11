@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import {
   Instrument_Serif,
-  Geist_Mono,
+  Figtree,
   Inter,
   JetBrains_Mono,
   Fira_Code,
@@ -31,7 +31,7 @@ const instrumentSerif = Instrument_Serif({
   style: ["normal", "italic"],
 })
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
-const fontMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" })
+const fontMono = Figtree({ subsets: ["latin"], variable: "--font-mono" })
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains",
@@ -59,7 +59,7 @@ export default function RootLayout({
         lang="en"
         suppressHydrationWarning
         className={cn(
-          "font-sans antialiased",
+          "font-mono antialiased",
           instrumentSerif.variable,
           fontMono.variable,
           inter.variable,
