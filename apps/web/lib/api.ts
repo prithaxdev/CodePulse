@@ -11,6 +11,8 @@ import type {
   SummarizeResponse,
   GraphBuildRequest,
   GraphBuildResponse,
+  LanguageDetectRequest,
+  LanguageDetectResponse,
 } from "@/types/api"
 
 const BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "")
@@ -73,6 +75,14 @@ export const api = {
   graph: {
     build: (body: GraphBuildRequest) =>
       request<GraphBuildResponse>("/api/graph/build", {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+  },
+
+  language: {
+    detect: (body: LanguageDetectRequest) =>
+      request<LanguageDetectResponse>("/api/detect-language", {
         method: "POST",
         body: JSON.stringify(body),
       }),

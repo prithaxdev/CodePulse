@@ -159,3 +159,18 @@ class DependencyEdge(BaseModel):
 
 class GraphBuildResponse(BaseModel):
     edges: list[DependencyEdge]
+
+
+# ---------------------------------------------------------------------------
+# POST /api/detect-language
+# ---------------------------------------------------------------------------
+
+
+class LanguageDetectRequest(BaseModel):
+    code: str
+
+
+class LanguageDetectResponse(BaseModel):
+    language: str
+    confidence: float
+    scores: dict[str, float]
