@@ -51,7 +51,7 @@ export async function CodeDisplay({
         // Shiki wraps output in <pre><code> — style them here
         "[&_pre]:m-0 [&_pre]:overflow-x-auto",
         "[&_pre]:p-5 [&_pre]:text-sm [&_pre]:leading-[1.65]",
-        "[&_pre]:font-[family-name:var(--font-geist,ui-monospace,monospace)]",
+        "[&_pre]:font-(family-name:--font-geist,ui-monospace,monospace)",
         "[&_pre]:[font-variant-numeric:tabular-nums]",
         // Let shiki control the background color via its theme
         className
