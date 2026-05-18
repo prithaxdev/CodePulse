@@ -105,6 +105,7 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-heading: var(--font-mono);
+  --font-geist: var(--font-mono);
   --color-pulse: var(--pulse);
   --color-pulse-foreground: var(--pulse-foreground);
   --color-sidebar-ring: var(--sidebar-ring);

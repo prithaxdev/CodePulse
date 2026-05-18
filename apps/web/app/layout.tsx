@@ -1,11 +1,12 @@
 import type { Metadata } from "next"
 import {
   Instrument_Serif,
-  Geist_Mono,
+  Figtree,
   Inter,
   JetBrains_Mono,
   Fira_Code,
   IBM_Plex_Mono,
+  Geist_Mono,
 } from "next/font/google"
 import { ClerkProvider } from "@clerk/nextjs"
 
@@ -30,8 +31,9 @@ const instrumentSerif = Instrument_Serif({
   weight: "400",
   style: ["normal", "italic"],
 })
+
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
-const fontMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" })
+const fontMono = Figtree({ subsets: ["latin"], variable: "--font-mono" })
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains",
@@ -47,6 +49,11 @@ const ibmPlexMono = IBM_Plex_Mono({
   variable: "--font-ibm-plex",
   weight: ["400", "500"],
 })
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist",
+  weight: ["400", "500"],
+})
 
 export default function RootLayout({
   children,
@@ -59,13 +66,14 @@ export default function RootLayout({
         lang="en"
         suppressHydrationWarning
         className={cn(
-          "font-sans antialiased",
+          "font-mono antialiased",
           instrumentSerif.variable,
           fontMono.variable,
           inter.variable,
           jetbrainsMono.variable,
           firaCode.variable,
-          ibmPlexMono.variable
+          ibmPlexMono.variable,
+          geistMono.variable
         )}
       >
         <body>

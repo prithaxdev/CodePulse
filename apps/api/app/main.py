@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routes import review, search, clusters, duplicate, summarize, graph
+from app.routes import review, search, clusters, duplicate, summarize, graph, detect_language
 
 app = FastAPI(
     title="CodePulse API",
@@ -24,6 +24,7 @@ app.include_router(clusters.router)
 app.include_router(duplicate.router)
 app.include_router(summarize.router)
 app.include_router(graph.router)
+app.include_router(detect_language.router)
 
 
 @app.get("/api/health")

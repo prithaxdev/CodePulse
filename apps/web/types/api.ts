@@ -110,3 +110,13 @@ export type GraphBuildRequest = {
 export type GraphBuildResponse = {
   edges: DependencyEdge[]
 }
+
+export type LanguageDetectRequest = {
+  code: string
+}
+
+export type LanguageDetectResponse = {
+  language: string
+  confidence: number
+  scores: Record<string, number>
+}
