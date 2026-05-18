@@ -1,21 +1,6 @@
 export const dynamic = "force-dynamic"
 
-// SnippetEditor is a pure-client interactive form (CodeMirror, API calls,
-// TanStack Form). Disabling SSR removes it from the hydration pass entirely,
-// which eliminates the Base UI Select ID mismatches that occur when
-// TanStack Form's internal fiber boundaries differ between the server and
-// client renders.
-import nextDynamic from "next/dynamic"
-
-const SnippetEditor = nextDynamic(
-  () => import("@/components/snippet-editor").then((m) => m.SnippetEditor),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="h-[520px] animate-pulse rounded-2xl border border-border bg-card" />
-    ),
-  }
-)
+import { SnippetEditor } from "@/components/snippet-editor-client"
 
 export default function NewSnippetPage() {
   return (
