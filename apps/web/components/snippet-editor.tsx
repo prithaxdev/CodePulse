@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "@tanstack/react-form"
 import CodeMirror from "@uiw/react-codemirror"
@@ -38,6 +38,12 @@ export const titleSchema = z
   .max(120, "Keep it under 120 characters")
 export const codeSchema = z.string().min(1, "Paste your code to save it")
 
+// Minimum code length before attempting detection.
+const DETECT_MIN_LENGTH = 30
+
+// Debounce delay in ms.
+const DETECT_DEBOUNCE = 400
+
 type FormValues = {
   title: string
   language: Language
@@ -55,6 +61,15 @@ export function SnippetEditor() {
   const [duplicates, setDuplicates] = useState<DuplicateMatch[]>([])
   const [ignoreDuplicate, setIgnoreDuplicate] = useState(false)
   const [pendingValues, setPendingValues] = useState<FormValues | null>(null)
+
+  // Language auto-detection state.
+  // currentLang mirrors the form's language field so we can compare without
+  // adding a form.Subscribe to the fiber tree (which would shift downstream IDs).
+  const [detectedLang, setDetectedLang] = useState<Language | null>(null)
+  const [isAutoDetected, setIsAutoDetected] = useState(false)
+  const [currentLang, setCurrentLang] = useState<Language>("typescript")
+  const wasManuallyChanged = useRef(false)
+  const detectTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const form = useForm({
     defaultValues: {
@@ -115,6 +130,56 @@ export function SnippetEditor() {
     })
     toast.success("Snippet saved!")
     router.push("/dashboard")
+  }
+
+  // Debounced language detection — fires 400ms after the user stops typing.
+  function triggerDetection(code: string) {
+    if (detectTimer.current) clearTimeout(detectTimer.current)
+
+    if (code.trim().length < DETECT_MIN_LENGTH) {
+      setDetectedLang(null)
+      setIsAutoDetected(false)
+      return
+    }
+
+    detectTimer.current = setTimeout(async () => {
+      try {
+        const result = await api.language.detect({ code })
+
+        if (result.language === "other" || result.confidence < 0.08) return
+
+        const detected = result.language as Language
+        setDetectedLang(detected)
+
+        if (!wasManuallyChanged.current) {
+          // User hasn't manually chosen a language — auto-apply silently.
+          form.setFieldValue("language", detected)
+          setCurrentLang(detected)
+          setIsAutoDetected(true)
+        }
+        // When wasManuallyChanged is true, detectedLang state drives the
+        // "Detected: X — Switch?" suggestion rendered below the language row.
+      } catch {
+        // Fail silently — detection is non-critical.
+      }
+    }, DETECT_DEBOUNCE)
+  }
+
+  function handleLanguageChange(val: Language, fieldChange: (v: Language) => void) {
+    fieldChange(val)
+    setCurrentLang(val)
+    wasManuallyChanged.current = true
+    setIsAutoDetected(false)
+    setDetectedLang(null)
+  }
+
+  function handleApplyDetected() {
+    if (!detectedLang) return
+    form.setFieldValue("language", detectedLang)
+    setCurrentLang(detectedLang)
+    wasManuallyChanged.current = false
+    setIsAutoDetected(true)
+    setDetectedLang(null)
   }
 
   const handleDismissDuplicate = () => {
@@ -184,12 +249,19 @@ export function SnippetEditor() {
       </form.Field>
 
       {/* ── Language + Tags ─────────────────────────────── */}
+      {/*
+        Keep the same tree structure as the original to prevent fiber-position
+        shifts that cause Base UI Select to generate mismatched SSR/CSR IDs.
+        The Auto badge and suggestion use plain state — no new form.Subscribe.
+      */}
       <div className="flex flex-wrap items-center gap-2 px-6 py-3">
         <form.Field name="language">
           {(field) => (
             <Select
               value={field.state.value}
-              onValueChange={(val) => field.handleChange(val as Language)}
+              onValueChange={(val) =>
+                handleLanguageChange(val as Language, field.handleChange)
+              }
             >
               <SelectTrigger
                 size="sm"
@@ -209,6 +281,31 @@ export function SnippetEditor() {
             </Select>
           )}
         </form.Field>
+
+        {/* Auto badge — plain HTML conditional, no React component boundary */}
+        {isAutoDetected && (
+          <span className="inline-flex animate-in fade-in items-center gap-1 rounded-full border border-primary/20 bg-primary/8 px-2 py-0.5 text-[10px] font-medium text-primary/70 duration-200">
+            <span className="size-1.5 rounded-full bg-primary/50" />
+            Auto
+          </span>
+        )}
+
+        {/* Suggestion — plain state comparison, no form.Subscribe */}
+        {detectedLang && wasManuallyChanged.current && detectedLang !== currentLang && (
+          <div className="flex animate-in fade-in items-center gap-1.5 duration-200">
+            <span className="text-[11px] text-muted-foreground/60">Detected:</span>
+            <span className="text-[11px] font-medium text-foreground/70">
+              {LANGUAGES.find((l) => l.value === detectedLang)?.label}
+            </span>
+            <button
+              type="button"
+              onClick={handleApplyDetected}
+              className="text-[11px] text-primary underline-offset-2 transition-opacity hover:underline hover:opacity-80"
+            >
+              Switch?
+            </button>
+          </div>
+        )}
 
         <div className="h-4 w-px bg-border" />
 
@@ -259,7 +356,10 @@ export function SnippetEditor() {
                   {(language) => (
                     <CodeMirror
                       value={field.state.value}
-                      onChange={(val) => field.handleChange(val)}
+                      onChange={(val) => {
+                        field.handleChange(val)
+                        triggerDetection(val)
+                      }}
                       theme={getThemeExtension(prefs.theme)}
                       extensions={[
                         ...(getLanguageExtension(language as Language)
