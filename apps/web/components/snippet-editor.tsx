@@ -4,7 +4,11 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "@tanstack/react-form"
 import CodeMirror from "@uiw/react-codemirror"
-import { getThemeExtension, getFontExtension, cleanGutter } from "@/lib/editor-prefs"
+import {
+  getThemeExtension,
+  getFontExtension,
+  cleanGutter,
+} from "@/lib/editor-prefs"
 import { useEditorPrefs } from "@/hooks/use-editor-prefs"
 import { EditorToolbar } from "@/components/editor-toolbar"
 import { cn } from "@/lib/utils"
@@ -28,7 +32,10 @@ import { toast } from "sonner"
 import type { DuplicateMatch } from "@/types/api"
 import { z } from "zod"
 
-export const titleSchema = z.string().min(1, "Title is required").max(120, "Keep it under 120 characters")
+export const titleSchema = z
+  .string()
+  .min(1, "Title is required")
+  .max(120, "Keep it under 120 characters")
 export const codeSchema = z.string().min(1, "Paste your code to save it")
 
 type FormValues = {
@@ -102,7 +109,10 @@ export function SnippetEditor() {
       next_review: nextReview,
     })
 
-    logActivity("snippet_created", saved.id, { title: saved.title, language: saved.language })
+    logActivity("snippet_created", saved.id, {
+      title: saved.title,
+      language: saved.language,
+    })
     toast.success("Snippet saved!")
     router.push("/dashboard")
   }
@@ -129,7 +139,7 @@ export function SnippetEditor() {
         e.preventDefault()
         form.handleSubmit()
       }}
-      className="flex flex-col divide-y divide-border rounded-2xl border border-border bg-card overflow-hidden"
+      className="flex flex-col divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card"
     >
       {/* ── Title ───────────────────────────────────────── */}
       <form.Field
@@ -159,7 +169,7 @@ export function SnippetEditor() {
                   autoFocus
                   className={cn(
                     "w-full bg-transparent font-heading text-xl font-semibold tracking-tight text-foreground outline-none placeholder:text-muted-foreground/35",
-                    "text-wrap-balance",
+                    "text-wrap-balance"
                   )}
                 />
                 {attempts > 0 && field.state.meta.errors.length > 0 && (
@@ -183,7 +193,7 @@ export function SnippetEditor() {
             >
               <SelectTrigger
                 size="sm"
-                className="h-7 shrink-0 rounded-md border-border bg-muted/60 px-2.5 font-mono text-xs text-muted-foreground"
+                className="font-geist h-7 shrink-0 rounded-md border-border bg-muted/60 px-2.5 text-xs text-muted-foreground"
               >
                 <SelectValue placeholder="Language" />
               </SelectTrigger>
@@ -207,7 +217,7 @@ export function SnippetEditor() {
             <TagInput
               value={field.state.value}
               onChange={(tags) => field.handleChange(tags)}
-              className="flex-1 min-w-36 min-h-0 border-0 bg-transparent px-0 py-0 rounded-none focus-within:ring-0"
+              className="min-h-0 min-w-36 flex-1 rounded-none border-0 bg-transparent px-0 py-0 focus-within:ring-0"
               placeholder="Add tags…"
             />
           )}
@@ -231,7 +241,14 @@ export function SnippetEditor() {
         {(field) => (
           <form.Subscribe selector={(s) => s.submissionAttempts}>
             {(attempts) => (
-              <div className={cn("overflow-hidden", attempts > 0 && field.state.meta.errors.length > 0 && "ring-1 ring-inset ring-destructive/40")}>
+              <div
+                className={cn(
+                  "overflow-hidden",
+                  attempts > 0 &&
+                    field.state.meta.errors.length > 0 &&
+                    "ring-1 ring-destructive/40 ring-inset"
+                )}
+              >
                 <EditorToolbar
                   theme={prefs.theme}
                   font={prefs.font}
@@ -263,7 +280,7 @@ export function SnippetEditor() {
                   )}
                 </form.Subscribe>
                 {attempts > 0 && field.state.meta.errors.length > 0 && (
-                  <p className="px-4 py-2 text-xs text-destructive bg-destructive/5">
+                  <p className="bg-destructive/5 px-4 py-2 text-xs text-destructive">
                     {String(field.state.meta.errors[0])}
                   </p>
                 )}
@@ -277,7 +294,7 @@ export function SnippetEditor() {
       <form.Field name="description">
         {(field) => (
           <div className="px-6 py-4">
-            <p className="mb-2 text-[11px] font-medium uppercase tracking-widest text-muted-foreground/60">
+            <p className="mb-2 text-[11px] font-medium tracking-widest text-muted-foreground/60 uppercase">
               Notes
             </p>
             <Textarea
@@ -285,7 +302,7 @@ export function SnippetEditor() {
               onChange={(e) => field.handleChange(e.target.value)}
               onBlur={field.handleBlur}
               placeholder="What does this solve? When would you use it? Any gotchas? (optional)"
-              className="min-h-28 resize-y border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0 placeholder:text-muted-foreground/35"
+              className="min-h-28 resize-y border-0 bg-transparent p-0 text-sm shadow-none placeholder:text-muted-foreground/35 focus-visible:ring-0"
             />
           </div>
         )}
@@ -294,18 +311,21 @@ export function SnippetEditor() {
       {/* ── Duplicate warning ───────────────────────────── */}
       {duplicates.length > 0 && (
         <div className="px-6 py-4">
-          <DuplicateWarning matches={duplicates} onDismiss={handleDismissDuplicate} />
+          <DuplicateWarning
+            matches={duplicates}
+            onDismiss={handleDismissDuplicate}
+          />
         </div>
       )}
 
       {/* ── Footer ──────────────────────────────────────── */}
-      <div className="flex items-center justify-between gap-3 px-6 py-3.5 bg-muted/30">
+      <div className="flex items-center justify-between gap-3 bg-muted/30 px-6 py-3.5">
         <Button
           type="button"
           variant="ghost"
           size="sm"
           onClick={() => router.back()}
-          className="text-muted-foreground hover:text-foreground active:scale-[0.96] transition-[transform,opacity] duration-100"
+          className="text-muted-foreground transition-[transform,opacity] duration-100 hover:text-foreground active:scale-[0.96]"
         >
           Cancel
         </Button>
@@ -318,7 +338,7 @@ export function SnippetEditor() {
               size="sm"
               onClick={handleSaveAnyway}
               disabled={createSnippet.isPending}
-              className="active:scale-[0.96] transition-[transform,opacity] duration-100"
+              className="transition-[transform,opacity] duration-100 active:scale-[0.96]"
             >
               Save anyway
             </Button>
@@ -330,7 +350,7 @@ export function SnippetEditor() {
                 type="submit"
                 size="sm"
                 disabled={isSubmitting || createSnippet.isPending}
-                className="active:scale-[0.96] transition-[transform,opacity] duration-100"
+                className="transition-[transform,opacity] duration-100 active:scale-[0.96]"
               >
                 {isSubmitting || createSnippet.isPending ? (
                   <span className="flex items-center gap-1.5">

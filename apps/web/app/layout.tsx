@@ -6,6 +6,7 @@ import {
   JetBrains_Mono,
   Fira_Code,
   IBM_Plex_Mono,
+  Geist_Mono,
 } from "next/font/google"
 import { ClerkProvider } from "@clerk/nextjs"
 
@@ -30,6 +31,7 @@ const instrumentSerif = Instrument_Serif({
   weight: "400",
   style: ["normal", "italic"],
 })
+
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 const fontMono = Figtree({ subsets: ["latin"], variable: "--font-mono" })
 const jetbrainsMono = JetBrains_Mono({
@@ -45,6 +47,11 @@ const firaCode = Fira_Code({
 const ibmPlexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   variable: "--font-ibm-plex",
+  weight: ["400", "500"],
+})
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist",
   weight: ["400", "500"],
 })
 
@@ -65,7 +72,8 @@ export default function RootLayout({
           inter.variable,
           jetbrainsMono.variable,
           firaCode.variable,
-          ibmPlexMono.variable
+          ibmPlexMono.variable,
+          geistMono.variable
         )}
       >
         <body>

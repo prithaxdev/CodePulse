@@ -6,7 +6,10 @@ import { auth } from "@clerk/nextjs/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { CodeDisplay } from "@/components/code-display"
 import { SnippetDetailClient } from "@/components/snippet-detail-client"
-import { DependencyGraph, type DependencySnippet } from "@/components/dependency-graph"
+import {
+  DependencyGraph,
+  type DependencySnippet,
+} from "@/components/dependency-graph"
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -55,7 +58,10 @@ export default async function SnippetDetailPage({ params }: Props) {
     const { data: prereqSnippets } = await supabase
       .from("snippets")
       .select("id, title, language")
-      .in("id", prereqEdges.map((e) => e.from_id))
+      .in(
+        "id",
+        prereqEdges.map((e) => e.from_id)
+      )
     prerequisites = (prereqSnippets ?? []).map((s) => ({
       ...s,
       confidence: prereqEdges.find((e) => e.from_id === s.id)?.confidence ?? 0,
@@ -67,7 +73,10 @@ export default async function SnippetDetailPage({ params }: Props) {
     const { data: dependentSnippets } = await supabase
       .from("snippets")
       .select("id, title, language")
-      .in("id", dependentEdges.map((e) => e.to_id))
+      .in(
+        "id",
+        dependentEdges.map((e) => e.to_id)
+      )
     dependents = (dependentSnippets ?? []).map((s) => ({
       ...s,
       confidence: dependentEdges.find((e) => e.to_id === s.id)?.confidence ?? 0,
@@ -77,23 +86,33 @@ export default async function SnippetDetailPage({ params }: Props) {
   const nextReview = new Date(snippet.next_review)
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  const daysUntil = Math.ceil((nextReview.getTime() - today.getTime()) / 86_400_000)
+  const daysUntil = Math.ceil(
+    (nextReview.getTime() - today.getTime()) / 86_400_000
+  )
   const nextReviewLabel =
-    daysUntil === 0 ? "Today" :
-    daysUntil === 1 ? "Tomorrow" :
-    daysUntil < 0 ? "Overdue" :
-    `In ${daysUntil} days`
+    daysUntil === 0
+      ? "Today"
+      : daysUntil === 1
+        ? "Tomorrow"
+        : daysUntil < 0
+          ? "Overdue"
+          : `In ${daysUntil} days`
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
-
       {/* ── Back button ────────────────────────────────── */}
       <Link
         href="/dashboard"
         className="mb-6 inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors duration-150 hover:text-foreground"
       >
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-          <path d="M9 11L5 7l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M9 11L5 7l4-4"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
         Dashboard
       </Link>
@@ -101,8 +120,8 @@ export default async function SnippetDetailPage({ params }: Props) {
       {/* ── Header ─────────────────────────────────────── */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-1.5 mb-2">
-            <span className="rounded-md bg-muted/60 px-2 py-0.5 font-mono text-[11px] text-muted-foreground">
+          <div className="mb-2 flex flex-wrap items-center gap-1.5">
+            <span className="font-geist rounded-md bg-muted/60 px-2 py-0.5 text-[11px] text-muted-foreground">
               {snippet.language}
             </span>
             {snippet.tags.map((tag: string) => (
@@ -114,11 +133,11 @@ export default async function SnippetDetailPage({ params }: Props) {
               </span>
             ))}
           </div>
-          <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground text-wrap-balance">
+          <h1 className="text-wrap-balance font-heading text-2xl font-semibold tracking-tight text-foreground">
             {snippet.title}
           </h1>
           {snippet.description && (
-            <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {snippet.description}
             </p>
           )}
@@ -144,13 +163,13 @@ export default async function SnippetDetailPage({ params }: Props) {
       )}
 
       {/* ── SM-2 State ─────────────────────────────────── */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
-        <div className="px-5 py-3.5 border-b border-border">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card">
+        <div className="border-b border-border px-5 py-3.5">
+          <h2 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
             Review schedule
           </h2>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-border">
+        <div className="grid grid-cols-2 divide-y divide-border sm:grid-cols-4 sm:divide-x sm:divide-y-0">
           <StatCell
             label="Next review"
             value={nextReviewLabel}
@@ -160,10 +179,7 @@ export default async function SnippetDetailPage({ params }: Props) {
             label="Interval"
             value={`${snippet.interval_days} day${snippet.interval_days !== 1 ? "s" : ""}`}
           />
-          <StatCell
-            label="Repetitions"
-            value={String(snippet.repetitions)}
-          />
+          <StatCell label="Repetitions" value={String(snippet.repetitions)} />
           <StatCell
             label="Ease factor"
             value={snippet.ease_factor.toFixed(2)}
@@ -192,10 +208,16 @@ function StatCell({
 }) {
   return (
     <div className="flex flex-col gap-0.5 px-5 py-4">
-      <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+      <span className="text-[10px] font-medium tracking-widest text-muted-foreground uppercase">
         {label}
       </span>
-      <span className={accent ? "text-sm font-semibold text-primary" : "text-sm font-semibold text-foreground"}>
+      <span
+        className={
+          accent
+            ? "text-sm font-semibold text-primary"
+            : "text-sm font-semibold text-foreground"
+        }
+      >
         {value}
       </span>
     </div>
