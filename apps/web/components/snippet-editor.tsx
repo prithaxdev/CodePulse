@@ -62,9 +62,12 @@ export function SnippetEditor() {
   const [ignoreDuplicate, setIgnoreDuplicate] = useState(false)
   const [pendingValues, setPendingValues] = useState<FormValues | null>(null)
 
-  // Language auto-detection state
+  // Language auto-detection state.
+  // currentLang mirrors the form's language field so we can compare without
+  // adding a form.Subscribe to the fiber tree (which would shift downstream IDs).
   const [detectedLang, setDetectedLang] = useState<Language | null>(null)
   const [isAutoDetected, setIsAutoDetected] = useState(false)
+  const [currentLang, setCurrentLang] = useState<Language>("typescript")
   const wasManuallyChanged = useRef(false)
   const detectTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -129,7 +132,7 @@ export function SnippetEditor() {
     router.push("/dashboard")
   }
 
-  // Debounced language detection — fires after the user stops typing.
+  // Debounced language detection — fires 400ms after the user stops typing.
   function triggerDetection(code: string) {
     if (detectTimer.current) clearTimeout(detectTimer.current)
 
@@ -146,24 +149,25 @@ export function SnippetEditor() {
         if (result.language === "other" || result.confidence < 0.08) return
 
         const detected = result.language as Language
-
         setDetectedLang(detected)
 
         if (!wasManuallyChanged.current) {
-          // User hasn't touched the dropdown — auto-apply silently.
+          // User hasn't manually chosen a language — auto-apply silently.
           form.setFieldValue("language", detected)
+          setCurrentLang(detected)
           setIsAutoDetected(true)
         }
-        // If manually changed and different, detectedLang state triggers the
-        // "Switch?" suggestion below the language row (rendered further down).
+        // When wasManuallyChanged is true, detectedLang state drives the
+        // "Detected: X — Switch?" suggestion rendered below the language row.
       } catch {
-        // Fail silently — detection is non-critical UX.
+        // Fail silently — detection is non-critical.
       }
     }, DETECT_DEBOUNCE)
   }
 
   function handleLanguageChange(val: Language, fieldChange: (v: Language) => void) {
     fieldChange(val)
+    setCurrentLang(val)
     wasManuallyChanged.current = true
     setIsAutoDetected(false)
     setDetectedLang(null)
@@ -172,6 +176,7 @@ export function SnippetEditor() {
   function handleApplyDetected() {
     if (!detectedLang) return
     form.setFieldValue("language", detectedLang)
+    setCurrentLang(detectedLang)
     wasManuallyChanged.current = false
     setIsAutoDetected(true)
     setDetectedLang(null)
@@ -244,83 +249,76 @@ export function SnippetEditor() {
       </form.Field>
 
       {/* ── Language + Tags ─────────────────────────────── */}
-      <div className="flex flex-col gap-1.5 px-6 py-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <form.Field name="language">
-            {(field) => (
-              <div className="flex items-center gap-1.5">
-                <Select
-                  value={field.state.value}
-                  onValueChange={(val) =>
-                    handleLanguageChange(val as Language, field.handleChange)
-                  }
-                >
-                  <SelectTrigger
-                    size="sm"
-                    className="font-geist h-7 shrink-0 rounded-md border-border bg-muted/60 px-2.5 text-xs text-muted-foreground"
-                  >
-                    <SelectValue placeholder="Language" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {LANGUAGES.map((lang) => (
-                        <SelectItem key={lang.value} value={lang.value}>
-                          {lang.label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+      {/*
+        Keep the same tree structure as the original to prevent fiber-position
+        shifts that cause Base UI Select to generate mismatched SSR/CSR IDs.
+        The Auto badge and suggestion use plain state — no new form.Subscribe.
+      */}
+      <div className="flex flex-wrap items-center gap-2 px-6 py-3">
+        <form.Field name="language">
+          {(field) => (
+            <Select
+              value={field.state.value}
+              onValueChange={(val) =>
+                handleLanguageChange(val as Language, field.handleChange)
+              }
+            >
+              <SelectTrigger
+                size="sm"
+                className="font-geist h-7 shrink-0 rounded-md border-border bg-muted/60 px-2.5 text-xs text-muted-foreground"
+              >
+                <SelectValue placeholder="Language" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {LANGUAGES.map((lang) => (
+                    <SelectItem key={lang.value} value={lang.value}>
+                      {lang.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          )}
+        </form.Field>
 
-                {/* Auto-detected badge */}
-                {isAutoDetected && (
-                  <span className="inline-flex animate-in fade-in items-center gap-1 rounded-full border border-primary/20 bg-primary/8 px-2 py-0.5 text-[10px] font-medium text-primary/70 duration-200">
-                    <span className="size-1.5 rounded-full bg-primary/50" />
-                    Auto
-                  </span>
-                )}
-              </div>
-            )}
-          </form.Field>
+        {/* Auto badge — plain HTML conditional, no React component boundary */}
+        {isAutoDetected && (
+          <span className="inline-flex animate-in fade-in items-center gap-1 rounded-full border border-primary/20 bg-primary/8 px-2 py-0.5 text-[10px] font-medium text-primary/70 duration-200">
+            <span className="size-1.5 rounded-full bg-primary/50" />
+            Auto
+          </span>
+        )}
 
-          <div className="h-4 w-px bg-border" />
+        {/* Suggestion — plain state comparison, no form.Subscribe */}
+        {detectedLang && wasManuallyChanged.current && detectedLang !== currentLang && (
+          <div className="flex animate-in fade-in items-center gap-1.5 duration-200">
+            <span className="text-[11px] text-muted-foreground/60">Detected:</span>
+            <span className="text-[11px] font-medium text-foreground/70">
+              {LANGUAGES.find((l) => l.value === detectedLang)?.label}
+            </span>
+            <button
+              type="button"
+              onClick={handleApplyDetected}
+              className="text-[11px] text-primary underline-offset-2 transition-opacity hover:underline hover:opacity-80"
+            >
+              Switch?
+            </button>
+          </div>
+        )}
 
-          <form.Field name="tags">
-            {(field) => (
-              <TagInput
-                value={field.state.value}
-                onChange={(tags) => field.handleChange(tags)}
-                className="min-h-0 min-w-36 flex-1 rounded-none border-0 bg-transparent px-0 py-0 focus-within:ring-0"
-                placeholder="Add tags…"
-              />
-            )}
-          </form.Field>
-        </div>
+        <div className="h-4 w-px bg-border" />
 
-        {/* Detected language suggestion (shown only when user manually changed) */}
-        <form.Subscribe selector={(s) => s.values.language}>
-          {(currentLanguage) =>
-            detectedLang &&
-            wasManuallyChanged.current &&
-            detectedLang !== currentLanguage ? (
-              <div className="flex animate-in fade-in items-center gap-1.5 duration-200">
-                <span className="text-[11px] text-muted-foreground/60">
-                  Detected:
-                </span>
-                <span className="text-[11px] font-medium text-foreground/70">
-                  {LANGUAGES.find((l) => l.value === detectedLang)?.label}
-                </span>
-                <button
-                  type="button"
-                  onClick={handleApplyDetected}
-                  className="text-[11px] text-primary underline-offset-2 transition-opacity hover:underline hover:opacity-80"
-                >
-                  Switch?
-                </button>
-              </div>
-            ) : null
-          }
-        </form.Subscribe>
+        <form.Field name="tags">
+          {(field) => (
+            <TagInput
+              value={field.state.value}
+              onChange={(tags) => field.handleChange(tags)}
+              className="min-h-0 min-w-36 flex-1 rounded-none border-0 bg-transparent px-0 py-0 focus-within:ring-0"
+              placeholder="Add tags…"
+            />
+          )}
+        </form.Field>
       </div>
 
       {/* ── Code editor ─────────────────────────────────── */}
