@@ -30,7 +30,7 @@ export function reviewReminderHtml({
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:32px;">
-              <img src="${appUrl}/codepulse-dark.svg" width="140" height="45" alt="CodePulse" style="display:block;" />
+              <img src="${appUrl}/codepulse.svg" width="140" height="45" alt="CodePulse" style="display:block;" />
             </td>
           </tr>
 
