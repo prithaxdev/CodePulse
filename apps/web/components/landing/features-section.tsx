@@ -1,6 +1,6 @@
 "use client"
 
-import { BrainCluster } from "./illustrations/brain-cluster"
+import { HairlineFigure } from "./hairline-figure"
 import { Badge } from "@/components/ui/badge"
 import { motion } from "motion/react"
 
@@ -25,7 +25,7 @@ export function FeaturesSection() {
         <h2 className="text-3xl font-medium text-balance text-foreground md:text-5xl">
           Everything your memory needs.{" "}
           <span
-            className="block tracking-tight italic text-primary"
+            className="block tracking-tight text-primary italic"
             style={{ fontFamily: "'Instrument Serif', serif" }}
           >
             Nothing it doesn&apos;t.
@@ -517,16 +517,11 @@ export function FeaturesSection() {
               K-means clustering groups related snippets into topics — no manual
               tagging required.
             </p>
-            <div
-              style={{
-                transform: "scale(0.75)",
-                transformOrigin: "top left",
-                width: "133%",
-                pointerEvents: "none",
-              }}
-            >
-              <BrainCluster />
-            </div>
+            <HairlineFigure
+              name="settle"
+              tag="k-means"
+              label="Scattered tiles sliding into an ordered tree around a hub"
+            />
           </div>
         </div>
 

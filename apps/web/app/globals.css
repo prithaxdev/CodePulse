@@ -250,6 +250,18 @@
   background: var(--muted) !important;
 }
 
+/* ─── Hairline figures ──────────────────────────────────────────── */
+/* @lucasmarkes/hairline draws with these five tokens. The plate must */
+/* match the surface a figure sits on, and every landing figure sits  */
+/* on a card. What a figure lights up wears the brand emerald.        */
+.hairline {
+  --hairline-plate: var(--card);
+  --hairline-hi: var(--primary);
+  --hairline-edge: var(--muted-foreground);
+  --hairline-mid: color-mix(in oklab, var(--muted-foreground) 55%, var(--card));
+  --hairline-lo: color-mix(in oklab, var(--foreground) 10%, var(--card));
+}
+
 /* ─── Landing page animations ───────────────────────────────────── */
 @keyframes marquee {
   from {
@@ -268,33 +280,6 @@
   }
 }
 
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-12px);
-  }
-}
-
-@keyframes pulse-ring {
-  0% {
-    opacity: 0.6;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.5);
-  }
-}
-
-@keyframes shimmer {
-  to {
-    transform: translateX(200%);
-  }
-}
-
 @keyframes blink {
   0%,
   100% {
@@ -303,42 +288,6 @@
   50% {
     opacity: 0;
   }
-}
-
-@keyframes dot-travel {
-  0% {
-    offset-distance: 0%;
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    offset-distance: 100%;
-    opacity: 0;
-  }
-}
-
-.stagger-children > * {
-  animation: fadeSlideUp 0.5s ease both;
-}
-.stagger-children > *:nth-child(1) {
-  animation-delay: 0s;
-}
-.stagger-children > *:nth-child(2) {
-  animation-delay: 0.1s;
-}
-.stagger-children > *:nth-child(3) {
-  animation-delay: 0.2s;
-}
-.stagger-children > *:nth-child(4) {
-  animation-delay: 0.3s;
-}
-.stagger-children > *:nth-child(5) {
-  animation-delay: 0.4s;
 }
 
 @media (prefers-reduced-motion: reduce) {
