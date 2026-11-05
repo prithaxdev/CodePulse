@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
 import {
-  Instrument_Serif,
   Figtree,
   Inter,
   JetBrains_Mono,
@@ -24,13 +23,6 @@ export const metadata: Metadata = {
     icon: "/codepulse-icon.svg",
   },
 }
-
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
-  variable: "--font-instrument",
-  weight: "400",
-  style: ["normal", "italic"],
-})
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 const fontMono = Figtree({ subsets: ["latin"], variable: "--font-mono" })
@@ -67,7 +59,6 @@ export default function RootLayout({
         suppressHydrationWarning
         className={cn(
           "font-mono antialiased",
-          instrumentSerif.variable,
           fontMono.variable,
           inter.variable,
           jetbrainsMono.variable,
