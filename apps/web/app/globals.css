@@ -95,12 +95,6 @@
   --sidebar-ring: oklch(0.72 0.18 162);
 }
 
-@theme {
-  --animate-marquee: marquee var(--duration, 40s) linear infinite;
-  --animate-marquee-reverse: marquee-reverse var(--duration, 40s) linear
-    infinite;
-}
-
 @theme inline {
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
@@ -170,24 +164,6 @@
   --hairline-edge: var(--muted-foreground);
   --hairline-mid: color-mix(in oklab, var(--muted-foreground) 55%, var(--card));
   --hairline-lo: color-mix(in oklab, var(--foreground) 10%, var(--card));
-}
-
-/* ─── Landing page animations ───────────────────────────────────── */
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-100%);
-  }
-}
-@keyframes marquee-reverse {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(0);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
