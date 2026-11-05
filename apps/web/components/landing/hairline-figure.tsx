@@ -29,6 +29,10 @@ const figures = {
     () => import("@lucasmarkes/hairline/react").then((m) => m.Settle),
     { ssr: false, loading: FigurePlaceholder }
   ),
+  elevator: dynamic(
+    () => import("@lucasmarkes/hairline/react").then((m) => m.Elevator),
+    { ssr: false, loading: FigurePlaceholder }
+  ),
   phosphor: dynamic(
     () => import("@lucasmarkes/hairline/react").then((m) => m.Phosphor),
     { ssr: false, loading: FigurePlaceholder }
@@ -44,8 +48,20 @@ interface HairlineFigureProps {
   /** Mono tag in the top-left corner, e.g. a step number. */
   tag?: string
   intensity?: number
+  /**
+   * What the figure sits on. Its plates are filled to hide what's behind
+   * them, so the fill has to match: a card (the default) or the page itself.
+   */
+  surface?: "card" | "page"
+  /** Show the tag and live read-out corners. Off where nothing frames them. */
+  readout?: boolean
   className?: string
 }
+
+// `.hairline` in globals.css maps the tokens for a card; these re-point the
+// three that depend on the surface for a figure drawn on the page.
+const pageSurface =
+  "[--hairline-plate:var(--background)] [--hairline-mid:color-mix(in_oklab,var(--muted-foreground)_55%,var(--background))] [--hairline-lo:color-mix(in_oklab,var(--foreground)_10%,var(--background))]"
 
 /**
  * A Hairline figure wearing CodePulse's tokens (see `.hairline` in
@@ -58,21 +74,31 @@ export function HairlineFigure({
   label,
   tag,
   intensity = 0.6,
+  surface = "card",
+  readout: showReadout = true,
   className,
 }: HairlineFigureProps) {
   const readout = useRef<HTMLSpanElement>(null)
   const Figure = figures[name]
 
   return (
-    <div className={cn("hairline relative", className)}>
+    <div
+      className={cn(
+        "hairline relative",
+        surface === "page" && pageSurface,
+        className
+      )}
+    >
       {/* Rendered before the figure so its ref exists when the figure first reads. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-center justify-between gap-4 font-mono text-[0.6875rem] tracking-wide text-muted-foreground tabular-nums"
-      >
-        <span className="text-foreground/80">{tag}</span>
-        <span ref={readout} className="truncate" />
-      </div>
+      {showReadout && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-center justify-between gap-4 font-mono text-[0.6875rem] tracking-wide text-muted-foreground tabular-nums"
+        >
+          <span className="text-foreground/80">{tag}</span>
+          <span ref={readout} className="truncate" />
+        </div>
+      )}
       <Figure
         label={label}
         intensity={intensity}

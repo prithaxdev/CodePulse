@@ -29,8 +29,9 @@ const steps: {
     title: "Rate and retain",
     description:
       "Rate each card Forgot, Hard or Easy. Forgot brings it back tomorrow; Easy pushes it further out each time.",
-    figure: "riffle",
-    label: "A tray of flashcards; the card under the pointer stands up",
+    figure: "elevator",
+    label:
+      "A lift beside four floors; the pointer picks a floor and the car travels there",
   },
 ]
 
