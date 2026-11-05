@@ -9,14 +9,16 @@ import { cn } from "@/lib/utils"
  * answers the pointer. Render it inside an element with the `hairline` class.
  *
  * Model: retention = FLOOR + (1 - FLOOR) · e^(-elapsed / stability). Every
- * review resets `elapsed` and raises `stability`. Review days follow SM-2 at
- * the default ease factor of 2.5: after 1 day, 6 days, then interval × 2.5.
+ * review resets `elapsed` and raises `stability`. The decay is illustrative;
+ * the review days are CodePulse's real schedule (sm2.py) for a snippet saved
+ * and reviewed on day 0, then rated Easy each time: gaps of 4, 6, 16, 45 days.
  */
 
 const HORIZON_DAYS = 90
 const FLOOR = 0.2
-const REVIEW_DAYS = [1, 7, 22, 60]
-const STABILITY = [0.9, 16, 55, 150, 300]
+const UNREVIEWED_STABILITY = 0.9
+const REVIEW_DAYS = [4, 10, 26, 71]
+const STABILITY = [5.8, 16, 56, 176, 300]
 
 const W = 640
 const H = 280
@@ -33,7 +35,7 @@ const segments = [0, ...REVIEW_DAYS].map((start, i) => ({
 }))
 
 function retentionWithout(day: number): number {
-  return decay(day, STABILITY[0])
+  return decay(day, UNREVIEWED_STABILITY)
 }
 
 function retentionWithSm2(day: number): number {
@@ -175,7 +177,7 @@ export function ForgettingCurve() {
           <svg
             viewBox={`0 0 ${W} ${H}`}
             role="img"
-            aria-label="Memory retention over 90 days. Without review it falls to 20% within a week. With SM-2 reviews on days 1, 7, 22 and 60 it stays above 75% and ends near 92%."
+            aria-label="Modelled memory retention over 90 days. Without review it falls to about 20% within a week. With CodePulse reviews on days 0, 4, 10, 26 and 71 it stays above 60% and ends near 95%."
             className="block h-auto w-full overflow-visible fill-none"
           >
             {gridLines.map(({ retention, label }) => (
