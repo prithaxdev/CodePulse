@@ -36,6 +36,12 @@ export function Marquee({
         .pause-on-hover:hover .animate-marquee-vertical {
           animation-play-state: paused !important;
         }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-marquee,
+          .animate-marquee-vertical {
+            animation-play-state: paused !important;
+          }
+        }
       `}</style>
       <div
         {...props}
@@ -46,7 +52,7 @@ export function Marquee({
             "flex-col": vertical,
             "pause-on-hover": pauseOnHover,
           },
-          className,
+          className
         )}
       >
         {Array(repeat)
@@ -54,6 +60,8 @@ export function Marquee({
           .map((_, i) => (
             <div
               key={i}
+              // Copies exist only to fill the loop; read the content once.
+              aria-hidden={i > 0 || undefined}
               className={cn("flex shrink-0 justify-around gap-(--gap)", {
                 "animate-marquee flex-row": !vertical,
                 "animate-marquee-vertical flex-col": vertical,

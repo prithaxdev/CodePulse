@@ -17,15 +17,10 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 32 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, ease: "easeInOut" }}
-              className="text-center text-5xl leading-14 font-medium text-balance md:text-7xl md:leading-20 lg:text-8xl lg:leading-24"
+              className="text-center text-5xl leading-14 font-medium tracking-tight text-balance md:text-7xl md:leading-20 lg:text-8xl lg:leading-24"
             >
               Stop Googling the{" "}
-              <span
-                className="tracking-tight italic"
-                style={{ fontFamily: "'Instrument Serif', serif" }}
-              >
-                Same Thing Twice.
-              </span>
+              <span className="text-primary">same thing twice.</span>
             </motion.h1>
 
             <motion.p

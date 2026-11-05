@@ -2,8 +2,6 @@
 
 import { useRouter } from "next/navigation"
 import { AnimatedCTAButton } from "@/components/landing/animated-cta-button"
-import { Badge } from "@/components/ui/badge"
-import { motion } from "motion/react"
 
 export function CTASection() {
   const router = useRouter()
@@ -51,28 +49,9 @@ export function CTASection() {
       <div
         style={{ position: "relative", maxWidth: "680px", margin: "0 auto" }}
       >
-        {/* Badge + H2 */}
-        <motion.div
-          initial={{ y: -40, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
-          className="mb-6 flex flex-col items-center justify-center gap-4"
-        >
-          <Badge variant="outline" className="h-auto px-3 py-1 text-sm">
-            Start today
-          </Badge>
-        </motion.div>
-
-        {/* H2 — same two-font pattern as hero */}
-        <h2 className="text-balance text-center text-4xl font-medium leading-tight md:text-5xl lg:text-6xl" style={{ marginBottom: "1.5rem" }}>
+        <h2 className="mb-6 text-center text-4xl leading-tight font-medium tracking-tight text-balance md:text-5xl lg:text-6xl">
           You&apos;re going to forget{" "}
-          <span
-            className="tracking-tight italic"
-            style={{ fontFamily: "'Instrument Serif', serif" }}
-          >
-            what you learned today.
-          </span>
+          <span className="text-muted-foreground">what you learned today.</span>
         </h2>
 
         <p
