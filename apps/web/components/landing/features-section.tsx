@@ -1,673 +1,312 @@
-"use client"
+import type { ReactNode } from "react"
+import { SearchIcon, TriangleAlertIcon } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { HairlineFigure } from "./hairline-figure"
 
-import { BrainCluster } from "./illustrations/brain-cluster"
-import { Badge } from "@/components/ui/badge"
-import { motion } from "motion/react"
+// Every value in the mock UIs is real output: the review intervals and ease
+// come from sm2.py for a first review, the duplicate pair scores 88% in
+// duplicate.py, and the threshold is the API default.
+
+const ratings = [
+  { label: "Forgot", next: "1 day" },
+  { label: "Hard", next: "2 days" },
+  { label: "Easy", next: "4 days", picked: true },
+]
+
+const results = [
+  { title: "useEffect cleanup", score: 0.82 },
+  { title: "clearTimeout on unmount", score: 0.47 },
+  { title: "AbortController in fetch", score: 0.21 },
+]
+
+const thread = [
+  "useCallback vs useMemo, in three posts.",
+  "useCallback memoizes the function itself, not what it returns.",
+  "useMemo is for the expensive value. Measure before reaching for either.",
+]
+
+const secondary = [
+  {
+    title: "Language auto-detect",
+    description: "Paste code and the language fills itself in. Nine languages.",
+  },
+  {
+    title: "Prerequisite links",
+    description: "Each snippet lists what it builds on and what needs it.",
+  },
+  {
+    title: "Daily reminder",
+    description: "One email on the days you have reviews due.",
+  },
+  {
+    title: "Export anytime",
+    description: "Every snippet and review, downloaded as JSON.",
+  },
+]
+
+const code = "font-(family-name:--font-ibm-plex) text-[0.75rem] leading-relaxed"
+
+function FeatureCard({
+  title,
+  file,
+  description,
+  split = false,
+  className,
+  children,
+}: {
+  title: string
+  file: string
+  description: string
+  split?: boolean
+  className?: string
+  children: ReactNode
+}) {
+  return (
+    <article
+      className={cn(
+        "flex min-w-0 flex-col gap-7 rounded-2xl border bg-card p-6 md:p-7",
+        split && "lg:flex-row lg:gap-10",
+        className
+      )}
+    >
+      <div
+        className={cn("flex flex-col gap-2", split && "lg:w-64 lg:shrink-0")}
+      >
+        <div className="flex items-baseline justify-between gap-4">
+          <h3 className="text-[1.0625rem] font-semibold tracking-[-0.01em] text-foreground">
+            {title}
+          </h3>
+          <span className="shrink-0 font-mono text-xs text-muted-foreground">
+            {file}
+          </span>
+        </div>
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {description}
+        </p>
+      </div>
+      <div className={cn("mt-auto", split && "lg:mt-0 lg:min-w-0 lg:flex-1")}>
+        {children}
+      </div>
+    </article>
+  )
+}
+
+function ReviewMock() {
+  return (
+    <div
+      aria-hidden="true"
+      className="flex flex-col gap-3 rounded-xl border bg-background p-4"
+    >
+      <div className="flex items-center justify-between gap-3 text-xs">
+        <span className="font-medium text-foreground">useEffect cleanup</span>
+        <span className="rounded-md bg-muted px-2 py-0.5 text-muted-foreground">
+          TypeScript
+        </span>
+      </div>
+      <code
+        className={cn(
+          "block overflow-x-auto rounded-lg bg-muted/60 px-3.5 py-3 whitespace-pre text-muted-foreground",
+          code
+        )}
+      >
+        <span className="text-chart-5">useEffect</span>
+        {"(() => {\n  const id = "}
+        <span className="text-primary">setInterval</span>
+        {"(tick, 1000)\n  "}
+        <span className="text-chart-5">return</span>
+        {" () => "}
+        <span className="text-primary">clearInterval</span>
+        {"(id)\n}, [])"}
+      </code>
+      <div className="grid grid-cols-3 gap-2">
+        {ratings.map((rating) => (
+          <div
+            key={rating.label}
+            className={cn(
+              "flex flex-col items-center gap-0.5 rounded-lg border px-2 py-2",
+              rating.picked && "border-primary/50 bg-primary/5"
+            )}
+          >
+            <span className="text-xs text-foreground">{rating.label}</span>
+            <span className="font-mono text-[0.6875rem] text-muted-foreground tabular-nums">
+              {rating.next}
+            </span>
+          </div>
+        ))}
+      </div>
+      <p className="font-mono text-[0.6875rem] text-muted-foreground tabular-nums">
+        Easy · next review in 4 days · ease 2.5 → 2.6
+      </p>
+    </div>
+  )
+}
+
+function SearchMock() {
+  return (
+    <div aria-hidden="true" className="flex flex-col gap-1">
+      <div className="mb-2 flex items-center gap-2.5 rounded-lg border bg-background px-3 py-2.5 text-sm">
+        <SearchIcon size={14} className="shrink-0 text-muted-foreground" />
+        <span className="text-foreground">cleanup interval</span>
+      </div>
+      {results.map((result, i) => (
+        <div key={result.title} className="flex flex-col gap-2 px-3 py-2">
+          <div className="flex items-baseline justify-between gap-3 text-sm">
+            <span
+              className={i === 0 ? "text-foreground" : "text-muted-foreground"}
+            >
+              {result.title}
+            </span>
+            <span className="font-mono text-xs text-muted-foreground tabular-nums">
+              {result.score.toFixed(2)}
+            </span>
+          </div>
+          <div className="h-0.5 rounded-full bg-border">
+            <div
+              className={cn(
+                "h-full rounded-full",
+                i === 0 ? "bg-primary" : "bg-muted-foreground/40"
+              )}
+              style={{ width: `${result.score * 100}%` }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function DuplicateMock() {
+  return (
+    <div aria-hidden="true" className="flex flex-col gap-3">
+      <code
+        className={cn(
+          "block overflow-x-auto rounded-lg border bg-background px-3.5 py-3 whitespace-pre text-muted-foreground",
+          code
+        )}
+      >
+        {"clearInterval("}
+        <span className="rounded-sm bg-muted px-0.5 text-foreground">id</span>
+        {")     saved\nclearInterval("}
+        <span className="rounded-sm bg-primary/15 px-0.5 text-foreground">
+          timer
+        </span>
+        {")  new"}
+      </code>
+      <div className="flex items-start gap-2.5 rounded-lg border border-pulse/30 bg-pulse/10 px-3.5 py-3">
+        <span className="mt-px grid size-4.5 shrink-0 place-items-center rounded-full bg-pulse text-pulse-foreground">
+          <TriangleAlertIcon size={11} strokeWidth={2.5} />
+        </span>
+        <div className="flex flex-col gap-0.5 text-xs">
+          <span className="text-foreground">
+            88% similar to “useEffect cleanup”
+          </span>
+          <span className="text-muted-foreground">
+            Flagged above 85%. Save anyway?
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ThreadMock() {
+  return (
+    <ol aria-hidden="true" className="flex flex-col gap-1">
+      {thread.map((post, i) => (
+        <li
+          key={post}
+          className={cn(
+            "flex gap-3 rounded-lg px-3 py-2.5 text-xs leading-relaxed",
+            i === 0
+              ? "border bg-background text-foreground"
+              : "text-muted-foreground"
+          )}
+        >
+          <span className="font-mono text-muted-foreground tabular-nums">
+            {i + 1}/{thread.length}
+          </span>
+          {post}
+        </li>
+      ))}
+    </ol>
+  )
+}
 
 export function FeaturesSection() {
   return (
-    <section
-      id="features"
-      className="mx-auto px-6 py-24"
-      style={{ maxWidth: "1200px" }}
-    >
-      {/* Header */}
-      <motion.div
-        initial={{ y: -40, opacity: 0 }}
-        whileInView={{ y: 0, opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
-        className="mb-12 flex flex-col items-center justify-center gap-4 text-center"
-      >
-        <Badge variant="outline" className="h-auto px-3 py-1 text-sm">
-          Features
-        </Badge>
-        <h2 className="text-3xl font-medium text-balance text-foreground md:text-5xl">
-          Everything your memory needs.{" "}
-          <span
-            className="block tracking-tight italic text-primary"
-            style={{ fontFamily: "'Instrument Serif', serif" }}
-          >
-            Nothing it doesn&apos;t.
-          </span>
-        </h2>
-      </motion.div>
+    <section id="features" className="mx-auto max-w-300 px-6 py-24">
+      <h2 className="mb-12 max-w-2xl text-3xl font-medium tracking-tight text-balance text-foreground md:text-5xl">
+        Everything your memory needs.{" "}
+        <span className="text-muted-foreground">Nothing it doesn&apos;t.</span>
+      </h2>
 
-      {/* Bento grid */}
-      <div
-        className="bento-grid"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(12, 1fr)",
-          gap: "0.875rem",
-        }}
-      >
-        {/* Card 1 — SM-2 Review (large, span 7) */}
-        <div
-          className="feature-card feature-card-1"
-          style={{
-            gridColumn: "span 7",
-            background: "var(--card)",
-            border: "1px solid var(--border)",
-            borderRadius: "var(--radius-2xl)",
-            padding: "1.75rem",
-            position: "relative",
-            overflow: "hidden",
-          }}
+      <div className="grid grid-cols-1 gap-3.5 md:grid-cols-6 lg:grid-cols-12">
+        <FeatureCard
+          split
+          title="Spaced repetition"
+          file="sm2.py"
+          description="SM-2, the scheduler Anki was built on, decides when each snippet comes back: soon after a miss, further out each time you remember it."
+          className="md:col-span-6 lg:col-span-7"
         >
-          {/* Hover glow */}
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              inset: 0,
-              background:
-                "radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.72 0.18 162 / 0.05), transparent)",
-              pointerEvents: "none",
-            }}
-          />
+          <ReviewMock />
+        </FeatureCard>
 
-          <div style={{ position: "relative" }}>
-            {/* Badge */}
-            <span
-              style={{
-                display: "inline-block",
-                fontFamily: "var(--font-mono)",
-                fontSize: "0.65rem",
-                color: "var(--primary)",
-                border: "1px solid oklch(0.72 0.18 162 / 0.3)",
-                borderRadius: "var(--radius)",
-                padding: "0.2rem 0.6rem",
-                marginBottom: "1rem",
-                letterSpacing: "0.04em",
-              }}
-            >
-              SM-2 Algorithm
-            </span>
-
-            <h3
-              style={{
-                fontFamily: "var(--font-heading)",
-                fontSize: "1.25rem",
-                fontWeight: 600,
-                color: "var(--foreground)",
-                marginBottom: "0.5rem",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              Never forget with spaced repetition
-            </h3>
-            <p
-              style={{
-                fontSize: "0.875rem",
-                color: "var(--muted-foreground)",
-                lineHeight: 1.6,
-                maxWidth: "42ch",
-                marginBottom: "1.75rem",
-              }}
-            >
-              The SM-2 algorithm — same science behind Anki — schedules each
-              snippet at the exact moment your memory starts to fade.
-            </p>
-
-            {/* Mock review card UI */}
-            <div
-              style={{
-                background: "oklch(0.1 0.012 255)",
-                border: "1px solid var(--border)",
-                borderRadius: "var(--radius-xl)",
-                padding: "1.25rem",
-                maxWidth: "380px",
-              }}
-            >
-              {/* Card header */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "0.875rem",
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.7rem",
-                    color: "var(--muted-foreground)",
-                  }}
-                >
-                  useCallback optimization
-                </span>
-                <span
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.65rem",
-                    color: "var(--primary)",
-                    background: "oklch(0.72 0.18 162 / 0.1)",
-                    padding: "0.15rem 0.5rem",
-                    borderRadius: "var(--radius-sm)",
-                  }}
-                >
-                  TypeScript
-                </span>
-              </div>
-
-              {/* Code preview */}
-              <div
-                style={{
-                  background: "oklch(0.14 0.014 255)",
-                  borderRadius: "var(--radius-lg)",
-                  padding: "0.875rem",
-                  marginBottom: "1rem",
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "0.72rem",
-                  color: "var(--muted-foreground)",
-                  lineHeight: 1.6,
-                }}
-              >
-                <span style={{ color: "oklch(0.65 0.18 320)" }}>const</span>{" "}
-                <span style={{ color: "oklch(0.72 0.18 162)" }}>memoized</span>{" "}
-                <span style={{ color: "var(--muted-foreground)" }}>=</span>{" "}
-                <span style={{ color: "oklch(0.65 0.18 320)" }}>
-                  useCallback
-                </span>
-                <span style={{ color: "var(--muted-foreground)" }}>{"(("}</span>
-                <span style={{ color: "oklch(0.78 0.17 68)" }}>deps</span>
-                <span style={{ color: "var(--muted-foreground)" }}>
-                  {") => {"}
-                </span>
-                <br />
-                &nbsp;&nbsp;
-                <span style={{ color: "var(--muted-foreground)" }}>
-                  {"//"} avoid re-renders
-                </span>
-                <br />
-                <span style={{ color: "var(--muted-foreground)" }}>{"})"}</span>
-              </div>
-
-              {/* Rating buttons */}
-              <div style={{ display: "flex", gap: "0.5rem" }}>
-                <button
-                  style={{
-                    flex: 1,
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.72rem",
-                    padding: "0.5rem",
-                    borderRadius: "var(--radius-lg)",
-                    border: "1px solid oklch(0.65 0.22 27 / 0.3)",
-                    background: "oklch(0.65 0.22 27 / 0.06)",
-                    color: "oklch(0.65 0.22 27)",
-                    cursor: "pointer",
-                    transition: "background 0.15s, transform 0.15s",
-                  }}
-                >
-                  Forgot
-                </button>
-                <button
-                  style={{
-                    flex: 1,
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.72rem",
-                    padding: "0.5rem",
-                    borderRadius: "var(--radius-lg)",
-                    border: "1px solid var(--border)",
-                    background: "var(--muted)",
-                    color: "var(--muted-foreground)",
-                    cursor: "pointer",
-                    transition: "background 0.15s, transform 0.15s",
-                  }}
-                >
-                  Hard
-                </button>
-                <button
-                  style={{
-                    flex: 1,
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.72rem",
-                    padding: "0.5rem",
-                    borderRadius: "var(--radius-lg)",
-                    border: "1px solid oklch(0.72 0.18 162 / 0.3)",
-                    background: "oklch(0.72 0.18 162 / 0.08)",
-                    color: "var(--primary)",
-                    cursor: "pointer",
-                    transition: "background 0.15s, transform 0.15s",
-                  }}
-                >
-                  Easy
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Card 2 — Semantic Search (span 5) */}
-        <div
-          className="feature-card feature-card-2"
-          style={{
-            gridColumn: "span 5",
-            background: "var(--card)",
-            border: "1px solid var(--border)",
-            borderRadius: "var(--radius-2xl)",
-            padding: "1.75rem",
-            position: "relative",
-            overflow: "hidden",
-          }}
+        <FeatureCard
+          title="Search by relevance"
+          file="tfidf.py"
+          description="Results are ranked by how much they share with your query, not by whether one keyword matches."
+          className="md:col-span-6 lg:col-span-5"
         >
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              inset: 0,
-              background:
-                "radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.72 0.18 162 / 0.04), transparent)",
-              pointerEvents: "none",
-            }}
-          />
-          <div style={{ position: "relative" }}>
-            <h3
-              style={{
-                fontFamily: "var(--font-heading)",
-                fontSize: "1.1rem",
-                fontWeight: 600,
-                color: "var(--foreground)",
-                marginBottom: "0.4rem",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              Find anything instantly
-            </h3>
-            <p
-              style={{
-                fontSize: "0.8rem",
-                color: "var(--muted-foreground)",
-                lineHeight: 1.6,
-                marginBottom: "1.5rem",
-              }}
-            >
-              TF-IDF semantic search ranks results by relevance — not just
-              keyword match. Built from scratch.
-            </p>
+          <SearchMock />
+        </FeatureCard>
 
-            {/* Mock search UI */}
-            <div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  background: "oklch(0.1 0.012 255)",
-                  border: "1px solid var(--border)",
-                  borderRadius: "var(--radius-lg)",
-                  padding: "0.625rem 0.875rem",
-                  marginBottom: "0.75rem",
-                }}
-              >
-                <span
-                  style={{
-                    color: "var(--primary)",
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.8rem",
-                  }}
-                >
-                  &gt;
-                </span>
-                <span
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.78rem",
-                    color: "var(--foreground)",
-                  }}
-                >
-                  useCallback optimization
-                </span>
-                <span
-                  style={{
-                    marginLeft: "auto",
-                    width: "6px",
-                    height: "14px",
-                    background: "var(--primary)",
-                    opacity: 0.8,
-                    animation: "blink 1s step-end infinite",
-                  }}
-                />
-              </div>
-
-              {[
-                { label: "useCallback with deps", score: "94%" },
-                { label: "useMemo vs useCallback", score: "87%" },
-                { label: "React.memo performance", score: "71%" },
-              ].map((r, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "0.5rem 0.75rem",
-                    borderRadius: "var(--radius-lg)",
-                    background:
-                      i === 0 ? "oklch(0.72 0.18 162 / 0.06)" : "transparent",
-                    border:
-                      i === 0
-                        ? "1px solid oklch(0.72 0.18 162 / 0.15)"
-                        : "1px solid transparent",
-                    marginBottom: "0.25rem",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "0.72rem",
-                      color: "var(--foreground)",
-                      opacity: i === 0 ? 1 : 0.6,
-                    }}
-                  >
-                    {r.label}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "0.65rem",
-                      color: "var(--primary)",
-                      fontVariantNumeric: "tabular-nums",
-                    }}
-                  >
-                    {r.score}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Card 3 — Duplicate Detection (span 4) */}
-        <div
-          className="feature-card feature-card-3"
-          style={{
-            gridColumn: "span 4",
-            background: "var(--card)",
-            border: "1px solid var(--border)",
-            borderRadius: "var(--radius-2xl)",
-            padding: "1.75rem",
-            position: "relative",
-            overflow: "hidden",
-          }}
+        <FeatureCard
+          title="No duplicate clutter"
+          file="duplicate.py"
+          description="Edit distance catches a snippet you already saved, even when the variable names changed."
+          className="md:col-span-3 lg:col-span-4"
         >
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              inset: 0,
-              background:
-                "radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.72 0.18 162 / 0.03), transparent)",
-              pointerEvents: "none",
-            }}
-          />
-          <div style={{ position: "relative" }}>
-            <h3
-              style={{
-                fontFamily: "var(--font-heading)",
-                fontSize: "1.05rem",
-                fontWeight: 600,
-                color: "var(--foreground)",
-                marginBottom: "0.4rem",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              No duplicate clutter
-            </h3>
-            <p
-              style={{
-                fontSize: "0.8rem",
-                color: "var(--muted-foreground)",
-                lineHeight: 1.6,
-                marginBottom: "1.5rem",
-              }}
-            >
-              Levenshtein edit distance catches near-identical snippets before
-              you save.
-            </p>
+          <DuplicateMock />
+        </FeatureCard>
 
-            {/* Warning banner mockup */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: "0.625rem",
-                background: "oklch(0.78 0.17 68 / 0.06)",
-                border: "1px solid oklch(0.78 0.17 68 / 0.25)",
-                borderRadius: "var(--radius-lg)",
-                padding: "0.875rem",
-              }}
-            >
-              <span
-                style={{ fontSize: "0.9rem", flexShrink: 0, marginTop: "1px" }}
-              >
-                ⚠
-              </span>
-              <div>
-                <p
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.72rem",
-                    color: "var(--pulse)",
-                    marginBottom: "0.2rem",
-                  }}
-                >
-                  87% similar snippet found
-                </p>
-                <p
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.68rem",
-                    color: "oklch(0.56 0.014 255)",
-                  }}
-                >
-                  &quot;useEffect cleanup pattern&quot;
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Card 4 — Auto-Clustering (span 4) */}
-        <div
-          className="feature-card feature-card-4"
-          style={{
-            gridColumn: "span 4",
-            background: "var(--card)",
-            border: "1px solid var(--border)",
-            borderRadius: "var(--radius-2xl)",
-            padding: "1.75rem",
-            position: "relative",
-            overflow: "hidden",
-          }}
+        <FeatureCard
+          title="Topics sort themselves"
+          file="clustering.py"
+          description="k-means groups related snippets into clusters. No manual tagging."
+          className="md:col-span-3 lg:col-span-4"
         >
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              inset: 0,
-              background:
-                "radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.72 0.18 162 / 0.04), transparent)",
-              pointerEvents: "none",
-            }}
+          <HairlineFigure
+            name="settle"
+            tag="k-means"
+            label="Scattered tiles sliding into an ordered tree around a hub"
           />
-          <div style={{ position: "relative" }}>
-            <h3
-              style={{
-                fontFamily: "var(--font-heading)",
-                fontSize: "1.05rem",
-                fontWeight: 600,
-                color: "var(--foreground)",
-                marginBottom: "0.4rem",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              Your snippets auto-organize
-            </h3>
-            <p
-              style={{
-                fontSize: "0.8rem",
-                color: "var(--muted-foreground)",
-                lineHeight: 1.6,
-                marginBottom: "1rem",
-              }}
-            >
-              K-means clustering groups related snippets into topics — no manual
-              tagging required.
-            </p>
-            <div
-              style={{
-                transform: "scale(0.75)",
-                transformOrigin: "top left",
-                width: "133%",
-                pointerEvents: "none",
-              }}
-            >
-              <BrainCluster />
-            </div>
-          </div>
-        </div>
+        </FeatureCard>
 
-        {/* Card 5 — Thread Generator (span 4) */}
-        <div
-          className="feature-card feature-card-5"
-          style={{
-            gridColumn: "span 4",
-            background: "var(--card)",
-            border: "1px solid var(--border)",
-            borderRadius: "var(--radius-2xl)",
-            padding: "1.75rem",
-            position: "relative",
-            overflow: "hidden",
-          }}
+        <FeatureCard
+          title="Clusters into threads"
+          file="summarizer.py"
+          description="Draft a thread from any topic cluster, edit each point, then copy it out."
+          className="md:col-span-6 lg:col-span-4"
         >
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              inset: 0,
-              background:
-                "radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.72 0.18 162 / 0.03), transparent)",
-              pointerEvents: "none",
-            }}
-          />
-          {/* X watermark */}
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              bottom: "1rem",
-              right: "1.25rem",
-              fontFamily: "var(--font-mono)",
-              fontSize: "1.5rem",
-              color: "var(--border)",
-              opacity: 0.4,
-              fontWeight: 700,
-              lineHeight: 1,
-            }}
-          >
-            𝕏
-          </div>
-          <div style={{ position: "relative" }}>
-            <h3
-              style={{
-                fontFamily: "var(--font-heading)",
-                fontSize: "1.05rem",
-                fontWeight: 600,
-                color: "var(--foreground)",
-                marginBottom: "0.4rem",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              Turn clusters into content
-            </h3>
-            <p
-              style={{
-                fontSize: "0.8rem",
-                color: "var(--muted-foreground)",
-                lineHeight: 1.6,
-                marginBottom: "1.25rem",
-              }}
-            >
-              Generate a dev tip thread from any topic cluster with one click.
-            </p>
-
-            {/* Thread mockup */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.5rem",
-              }}
-            >
-              {[
-                { n: "1/", text: "useCallback vs useMemo — a thread" },
-                {
-                  n: "2/",
-                  text: "useCallback memoizes functions, not values.",
-                },
-                { n: "3/", text: "useMemo is for expensive computations." },
-              ].map((t, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: "flex",
-                    gap: "0.5rem",
-                    padding: "0.5rem 0.625rem",
-                    background:
-                      i === 0 ? "oklch(0.72 0.18 162 / 0.05)" : "transparent",
-                    borderRadius: "var(--radius-lg)",
-                    border:
-                      i === 0
-                        ? "1px solid oklch(0.72 0.18 162 / 0.12)"
-                        : "none",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "0.65rem",
-                      color: "var(--primary)",
-                      flexShrink: 0,
-                      minWidth: "20px",
-                    }}
-                  >
-                    {i === 0 ? "🧵" : t.n}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "0.7rem",
-                      color:
-                        i === 0
-                          ? "var(--foreground)"
-                          : "var(--muted-foreground)",
-                      lineHeight: 1.4,
-                    }}
-                  >
-                    {t.text}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+          <ThreadMock />
+        </FeatureCard>
       </div>
 
-      <style>{`
-        @media (max-width: 768px) {
-          .bento-grid > * { grid-column: span 12 !important; }
-        }
-        @media (min-width: 769px) and (max-width: 1024px) {
-          .feature-card-1 { grid-column: span 12 !important; }
-          .feature-card-2 { grid-column: span 12 !important; }
-          .feature-card-3 { grid-column: span 6 !important; }
-          .feature-card-4 { grid-column: span 6 !important; }
-          .feature-card-5 { grid-column: span 12 !important; }
-        }
-      `}</style>
+      <dl className="mt-3.5 grid gap-px overflow-hidden rounded-2xl border bg-border sm:grid-cols-2 lg:grid-cols-4">
+        {secondary.map((item) => (
+          <div
+            key={item.title}
+            className="flex flex-col gap-1.5 bg-background p-6"
+          >
+            <dt className="text-sm font-medium text-foreground">
+              {item.title}
+            </dt>
+            <dd className="text-sm leading-relaxed text-muted-foreground">
+              {item.description}
+            </dd>
+          </div>
+        ))}
+      </dl>
     </section>
   )
 }
