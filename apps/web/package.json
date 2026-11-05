@@ -28,6 +28,7 @@
     "@codemirror/view": "^6.41.1",
     "@hugeicons/core-free-icons": "^4.1.1",
     "@hugeicons/react": "^1.1.6",
+    "@lucasmarkes/hairline": "^0.5.1",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.105.1",
     "@tanstack/react-form": "^1.29.1",
