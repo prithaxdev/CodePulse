@@ -29,6 +29,10 @@ const figures = {
     () => import("@lucasmarkes/hairline/react").then((m) => m.Settle),
     { ssr: false, loading: FigurePlaceholder }
   ),
+  phosphor: dynamic(
+    () => import("@lucasmarkes/hairline/react").then((m) => m.Phosphor),
+    { ssr: false, loading: FigurePlaceholder }
+  ),
 } satisfies Record<string, ComponentType<HairlineProps>>
 
 export type HairlineFigureName = keyof typeof figures

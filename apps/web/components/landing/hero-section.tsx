@@ -9,7 +9,7 @@ export function HeroSection() {
 
   return (
     <section className="relative h-full w-full">
-      <div className="relative w-full pt-28 pb-6 before:absolute before:top-24 before:-z-10 before:h-full before:w-full before:rounded-full before:bg-linear-to-r before:from-emerald-950/60 before:via-background before:to-amber-950/30 before:blur-3xl md:pt-36 md:pb-10">
+      <div className="relative w-full pt-28 pb-6 md:pt-36 md:pb-10">
         <div className="relative z-10 container mx-auto">
           {/* Headline */}
           <div className="mx-auto flex max-w-5xl flex-col gap-8">
